@@ -479,7 +479,7 @@
     .cards-component__grid, .contact-component__fields { grid-template-columns: 1fr; }
     .component-section { padding-top: 84px; }
     .hero-component { padding-top: 0; }
-    .footer-component__inner { flex-direction: column; align-items: flex-start; }
+    .footer-component__inner { flex-direction: column; align-items: center; text-align: center; }
     .component-head__title { font-weight: 700; letter-spacing: -0.025em; }
     .stat-card__value { font-weight: 600; letter-spacing: -0.03em; }
     .stat-card__label { font-size: 14px; }

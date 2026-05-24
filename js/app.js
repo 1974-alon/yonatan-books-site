@@ -63,16 +63,16 @@ const translations = {
         tag4: 'Reverse Merger'
       },
       cta: {
-        title: 'Let\'s talk exit',
-        text: 'For transaction-related opportunities and inquiries, reach out directly or leave us a message.',
+        title: 'Let\'s Talk Transactions',
+        text: 'Exploring an acquisition, investment, capital raise, or strategic transaction? Let\'s talk.',
         button: 'Open Contact Page'
       },
       contact: {
-        title: 'Let\'s talk exit',
-        text: 'For transaction-related opportunities and inquiries, reach out directly or leave us a message.',
+        title: 'Let\'s Talk Transactions',
+        text: 'Exploring an acquisition, investment, capital raise, or strategic transaction? Let\'s talk.',
         detailsTitle: 'Contact details',
         detailsText: 'These details are placeholder content for layout demonstration and will be replaced later with real information.',
-        emailTitle: 'Email', phoneTitle: 'Phone', locationTitle: 'Location', locationText: 'Israel, available globally',
+        emailTitle: 'Email', phoneTitle: 'Phone', locationTitle: 'Location', locationText: 'Tel Aviv, Israel. Available globally.',
         formTitle: 'Send an inquiry',
         formText: 'The form here is visual for now and ready for future connection to a real backend or service.',
         name: 'Full name', email: 'Email address', company: 'Company', message: 'How can we help?',
@@ -153,16 +153,16 @@ const translations = {
         tag4: 'מיזוג הפוך'
       },
       cta: {
-        title: 'בואו נדבר אקזיט',
-        text: 'להזדמנויות ופניות הקשורות לעסקאות, פנו אלינו ישירות או השאירו הודעה.',
+        title: 'בואו נדבר עסקאות',
+        text: 'בוחנים רכישה, השקעה, גיוס הון או עסקה אסטרטגית? בואו נדבר.',
         button: 'לפתיחת עמוד צור קשר'
       },
       contact: {
-        title: 'בואו נדבר אקזיט',
-        text: 'להזדמנויות ופניות הקשורות לעסקאות, פנו אלינו ישירות או השאירו הודעה.',
+        title: 'בואו נדבר עסקאות',
+        text: 'בוחנים רכישה, השקעה, גיוס הון או עסקה אסטרטגית? בואו נדבר.',
         detailsTitle: 'פרטי התקשרות',
         detailsText: 'הפרטים כאן הם תוכן זמני לצורך הדגמת המבנה, ובהמשך יוחלפו במידע אמיתי.',
-        emailTitle: 'אימייל', phoneTitle: 'טלפון', locationTitle: 'מיקום', locationText: 'ישראל, זמין לעבודה גלובלית',
+        emailTitle: 'אימייל', phoneTitle: 'טלפון', locationTitle: 'מיקום', locationText: 'תל אביב, ישראל. זמין לעבודה גלובלית.',
         formTitle: 'שליחת פנייה',
         formText: 'הטופס כאן ויזואלי כרגע ומוכן בהמשך לחיבור לשרת או שירות חיצוני.',
         name: 'שם מלא', email: 'אימייל', company: 'חברה', message: 'איך נוכל לעזור?',
