@@ -324,8 +324,10 @@
   .cta-component__box h2 { margin: 0 0 14px; font-size: clamp(32px, 4vw, 48px); line-height: 1; letter-spacing: -0.04em; }
   .cta-component__box p { margin: 0; color: var(--muted); line-height: 1.8; }
 
-  .contact-component__grid { grid-template-columns: 0.9fr 1.1fr; }
-  .contact-component__stack { display: grid; gap: 18px; }
+  .contact-component__grid { grid-template-columns: 0.9fr 1.1fr; padding-top: 26px; }
+  .contact-component__stack { display: grid; gap: 18px; grid-template-rows: 1fr 1fr 1fr; position: relative; }
+  .contact-component__stack .contact-component__card { display: flex; flex-direction: column; justify-content: center; }
+  .contact-component__section-title { position: absolute; top: -22px; inset-inline-start: 0; margin: 0; font-size: 11px; letter-spacing: 0.16em; text-transform: uppercase; color: var(--accent); font-weight: 500; }
   .contact-component__fields { display: grid; grid-template-columns: repeat(2,1fr); gap: 14px; margin-top: 18px; }
   .contact-field { display: grid; gap: 8px; }
   .contact-field--full { grid-column: 1 / -1; }
@@ -399,6 +401,11 @@
       padding: 36px 0;
     }
     .hero-component__grid, .cta-component__box, .contact-component__grid { grid-template-columns: 1fr; }
+    .contact-component__grid { padding-top: 0; gap: 38px; }
+    .contact-component__section-title { position: static; }
+    .contact-component__stack { grid-template-rows: auto auto auto; }
+    .contact-component__form { order: 1; }
+    .contact-component__stack { order: 2; }
     .cards-component__grid { grid-template-columns: repeat(2,1fr); }
     .partners-component__grid { grid-template-columns: 1fr; }
     .services-component__box { padding: 32px; width: 100%; }
