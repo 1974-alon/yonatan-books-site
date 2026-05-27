@@ -603,16 +603,37 @@ const translations = {
   });
 
   if (contactForm) {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+    emailEl.addEventListener('blur', () => {
+      const val = emailEl.value.trim();
+      if (val && !emailRegex.test(val)) {
+        emailEl.setAttribute('aria-invalid', 'true');
+        formStatus.className = 'form-status form-status--error';
+        formStatus.textContent = tr('contact.errorEmail');
+      } else if (emailEl.getAttribute('aria-invalid') === 'true' && (!val || emailRegex.test(val))) {
+        emailEl.removeAttribute('aria-invalid');
+        formStatus.className = 'form-status';
+        formStatus.textContent = '';
+      }
+    });
+
     contactForm.addEventListener('submit', (event) => {
       event.preventDefault();
       clearFormInvalid();
+      formStatus.className = 'form-status';
+      formStatus.textContent = '';
 
-      const result = validateForm();
-      if (result) {
-        result.field.setAttribute('aria-invalid', 'true');
+      const t = translations[appState.lang].contact;
+      const errors = [];
+      if (!nameEl.value.trim()) { nameEl.setAttribute('aria-invalid', 'true'); errors.push(t.errorName); }
+      if (!emailEl.value.trim() || !emailRegex.test(emailEl.value.trim())) { emailEl.setAttribute('aria-invalid', 'true'); errors.push(t.errorEmail); }
+      if (!messageEl.value.trim()) { messageEl.setAttribute('aria-invalid', 'true'); errors.push(t.errorMessage); }
+
+      if (errors.length) {
         formStatus.className = 'form-status form-status--error';
-        formStatus.textContent = result.msg;
-        result.field.focus();
+        formStatus.textContent = errors[0];
+        contactForm.querySelector('[aria-invalid="true"]').focus();
         return;
       }
 
@@ -625,7 +646,13 @@ const translations = {
     });
 
     [nameEl, emailEl, messageEl].forEach(el => {
-      el.addEventListener('input', () => el.removeAttribute('aria-invalid'));
+      el.addEventListener('input', () => {
+        el.removeAttribute('aria-invalid');
+        if (!contactForm.querySelector('[aria-invalid="true"]')) {
+          formStatus.className = 'form-status';
+          formStatus.textContent = '';
+        }
+      });
     });
   }
 
