@@ -9,7 +9,7 @@ const translations = {
       pageTitle: { home: 'EDVA — Independent Advisory', contact: 'EDVA — Contact' },
       hero: {
         eyebrow: 'Independent Boutique Advisory',
-        title: 'All the way to your exit',
+        title: 'All the Way to Your Exit',
         text: 'M&A and capital raising for technology companies and investors, from strategy to exit.',
         primary: 'Start a Conversation',
         secondary: 'View Our Approach',
@@ -20,11 +20,11 @@ const translations = {
         mini2Title: 'Flexible', mini2Text: 'Prepared for future content, imagery and multilingual expansion.'
       },
       valueProp: {
-        title: 'Advice is cheap. Closing isn’t',
+        title: "Advice Is Cheap. Closing Isn’t",
         text: 'We advise and execute complex M&A and IPO transactions for technology companies, investors, and acquirers - staying hands-on through to exit.'
       },
       about: {
-        title: 'Numbers, not promises',
+        title: 'Numbers, Not Promises',
         card1Value: '$400M+', card1Label: 'in transaction value',
         card2Value: '100+', card2Label: 'deals closed',
         card3Value: '15+', card3Label: 'years in the market'
@@ -39,15 +39,15 @@ const translations = {
         item6: 'Public company advisory'
       },
       execution: {
-        title: 'Signed, sealed, delivered',
+        title: 'Signed, Sealed, Delivered',
         text: 'Hands-on across structuring, negotiation, and execution - embedded in the deal at every stage.'
       },
       network: {
-        title: 'Who we put in the room',
+        title: 'Who We Put in the Room',
         text: 'Long-standing relationships with investors, acquirers, and controlling shareholders across public and private markets, including access to off-market opportunities.'
       },
       partners: {
-        title: 'Who you exit with',
+        title: 'Who You Exit With',
         text: '',
         meta1: 'Founder profile', meta2: 'Extended popup content', meta3: 'Ready for future expansion'
       },
@@ -74,7 +74,7 @@ const translations = {
         detailsText: 'These details are placeholder content for layout demonstration and will be replaced later with real information.',
         emailTitle: 'Email', phoneTitle: 'Phone', locationTitle: 'Location', locationText: 'Tel Aviv, Israel. Available globally.',
         formTitle: 'Send an inquiry',
-        formText: 'The form here is visual for now and ready for future connection to a real backend or service.',
+        formText: 'Fill in your details and we will get back to you shortly.',
         name: 'Full name', email: 'Email address', company: 'Company', message: 'How can we help?',
         submit: 'Send inquiry',
         successMsg: 'Thank you! Your inquiry was received. We will be in touch soon.',
@@ -164,7 +164,7 @@ const translations = {
         detailsText: 'הפרטים כאן הם תוכן זמני לצורך הדגמת המבנה, ובהמשך יוחלפו במידע אמיתי.',
         emailTitle: 'אימייל', phoneTitle: 'טלפון', locationTitle: 'מיקום', locationText: 'תל אביב, ישראל. זמין לעבודה גלובלית.',
         formTitle: 'שליחת פנייה',
-        formText: 'הטופס כאן ויזואלי כרגע ומוכן בהמשך לחיבור לשרת או שירות חיצוני.',
+        formText: 'מלאו כאן את הפרטים ונחזור אליכם בהקדם.',
         name: 'שם מלא', email: 'אימייל', company: 'חברה', message: 'איך נוכל לעזור?',
         submit: 'שלח פנייה',
         successMsg: 'תודה! פנייתך התקבלה. נחזור אליך בהקדם.',
@@ -176,7 +176,7 @@ const translations = {
 
   const partnersData = {
     en: [
-      { name: 'Eyal Briliant', role: 'CEO and Partner, Edva. | BA in Business Administration', initials: 'EB', image: 'images/eyal.png', excerpt: '30+ extensive experience in company management, investor, M&A, and investment banking with a focus on startups. Applies a business-driven approach to company growth, transactions, and investment strategy.', bio: '30+ extensive experience in company management, investor, M&A, and investment banking with a focus on startups. Applies a business-driven approach to company growth, transactions, and investment strategy.' },
+      { name: 'Eyal Brilant', role: 'CEO and Partner, Edva. | BA in Business Administration', initials: 'EB', image: 'images/eyal.png', excerpt: '30+ extensive experience in company management, investor, M&A, and investment banking with a focus on startups. Applies a business-driven approach to company growth, transactions, and investment strategy.', bio: '30+ extensive experience in company management, investor, M&A, and investment banking with a focus on startups. Applies a business-driven approach to company growth, transactions, and investment strategy.' },
       { name: 'David Cohen', role: 'Partner, Edva. | Attorney (LL.B.)', initials: 'DC', image: 'images/david.png', excerpt: '20+ years in financial markets, with deep expertise in the Israeli capital market as an investor, entrepreneur, and licensed attorney. Advises on M&A, IPOs, capital advisory, and reverse mergers across public and private companies.', bio: '20+ years in financial markets, with deep expertise in the Israeli capital market as an investor, entrepreneur, and licensed attorney. Advises on M&A, IPOs, capital advisory, and reverse mergers across public and private companies.' }
     ],
     he: [

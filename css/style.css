@@ -114,7 +114,7 @@
   }
 
   .header-component__inner {
-    min-height: 78px; display: grid; align-items: center; gap: 28px;
+    min-height: 82px; display: grid; align-items: center; gap: 28px;
     grid-template-columns: minmax(170px,1fr) auto minmax(170px,1fr);
     grid-template-areas: "brand nav lang";
   }
@@ -125,7 +125,7 @@
     margin: 7px 0 0 0;
   }
   .header-component__dot { width: 12px; height: 12px; border-radius: 50%; background: var(--accent); box-shadow: 0 0 18px rgba(216,192,143,0.35); }
-  .header-component__logo { height: 32px; width: auto; display: block; margin-inline-start: 5px; }
+  .header-component__logo { height: 40px; width: auto; display: block; margin-inline-start: 5px; }
 
   .header-component__nav {
     grid-area: nav; display: flex; align-items: center; justify-content: center; gap: 24px; white-space: nowrap;
@@ -471,7 +471,7 @@
     .header-component__inner { grid-template-columns: 1fr auto auto; gap: 10px; grid-template-areas: "brand contact lang"; }
     html[dir="rtl"] .header-component__inner, html[dir="ltr"] .header-component__inner { grid-template-areas: "brand contact lang"; }
     .header-component__brand { justify-self: start; }
-    .header-component__logo { margin: 0; }
+    .header-component__logo { margin: 0; height: 44px; }
     .header-component__lang { justify-self: end; min-width: 0; }
     .header-component__nav { display: none; }
     .header-component__contact-mobile { display: inline-flex; align-items: center; justify-content: center; grid-area: contact; white-space: nowrap; transition: width 0.42s cubic-bezier(0.25, 0.46, 0.45, 0.94); }
