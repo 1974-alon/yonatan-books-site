@@ -209,7 +209,7 @@
   }
   #network .component-head__title { color: var(--accent); }
   #network .component-head__subtitle { color: var(--text); }
-  .network-rotating-text { transition: opacity 0.42s ease, transform 0.42s ease; }
+  .network-rotating-text { transition: opacity 0.42s ease, transform 0.42s ease, height 0.42s ease; overflow: hidden; }
   .network-rotating-text.is-leaving { opacity: 0; transform: translateY(-10px); }
   .network-rotating-text.is-entering { opacity: 0; transform: translateY(10px); }
   .services-component__title { margin: 0; font-size: clamp(26px, 3vw, 38px); letter-spacing: -0.04em; line-height: 1.1; text-align: start; padding-bottom: 28px; border-bottom: 1px solid rgba(255,255,255,0.09); }

@@ -93,7 +93,7 @@ const translations = {
       hero: {
         eyebrow: 'ייעוץ עצמאי',
         title: 'כל הדרך עד האקזיט שלך',
-        text: 'מיזוגים ורכישות וגיוס הון לחברות טכנולוגיה ומשקיעים, מאסטרטגיה ועד אקזיט.',
+        text: 'השקעות, מיזוגים, רכישות והנפקות של חברות טכנולוגיות. גיוס משקיעים ורוכשים בעסקאות. ייעוץ וליווי כולל משלב האסטרטגיה ועד האקזיט.',
         primary: 'בואו נדבר', secondary: 'לצפייה בגישה שלנו',
         stat1: 'איכות בוטיקית', stat2: 'מבנה דו לשוני', stat3: 'מוכן למובייל',
         frameEyebrow: 'שפת פרימיום',
@@ -102,11 +102,11 @@ const translations = {
         mini2Title: 'גמיש', mini2Text: 'מוכן לתוכן אמיתי, תמונות והתרחבות עתידית בעברית ואנגלית.'
       },
       valueProp: {
-        title: 'לייעץ זה קל, לסגור זה פחות',
-        text: 'אנחנו מייעצים ומוציאים לפועל עסקאות M&A ו-IPO מורכבות לחברות טכנולוגיה, למשקיעים ולרוכשים, ונשארים שותפים אקטיביים עד האקזיט.'
+        title: 'לייעץ זה קל. לסגור עסקה, זו המומחיות שלנו',
+        text: 'עשרות שנות נסיון ומומחיות בהובלה וליווי של עסקאות ותהליכים מורכבים עבור חברות טכנולוגיות וסטארטאפים, משקיעים ורוכשים, תוך מעורבות מלאה בכל שלבי התהליך ועד להשלמת העסקה, בין לקוחותיינו עשרות חברות ומאות משקיעים ורוכשים פוטנציאלים.'
       },
       about: {
-        title: 'מספרים, לא הבטחות',
+        title: 'ביצועים לפני הבטחות',
         card1Value: '$400M+', card1Label: 'בשווי עסקאות',
         card2Value: '100+', card2Label: 'עסקאות שנסגרו',
         card3Value: '15+', card3Label: 'שנות ניסיון בשוק'
@@ -120,46 +120,46 @@ const translations = {
         step4Title: 'יצירת קשר', step4Text: 'עמוד נפרד עם טופס ופרטי התקשרות, מוכן בהמשך לחיבור אמיתי.'
       },
       services: {
-        title: 'מומחיות בעסקאות',
-        item1: 'ייעוץ וביצוע M&A בשווקים פרטיים וציבוריים',
-        item2: 'גיוס הון (פרטי וציבורי)',
-        item3: 'הנפקות ומיזוגים הפוכים',
-        item4: 'איתור משקיעים ורוכשים',
-        item5: 'הכנה לעסקה וייעוץ',
-        item6: 'ייעוץ לחברות ציבוריות'
+        title: 'נסיון ומומחיות',
+        item1: 'ייעוץ וליווי עסקאות לחברות פרטיות וציבוריות',
+        item2: 'גיוסי הון מגופים פרטיים וציבוריים',
+        item3: 'הנפקות ציבוריות ומיזוגים לשלדים בורסאיים',
+        item4: 'איתור וחיבור למשקיעים ורוכשים אסטרטגיים',
+        item5: 'הכנה אסטרטגית וניהול תהליך העסקה',
+        item6: 'ייעוץ אסטרטגי לחברות ציבוריות כהמשך למיזוג או הנפקה'
       },
       execution: {
-        title: 'חתום, סגור, מועבר',
-        text: 'מעורבים בפועל בכל שלב, ממבנה העסקה, דרך המשא ומתן, ועד לביצוע.'
+        title: 'סוגרים עסקאות',
+        text: 'ליווי צמוד של המומחים שלנו לאורך כל שלבי העסקה, מהאסטרטגיה והמבנה, דרך המו"מ ועד להשלמה בפועל.'
       },
       network: {
-        title: 'מי אנחנו מכניסים לחדר',
+        title: 'האנשים סביב השולחן',
         text: 'קשרים מושרשים עם משקיעים, רוכשים ובעלי שליטה בשווקים פרטיים וציבוריים, כולל גישה להזדמנויות שאינן בשוק הפתוח.'
       },
       partners: {
-        title: 'עם מי יוצאים לאקזיט',
+        title: 'הצוות המוביל',
         text: '',
         meta1: 'פרופיל מייסד', meta2: 'תוכן מורחב בפופאפ', meta3: 'מוכן להתרחבות בהמשך'
       },
       selectedTransactions: {
         title: 'עסקאות נבחרות',
-        item1: 'רכישת חברת SaaS',
-        item2: 'גיוס הון לסטארטאפ AI',
-        item3: 'עסקת M&A חוצת גבולות',
-        item4: 'מיזוג הפוך לחברה ציבורית',
+        item1: 'רכישת חברות SaaS',
+        item2: 'גיוס הון לסטארטאפים מבוססי טכנולוגיות AI',
+        item3: 'עסקאות מיזוגים ורכישות אסטרטגיות בישראל ובחו"ל',
+        item4: 'מיזוג לשלד בורסאי ציבורי',
         tag1: 'רכישה',
         tag2: 'גיוס הון',
         tag3: 'M&A',
         tag4: 'מיזוג הפוך'
       },
       cta: {
-        title: 'בואו נדבר עסקאות',
+        title: 'בואו נדבר עסקים',
         text: 'בוחנים רכישה, השקעה, גיוס הון או עסקה אסטרטגית? בואו נדבר.',
         button: 'לפתיחת עמוד צור קשר'
       },
       contact: {
-        title: 'בואו נדבר עסקאות',
-        text: 'בוחנים רכישה, השקעה, גיוס הון או עסקה אסטרטגית? בואו נדבר.',
+        title: 'בואו נדבר עסקים',
+        text: 'לפניות בנושאי השקעות, רכישות, מיזוגים או גיוסי הון ניתן ליצור קשר ישירות או להשאיר פרטים. כל עסקה מתחילה בשיחת היכרות ראשונה. נשמח להכיר את הצרכים והמטרות שלכם ולבחון כיצד נוכל לסייע בתהליך.',
         detailsTitle: 'פרטי התקשרות',
         detailsText: 'הפרטים כאן הם תוכן זמני לצורך הדגמת המבנה, ובהמשך יוחלפו במידע אמיתי.',
         emailTitle: 'אימייל', phoneTitle: 'טלפון', locationTitle: 'מיקום', locationText: 'תל אביב, ישראל. זמין לעבודה גלובלית.',
@@ -180,8 +180,8 @@ const translations = {
       { name: 'David Cohen', role: 'Partner, Edva. | Attorney (LL.B.)', initials: 'DC', image: 'images/david.png', excerpt: '20+ years in financial markets, with deep expertise in the Israeli capital market as an investor, entrepreneur, and licensed attorney. Advises on M&A, IPOs, capital advisory, and reverse mergers across public and private companies.', bio: '20+ years in financial markets, with deep expertise in the Israeli capital market as an investor, entrepreneur, and licensed attorney. Advises on M&A, IPOs, capital advisory, and reverse mergers across public and private companies.' }
     ],
     he: [
-      { name: 'אייל ברילנט', role: 'מנכ"ל ושותף BA | EDVA במנהל עסקים', initials: 'אב', image: 'images/eyal.png', excerpt: 'ניסיון נרחב של 30+ שנים בניהול חברות, השקעות, M&A ובנקאות השקעות, עם דגש על סטארטאפים. מיישם גישה עסקית-מכוונת לצמיחת חברות, עסקאות ואסטרטגיית השקעות.', bio: 'ניסיון נרחב של 30+ שנים בניהול חברות, השקעות, M&A ובנקאות השקעות, עם דגש על סטארטאפים. מיישם גישה עסקית-מכוונת לצמיחת חברות, עסקאות ואסטרטגיית השקעות.' },
-      { name: 'דוד כהן', role: 'שותף, EDVA | עורך דין (LL.B.)', initials: 'דכ', image: 'images/david.png', excerpt: 'מעל 20 שנה בשווקים פיננסיים, עם מומחיות עמוקה בשוק ההון הישראלי כמשקיע, יזם ועורך דין מורשה. מייעץ בתחום M&A, הנפקות, ייעוץ הון ומיזוגים הפוכים בחברות ציבוריות ופרטיות.', bio: 'מעל 20 שנה בשווקים פיננסיים, עם מומחיות עמוקה בשוק ההון הישראלי כמשקיע, יזם ועורך דין מורשה. מייעץ בתחום M&A, הנפקות, ייעוץ הון ומיזוגים הפוכים בחברות ציבוריות ופרטיות.' }
+      { name: 'אייל ברילנט', role: 'מנכ"ל ושותף BA | EDVA במנהל עסקים', initials: 'אב', image: 'images/eyal.png', excerpt: 'למעלה מ־30 שנות ניסיון בניהול חברות, השקעות, עסקאות M&A ובנקאות השקעות, עם התמחות בעולמות הסטארטאפים. מוביל גישה עסקית־אסטרטגית לצמיחת חברות, עסקאות והשקעות.', bio: 'למעלה מ־30 שנות ניסיון בניהול חברות, השקעות, עסקאות M&A ובנקאות השקעות, עם התמחות בעולמות הסטארטאפים. מוביל גישה עסקית־אסטרטגית לצמיחת חברות, עסקאות והשקעות.' },
+      { name: 'דוד כהן', role: 'שותף, EDVA | עורך דין (LL.B.)', initials: 'דכ', image: 'images/david.png', excerpt: 'למעלה מ־20 שנות פעילות בשוקי ההון, עם מומחיות עמוקה בשוק ההון הישראלי כמשקיע, יזם ועורך דין מוסמך. מייעץ ומלווה עסקאות M&A, גיוסי הון ומיזוגים לשלדים בורסאיים, עבור חברות ציבוריות ופרטיות.', bio: 'למעלה מ־20 שנות פעילות בשוקי ההון, עם מומחיות עמוקה בשוק ההון הישראלי כמשקיע, יזם ועורך דין מוסמך. מייעץ ומלווה עסקאות M&A, גיוסי הון ומיזוגים לשלדים בורסאיים, עבור חברות ציבוריות ופרטיות.' }
     ]
   };
 
@@ -193,10 +193,9 @@ const translations = {
       'Direct lines to decision-makers on both the buy side and sell side.'
     ],
     he: [
-      'קשרים מושרשים עם משקיעים, רוכשים ובעלי שליטה בשווקים פרטיים וציבוריים.',
-      'גישה להזדמנויות שאינן בשוק הפתוח ואינן זמינות דרך ערוצים מסורתיים.',
-      'רשת שנבנתה על פני 15 שנות עסקאות פעילות בשוק הישראלי והגלובלי.',
-      'קו ישיר למקבלי החלטות משני צידי העסקה.'
+      'קשר ישיר ומבוסס למקבלי החלטות, הן מצד הרוכש והן מצד המוכר.',
+      'רשת קשרים ענפה בארץ ובחו"ל של משקיעים ורוכשים.',
+      'היצע רחב של הזדמנויות השקעה ורכישה של חברות וסטארטאפים בארץ ובחו"ל.'
     ]
   };
 
@@ -281,8 +280,21 @@ const translations = {
     _networkTimer = setInterval(() => {
       networkTextEl.classList.add('is-leaving');
       setTimeout(() => {
+        const oldH = networkTextEl.offsetHeight;
         _networkIndex = (_networkIndex + 1) % networkSentences[appState.lang].length;
         networkTextEl.textContent = networkSentences[appState.lang][_networkIndex];
+        networkTextEl.style.height = 'auto';
+        const newH = networkTextEl.offsetHeight;
+        networkTextEl.style.transition = 'opacity 0.42s ease, transform 0.42s ease';
+        networkTextEl.style.height = oldH + 'px';
+        void networkTextEl.offsetHeight;
+        networkTextEl.style.transition = '';
+        requestAnimationFrame(() => { networkTextEl.style.height = newH + 'px'; });
+        setTimeout(() => {
+          networkTextEl.style.transition = 'opacity 0.42s ease, transform 0.42s ease';
+          networkTextEl.style.height = 'auto';
+          requestAnimationFrame(() => { networkTextEl.style.transition = ''; });
+        }, 440);
         networkTextEl.classList.remove('is-leaving');
         networkTextEl.classList.add('is-entering');
         requestAnimationFrame(() => requestAnimationFrame(() => networkTextEl.classList.remove('is-entering')));
