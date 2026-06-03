@@ -6,10 +6,14 @@
   <title>יונתן | ספרים דיגיטליים</title>
   <meta name="description" content="אתר מכירה דיגיטלי לספרים של יונתן, רכישה מאובטחת, קבלת קישור הורדה לאחר תשלום וניהול הזמנות." />
 
-   <link rel="stylesheet" href="css/style.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Heebo:wght@400;700;800;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css">
 
 </head>
 <body>
+  <a href="#top" class="skip-link">דלג לתוכן הראשי</a>
   <div class="page-shell">
     <!-- =======================================================
       SECTION 01: HEADER
@@ -32,62 +36,40 @@
         <div class="yb-header__actions">
           <button class="yb-header__mini-button" type="button">האזור שלי</button>
           <a class="yb-header__mini-button" href="#books">רכישה</a>
+          <button class="yb-header__hamburger" type="button" aria-label="פתח תפריט ניווט" aria-expanded="false" aria-controls="yb-mobile-nav">
+            <span aria-hidden="true"></span>
+            <span aria-hidden="true"></span>
+            <span aria-hidden="true"></span>
+          </button>
+        </div>
+      </div>
+
+      <div id="yb-mobile-nav" class="yb-mobile-nav" hidden aria-hidden="true">
+        <div class="site-container">
+          <nav class="yb-mobile-nav__inner" aria-label="תפריט ניווט נייד">
+            <a href="#books" class="yb-mobile-nav__link">הספרים</a>
+            <a href="#process" class="yb-mobile-nav__link">איך זה עובד</a>
+            <a href="#author" class="yb-mobile-nav__link">על המחבר</a>
+            <a href="#faq" class="yb-mobile-nav__link">שאלות</a>
+          </nav>
         </div>
       </div>
     </header>
 
-    <main id="top">
+    <main id="top" tabindex="-1">
       <!-- =====================================================
         SECTION 02: HERO
         Angular target: hero-section
       ====================================================== -->
-      <section class="yb-hero" aria-labelledby="hero-title">
-        <div class="site-container yb-hero__grid">
-          <div class="yb-hero__content">
-            <span class="eyebrow">ספרים דיגיטליים מאת יונתן</span>
-            <h1 id="hero-title">קריאה עמוקה. רכישה פשוטה. הורדה מיידית.</h1>
-            <p class="yb-hero__lead">
-              אתר אישי ומדויק לרכישת הספרים הדיגיטליים של יונתן. בוחרים ספר, משלמים בצורה מאובטחת, ומקבלים קישור הורדה אישי לאחר התשלום.
-            </p>
-
-            <div class="yb-hero__actions">
-              <a class="primary-button" href="#books">לרכישת ספר</a>
-              <a class="secondary-button" href="#process">איך מקבלים את הקובץ?</a>
-            </div>
-
-            <div class="yb-hero__trust-row" aria-label="יתרונות מרכזיים">
-              <div class="yb-hero__trust-item">
-                <strong>2 ספרים דיגיטליים</strong>
-                <span>קטלוג קטן, ממוקד ואיכותי.</span>
-              </div>
-              <div class="yb-hero__trust-item">
-                <strong>קישור הורדה אישי</strong>
-                <span>גישה לקובץ אחרי תשלום.</span>
-              </div>
-              <div class="yb-hero__trust-item">
-                <strong>ניהול הזמנות</strong>
-                <span>תיעוד רכישות, לקוחות והורדות.</span>
-              </div>
-            </div>
-          </div>
-
-          <div class="yb-hero__visual-wrap" aria-label="תצוגת ספר דיגיטלי">
-            <div class="yb-hero__visual-card">
-              <div class="yb-hero__book-stage">
-                <article class="yb-book-cover" aria-label="כריכת ספר לדוגמה">
-                  <span class="yb-book-cover__label">Digital Book</span>
-                  <strong class="yb-book-cover__title">שם הספר הראשון</strong>
-                  <span class="yb-book-cover__author">יונתן</span>
-                </article>
-              </div>
-            </div>
-
-            <div class="yb-hero__floating-note">
-              <strong>רכישה דיגיטלית נקייה</strong>
-              ללא WordPress, ללא עומס מיותר, עם בסיס עתידי ל־Firebase, סליקה והורדות מוגנות.
-            </div>
-          </div>
-        </div>
+      <section class="yb-hero" aria-label="תמונת גיבור">
+        <img
+          class="yb-hero__parallax-img"
+          src="images/IMG-20260602-WA0002.jpg"
+          alt=""
+          role="presentation"
+          loading="eager"
+          fetchpriority="high"
+        />
       </section>
 
       <!-- =====================================================
@@ -138,8 +120,8 @@
                 </ul>
 
                 <div class="yb-book-card__footer">
-                  <span class="yb-book-card__price">₪79</span>
-                  <button class="yb-book-card__buy" type="button" data-book-id="book-01">רכישה והורדה</button>
+                  <span class="yb-book-card__price" aria-label="מחיר: 79 שקלים">₪79</span>
+                  <button class="yb-book-card__buy" type="button" data-book-id="book-01" aria-label="רכישה והורדה — שם הספר הראשון">רכישה והורדה</button>
                 </div>
               </div>
             </article>
@@ -163,8 +145,8 @@
                 </ul>
 
                 <div class="yb-book-card__footer">
-                  <span class="yb-book-card__price">₪89</span>
-                  <button class="yb-book-card__buy" type="button" data-book-id="book-02">רכישה והורדה</button>
+                  <span class="yb-book-card__price" aria-label="מחיר: 89 שקלים">₪89</span>
+                  <button class="yb-book-card__buy" type="button" data-book-id="book-02" aria-label="רכישה והורדה — שם הספר השני">רכישה והורדה</button>
                 </div>
               </div>
             </article>
@@ -184,25 +166,25 @@
             <p>המשתמש צריך להבין בתוך כמה שניות מה קורה אחרי לחיצה על כפתור הרכישה.</p>
           </div>
 
-          <div class="yb-flow__grid">
-            <article class="yb-flow__item">
-              <div class="yb-flow__number">1</div>
+          <ol class="yb-flow__grid">
+            <li class="yb-flow__item">
+              <div class="yb-flow__number" aria-hidden="true">1</div>
               <h3>בוחרים ספר</h3>
               <p>הלקוח קורא את התקציר, בוחר את הספר המתאים ולוחץ על רכישה.</p>
-            </article>
+            </li>
 
-            <article class="yb-flow__item">
-              <div class="yb-flow__number">2</div>
+            <li class="yb-flow__item">
+              <div class="yb-flow__number" aria-hidden="true">2</div>
               <h3>משלמים בצורה מאובטחת</h3>
               <p>האתר עובר לתהליך סליקה מסודר. בפיתוח בפועל ניתן לחבר Stripe, Tranzila, Meshulam או ספק אחר לפי החלטה עסקית.</p>
-            </article>
+            </li>
 
-            <article class="yb-flow__item">
-              <div class="yb-flow__number">3</div>
+            <li class="yb-flow__item">
+              <div class="yb-flow__number" aria-hidden="true">3</div>
               <h3>מקבלים קישור הורדה</h3>
               <p>לאחר אישור התשלום, נוצרת הזמנה ונשלח קישור הורדה אישי עם מגבלת זמן או מספר הורדות.</p>
-            </article>
-          </div>
+            </li>
+          </ol>
         </div>
       </section>
 
@@ -224,12 +206,12 @@
               האתר מיועד להיבנות בצורה קאסטומית, נקייה ומהירה. במקום להישען על WordPress ופלאגינים, אפשר לבנות שכבה ממוקדת עם Firebase: שמירת הזמנות, סטטוס תשלום, יצירת קישור הורדה, ומעקב בסיסי אחרי מימוש ההורדה.
             </p>
 
-            <div class="yb-system__features">
-              <div class="yb-system__feature"><span>✓</span> יצירת הזמנה לאחר תשלום מוצלח</div>
-              <div class="yb-system__feature"><span>✓</span> שמירת פרטי רכישה בסיסיים במערכת</div>
-              <div class="yb-system__feature"><span>✓</span> קישור הורדה מוגן לפי זמן או מספר שימושים</div>
-              <div class="yb-system__feature"><span>✓</span> בסיס נוח להרחבה עתידית לאזור ניהול</div>
-            </div>
+            <ul class="yb-system__features">
+              <li class="yb-system__feature"><span aria-hidden="true">✓</span> יצירת הזמנה לאחר תשלום מוצלח</li>
+              <li class="yb-system__feature"><span aria-hidden="true">✓</span> שמירת פרטי רכישה בסיסיים במערכת</li>
+              <li class="yb-system__feature"><span aria-hidden="true">✓</span> קישור הורדה מוגן לפי זמן או מספר שימושים</li>
+              <li class="yb-system__feature"><span aria-hidden="true">✓</span> בסיס נוח להרחבה עתידית לאזור ניהול</li>
+            </ul>
           </div>
 
           <div class="yb-system__mock" aria-label="תצוגת מערכת ניהול הזמנות">
@@ -276,7 +258,7 @@
       <section class="yb-author" id="author" aria-labelledby="author-title">
         <div class="site-container">
           <div class="yb-author__panel">
-            <div class="yb-author__portrait" aria-label="תמונה עתידית של יונתן">י</div>
+            <div class="yb-author__portrait" role="img" aria-label="תמונה עתידית של יונתן">י</div>
 
             <div class="yb-author__content">
               <span class="eyebrow">על יונתן</span>
@@ -303,41 +285,41 @@
 
           <div class="yb-faq__list">
             <article class="yb-faq__item is-open">
-              <button class="yb-faq__button" type="button" aria-expanded="true">
+              <button id="faq-btn-1" class="yb-faq__button" type="button" aria-expanded="true" aria-controls="faq-ans-1">
                 איך מקבלים את הספר אחרי התשלום?
                 <span aria-hidden="true">+</span>
               </button>
-              <div class="yb-faq__answer">
+              <div id="faq-ans-1" class="yb-faq__answer" role="region" aria-labelledby="faq-btn-1">
                 לאחר אישור התשלום, המערכת תיצור קישור הורדה אישי ותשלח אותו לכתובת המייל שהוזנה בתהליך הרכישה.
               </div>
             </article>
 
             <article class="yb-faq__item">
-              <button class="yb-faq__button" type="button" aria-expanded="false">
+              <button id="faq-btn-2" class="yb-faq__button" type="button" aria-expanded="false" aria-controls="faq-ans-2">
                 האם ניתן להוריד את הספר יותר מפעם אחת?
                 <span aria-hidden="true">+</span>
               </button>
-              <div class="yb-faq__answer">
+              <div id="faq-ans-2" class="yb-faq__answer" role="region" aria-labelledby="faq-btn-2">
                 כן, בהתאם למדיניות האתר. ניתן להגדיר קישור עם מגבלת זמן או מספר הורדות, לדוגמה 72 שעות או 3 הורדות.
               </div>
             </article>
 
             <article class="yb-faq__item">
-              <button class="yb-faq__button" type="button" aria-expanded="false">
+              <button id="faq-btn-3" class="yb-faq__button" type="button" aria-expanded="false" aria-controls="faq-ans-3">
                 האם האתר כולל ספרים פיזיים ומשלוחים?
                 <span aria-hidden="true">+</span>
               </button>
-              <div class="yb-faq__answer">
+              <div id="faq-ans-3" class="yb-faq__answer" role="region" aria-labelledby="faq-btn-3">
                 בשלב זה האתר מיועד למכירת ספרים דיגיטליים בלבד. אפשר להוסיף מכירת ספר פיזי ומשלוחים בשלב עתידי.
               </div>
             </article>
 
             <article class="yb-faq__item">
-              <button class="yb-faq__button" type="button" aria-expanded="false">
+              <button id="faq-btn-4" class="yb-faq__button" type="button" aria-expanded="false" aria-controls="faq-ans-4">
                 מה קורה אם הקישור לא הגיע?
                 <span aria-hidden="true">+</span>
               </button>
-              <div class="yb-faq__answer">
+              <div id="faq-ans-4" class="yb-faq__answer" role="region" aria-labelledby="faq-btn-4">
                 ניתן להוסיף טופס תמיכה קצר או כפתור WhatsApp. מנהל האתר יוכל לבדוק את ההזמנה במערכת ולשלוח קישור מחדש במידת הצורך.
               </div>
             </article>
@@ -350,14 +332,12 @@
         Angular target: final-cta-section
       ====================================================== -->
       <section class="yb-final-cta" aria-labelledby="final-cta-title">
-        <div class="site-container">
-          <div class="yb-final-cta__panel">
-            <h2 id="final-cta-title">מוכנים להתחיל לקרוא?</h2>
-            <p>
-              בחרו ספר, השלימו רכישה, וקבלו גישה דיגיטלית לקובץ. פשוט, נקי ומכובד.
-            </p>
-            <a class="primary-button" href="#books">בחירת ספר לרכישה</a>
-          </div>
+        <div class="yb-final-cta__panel">
+          <h2 id="final-cta-title">מוכנים להתחיל לקרוא?</h2>
+          <p>
+            בחרו ספר, השלימו רכישה, וקבלו גישה דיגיטלית לקובץ. פשוט, נקי ומכובד.
+          </p>
+          <a class="primary-button" href="#books">בחירת ספר לרכישה</a>
         </div>
       </section>
     </main>
@@ -368,7 +348,10 @@
     ======================================================== -->
     <footer class="yb-footer">
       <div class="site-container yb-footer__inner">
-        <span>© 2026 יונתן. כל הזכויות שמורות.</span>
+        <div class="yb-footer__start">
+          <span>© 2026 יונתן. כל הזכויות שמורות.</span>
+          <span class="yb-footer__credit">נבנה ועוצב ע״י <a href="https://suntree.co.il" class="yb-footer__credit-link" target="_blank" rel="noopener">suntree</a></span>
+        </div>
         <span>רכישה דיגיטלית · הורדה לאחר תשלום · ניהול הזמנות</span>
       </div>
     </footer>
