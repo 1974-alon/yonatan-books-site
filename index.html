@@ -1,288 +1,379 @@
 <!DOCTYPE html>
-<html lang="en" dir="ltr">
-
+<html lang="he" dir="rtl">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="EDVA — ייעוץ עצמאי פרימיום. בהירות להחלטות בעלות ערך גבוה. Premium independent advisory for high-value decisions.">
-    <meta property="og:title" content="EDVA — Independent Advisory">
-    <meta property="og:description" content="Premium advisory concept. Built to communicate trust, precision and executive-level quality.">
-    <meta property="og:type" content="website">
-    <meta name="twitter:card" content="summary_large_image">
-    <title>EDVA — ייעוץ עצמאי</title>
-    <link rel="stylesheet" href="css/style.css">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>יונתן | ספרים דיגיטליים</title>
+  <meta name="description" content="אתר מכירה דיגיטלי לספרים של יונתן, רכישה מאובטחת, קבלת קישור הורדה לאחר תשלום וניהול הזמנות." />
+
+   <link rel="stylesheet" href="css/style.css">
+
 </head>
-
 <body>
+  <div class="page-shell">
+    <!-- =======================================================
+      SECTION 01: HEADER
+      Angular target: app-header / books-header
+    ======================================================== -->
+    <header class="yb-header" aria-label="ניווט ראשי">
+      <div class="site-container yb-header__inner">
+        <a class="yb-header__brand" href="#top" aria-label="יונתן ספרים דיגיטליים">
+          <span class="yb-header__mark" aria-hidden="true">י</span>
+          <span>יונתן | ספרים</span>
+        </a>
 
-    <a href="#main-content" class="skip-nav" data-i18n="skipNav">דלג לתוכן הראשי</a>
+        <nav class="yb-header__nav" aria-label="קישורי עמוד">
+          <a href="#books">הספרים</a>
+          <a href="#process">איך זה עובד</a>
+          <a href="#author">על המחבר</a>
+          <a href="#faq">שאלות</a>
+        </nav>
 
-    <div class="layout-shell"> 
-        <header class="header-component">
-            <div class="layout-container header-component__inner">
-                <a href="#" class="header-component__brand" data-route="home">
-                    <img src="images/EDVA_LOGO_WHITE.svg" alt="EDVA" class="header-component__logo">
-                </a>
-                <nav class="header-component__nav" aria-label="ניווט ראשי">
-                    <a href="#hero" data-i18n="nav.home" data-nav-page="home" data-route="home">בית</a>
-                    <a href="#about" data-i18n="nav.about" data-route="home">אודות</a>
-                    <a href="#partners" data-i18n="nav.partners" data-route="home">שותפים</a>
-                    <button class="ui-button ui-button--primary" data-route="contact" data-i18n="nav.contactButton" data-nav-page="contact">צור קשר</button>
-                </nav>
-                <button class="ui-button ui-button--primary header-component__contact-mobile" data-route="contact"><span class="btn-text">צור קשר</span></button>
-                <button class="ui-button header-component__lang" id="langBtn">אנגלית</button>
-            </div>
-        </header>
-
-        <main id="main-content">
-            <section class="page is-active" id="page-home">
-                <section class="hero-component component-section component-section--compact" id="hero">
-                    <section class="hero-component__banner">
-                        <div class="layout-container">
-                            <div class="hero-component__content">
-                                <div class="hero-component__eyebrow" data-i18n="hero.eyebrow">ייעוץ עצמאי</div>
-                                <h1 class="hero-component__title" data-i18n="hero.title">כל הדרך עד האקזיט שלך
-                                </h1>
-                                <p class="hero-component__text" data-i18n="hero.text">מיזוגים ורכישות וגיוס הון לחברות טכנולוגיה ומשקיעים, מאסטרטגיה ועד אקזיט.</p>
-                            </div>
-                        </div>
-                    </section>
-                </section>
-
-                <section class="component-section" id="value-prop">
-                    <div class="layout-container">
-                        <div class="component-head component-head--standalone">
-                            <h2 class="component-head__title" data-i18n="valueProp.title">לייעץ זה קל, לסגור זה פחות</h2>
-                            <p class="component-head__subtitle" data-i18n="valueProp.text">אנחנו מייעצים ומוציאים לפועל עסקאות M&A מורכבות לחברות טכנולוגיה, למשקיעים ולרוכשים, ונשארים שותפים אקטיביים עד האקזיט.</p>
-                        </div>
-                    </div>
-                </section>
-
-                <section class="component-section" id="about">
-                    <div class="layout-container">
-                        <div class="component-head">
-                            <h2 class="component-head__title" data-i18n="about.title">מספרים, לא הבטחות</h2>
-                        </div>
-                        <div class="cards-component__grid">
-                            <article class="surface-card cards-component__item">
-                                <div class="stat-card__value" data-i18n="about.card1Value">$400M+</div>
-                                <div class="stat-card__label" data-i18n="about.card1Label">בשווי עסקאות</div>
-                            </article>
-                            <article class="surface-card cards-component__item">
-                                <div class="stat-card__value" data-i18n="about.card2Value">100+</div>
-                                <div class="stat-card__label" data-i18n="about.card2Label">עסקאות שנסגרו</div>
-                            </article>
-                            <article class="surface-card cards-component__item">
-                                <div class="stat-card__value" data-i18n="about.card3Value">15+</div>
-                                <div class="stat-card__label" data-i18n="about.card3Label">שנות ניסיון בשוק</div>
-                            </article>
-                        </div>
-                    </div>
-                </section>
-
-                <section class="component-section" id="services">
-                    <div class="layout-container">
-                        <div class="surface-card services-component__box">
-                            <h2 class="services-component__title" data-i18n="services.title">הכיסא שלנו ליד השולחן</h2>
-                            <div class="services-component__grid" id="servicesGrid">
-                                <div class="services-component__item">
-                                    <span class="services-component__bullet" aria-hidden="true"></span>
-                                    <span class="services-component__text" data-i18n="services.item1">ייעוץ וביצוע M&amp;A בשווקים פרטיים וציבוריים</span>
-                                </div>
-                                <div class="services-component__item">
-                                    <span class="services-component__bullet" aria-hidden="true"></span>
-                                    <span class="services-component__text" data-i18n="services.item2">גיוס הון (פרטי וציבורי)</span>
-                                </div>
-                                <div class="services-component__item">
-                                    <span class="services-component__bullet" aria-hidden="true"></span>
-                                    <span class="services-component__text" data-i18n="services.item3">הנפקות ומיזוגים הפוכים</span>
-                                </div>
-                                <div class="services-component__item">
-                                    <span class="services-component__bullet" aria-hidden="true"></span>
-                                    <span class="services-component__text" data-i18n="services.item4">איתור משקיעים ורוכשים</span>
-                                </div>
-                                <div class="services-component__item">
-                                    <span class="services-component__bullet" aria-hidden="true"></span>
-                                    <span class="services-component__text" data-i18n="services.item5">הכנה לעסקה וייעוץ</span>
-                                </div>
-                                <div class="services-component__item">
-                                    <span class="services-component__bullet" aria-hidden="true"></span>
-                                    <span class="services-component__text" data-i18n="services.item6">ייעוץ לחברות ציבוריות</span>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </section>
-
-                <section class="component-section" id="selected-transactions">
-                    <div class="layout-container">
-                        <div class="component-head">
-                            <h2 class="component-head__title" data-i18n="selectedTransactions.title">Selected Transactions</h2>
-                        </div>
-                        <div class="transactions-component" id="transactionsGrid">
-                            <div class="transactions-component__item">
-                                <div class="transactions-component__left">
-                                    <span class="transactions-component__icon" aria-hidden="true">
-                                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 21h18"/><path d="M5 21V7l7-4 7 4v14"/><path d="M9 21v-6h6v6"/></svg>
-                                    </span>
-                                    <span class="transactions-component__name" data-i18n="selectedTransactions.item1">SaaS company acquisition</span>
-                                </div>
-                                <span class="transactions-component__tag" data-i18n="selectedTransactions.tag1">Acquisition</span>
-                            </div>
-                            <div class="transactions-component__item">
-                                <div class="transactions-component__left">
-                                    <span class="transactions-component__icon" aria-hidden="true">
-                                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg>
-                                    </span>
-                                    <span class="transactions-component__name" data-i18n="selectedTransactions.item2">AI startup capital raise</span>
-                                </div>
-                                <span class="transactions-component__tag" data-i18n="selectedTransactions.tag2">Capital Raise</span>
-                            </div>
-                            <div class="transactions-component__item">
-                                <div class="transactions-component__left">
-                                    <span class="transactions-component__icon" aria-hidden="true">
-                                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
-                                    </span>
-                                    <span class="transactions-component__name" data-i18n="selectedTransactions.item3">Cross-border strategic M&amp;A transaction</span>
-                                </div>
-                                <span class="transactions-component__tag" data-i18n="selectedTransactions.tag3">M&amp;A</span>
-                            </div>
-                            <div class="transactions-component__item">
-                                <div class="transactions-component__left">
-                                    <span class="transactions-component__icon" aria-hidden="true">
-                                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="1 4 1 10 7 10"/><polyline points="23 20 23 14 17 14"/><path d="M20.49 9A9 9 0 0 0 5.64 5.64L1 10m22 4-4.64 4.36A9 9 0 0 1 3.51 15"/></svg>
-                                    </span>
-                                    <span class="transactions-component__name" data-i18n="selectedTransactions.item4">Reverse merger into public vehicle</span>
-                                </div>
-                                <span class="transactions-component__tag" data-i18n="selectedTransactions.tag4">Reverse Merger</span>
-                            </div>
-                        </div>
-                    </div>
-                </section>
-
-                <section class="component-section" id="execution">
-                    <div class="layout-container">
-                        <div class="component-head component-head--standalone">
-                            <h2 class="component-head__title" data-i18n="execution.title">Signed, sealed, delivered</h2>
-                            <p class="component-head__subtitle" data-i18n="execution.text">Hands-on across structuring, negotiation, and execution - embedded in the deal at every stage.</p>
-                        </div>
-                    </div>
-                </section>
-
-                <section class="component-section" id="network">
-                    <div class="layout-container">
-                        <div class="surface-card network-component__box">
-                            <div class="component-head component-head--standalone">
-                                <h2 class="component-head__title" data-i18n="network.title">Who we put in the room</h2>
-                                <p class="component-head__subtitle network-rotating-text" id="networkRotatingText"></p>
-                            </div>
-                        </div>
-                    </div>
-                </section>
-
-                <section class="component-section" id="partners">
-                    <div class="layout-container">
-                        <div class="component-head">
-                            <h2 class="component-head__title" data-i18n="partners.title">עם מי יוצאים לאקזיט</h2>
-                        </div>
-                        <div class="partners-component__grid" id="partnersGrid"></div>
-                    </div>
-                </section>
-
-                <section class="component-section">
-                    <div class="layout-container">
-                        <div class="surface-card cta-component__box">
-                            <div>
-                                <h2 data-i18n="cta.title">Let's talk exit</h2>
-                                <p data-i18n="cta.text">להזדמנויות ופניות הקשורות לעסקאות, פנו אלינו ישירות או השאירו הודעה.</p>
-                            </div>
-                            <div><button class="ui-button ui-button--primary" data-route="contact"
-                                    data-i18n="cta.button">לפתיחת עמוד צור קשר</button></div>
-                        </div>
-                    </div>
-                </section>
-            </section>
-
-            <section class="page" id="page-contact">
-                <section class="component-section component-section--compact">
-                    <div class="layout-container">
-                        <div class="component-head">
-                            <h2 class="component-head__title" data-i18n="contact.title">בואו נדבר אקזיט</h2>
-                            <p class="component-head__subtitle" data-i18n="contact.text">להזדמנויות ופניות הקשורות לעסקאות, פנו אלינו ישירות או השאירו הודעה.</p>
-                        </div>
-                        <div class="contact-component__grid">
-                            <div class="contact-component__stack">
-                                <h3 class="contact-component__section-title" data-i18n="contact.detailsTitle">פרטי התקשרות</h3>
-                                <article class="surface-card contact-component__card">
-                                    <h3 data-i18n="contact.emailTitle">אימייל</h3>
-                                    <p>info@edvapartners.com</p>
-                                </article>
-                                <article class="surface-card contact-component__card">
-                                    <h3 data-i18n="contact.phoneTitle">טלפון</h3>
-                                    <p>+972524040200</p>
-                                </article>
-                                <article class="surface-card contact-component__card">
-                                    <h3 data-i18n="contact.locationTitle">מיקום</h3>
-                                    <p data-i18n="contact.locationText">ישראל, זמין לעבודה גלובלית</p>
-                                </article>
-                            </div>
-                            <form class="surface-card contact-component__form" id="contactForm" novalidate>
-                                <h3 data-i18n="contact.formTitle">שליחת פנייה</h3>
-                                <p data-i18n="contact.formText">הטופס כאן ויזואלי כרגע ומוכן בהמשך לחיבור לשרת או שירות
-                                    חיצוני.</p>
-                                <div class="contact-component__fields">
-                                    <div class="contact-field"><label for="name" data-i18n="contact.name">שם
-                                            מלא</label><input id="name" type="text" required aria-required="true" autocomplete="name" /></div>
-                                    <div class="contact-field"><label for="email"
-                                            data-i18n="contact.email">אימייל</label><input id="email" type="email" required aria-required="true" autocomplete="email" />
-                                    </div>
-                                    <div class="contact-field contact-field--full"><label for="company"
-                                            data-i18n="contact.company">חברה</label><input id="company" type="text" autocomplete="organization" />
-                                    </div>
-                                    <div class="contact-field contact-field--full"><label for="message"
-                                            data-i18n="contact.message">איך נוכל לעזור?</label><textarea
-                                            id="message" required aria-required="true"></textarea></div>
-                                    <div class="contact-field contact-field--full" id="formStatus" role="alert" aria-live="polite"></div>
-                                    <div class="contact-field contact-field--full"><button type="submit"
-                                            class="ui-button ui-button--primary" data-i18n="contact.submit">שלח
-                                            פנייה</button></div>
-                                </div>
-                            </form>
-                        </div>
-                    </div>
-                </section>
-            </section>
-        </main>
-
-        <footer class="footer-component">
-            <div class="layout-container footer-component__inner">
-                <div data-i18n="footer.copy">EDVA, קונספט לאתר ייעוץ פרימיום</div>
-                <nav class="footer-component__nav" aria-label="ניווט תחתון">
-                    <a href="#hero" data-route="home" data-i18n="footer.home" data-nav-page="home">בית</a>
-                    <a href="#partners" data-route="home" data-i18n="footer.partners">שותפים</a>
-                    <a href="#" data-route="contact" data-i18n="footer.contact" data-nav-page="contact">צור קשר</a>
-                </nav>
-            </div>
-        </footer>
-    </div>
-
-    <div class="partner-modal" id="partnerModal" role="dialog" aria-modal="true" aria-labelledby="modalTitle" aria-describedby="modalText">
-        <div class="partner-modal__backdrop" data-close-modal></div>
-        <div class="surface-card partner-modal__box">
-            <button class="partner-modal__close ui-button" data-close-modal aria-label="סגור">✕</button>
-            <div class="partner-modal__content">
-                <div class="partner-modal__image"><span class="partner-modal__initials" id="modalInitials">אב</span>
-                </div>
-                <h2 class="partner-modal__title" id="modalTitle"></h2>
-                <div class="partner-modal__role" id="modalRole"></div>
-                <p class="partner-modal__text" id="modalText"></p>
-                <div class="partner-modal__meta" id="modalMeta"></div>
-            </div>
+        <div class="yb-header__actions">
+          <button class="yb-header__mini-button" type="button">האזור שלי</button>
+          <a class="yb-header__mini-button" href="#books">רכישה</a>
         </div>
-    </div>
+      </div>
+    </header>
 
+    <main id="top">
+      <!-- =====================================================
+        SECTION 02: HERO
+        Angular target: hero-section
+      ====================================================== -->
+      <section class="yb-hero" aria-labelledby="hero-title">
+        <div class="site-container yb-hero__grid">
+          <div class="yb-hero__content">
+            <span class="eyebrow">ספרים דיגיטליים מאת יונתן</span>
+            <h1 id="hero-title">קריאה עמוקה. רכישה פשוטה. הורדה מיידית.</h1>
+            <p class="yb-hero__lead">
+              אתר אישי ומדויק לרכישת הספרים הדיגיטליים של יונתן. בוחרים ספר, משלמים בצורה מאובטחת, ומקבלים קישור הורדה אישי לאחר התשלום.
+            </p>
 
-    <script src="js/app.js"></script>
+            <div class="yb-hero__actions">
+              <a class="primary-button" href="#books">לרכישת ספר</a>
+              <a class="secondary-button" href="#process">איך מקבלים את הקובץ?</a>
+            </div>
+
+            <div class="yb-hero__trust-row" aria-label="יתרונות מרכזיים">
+              <div class="yb-hero__trust-item">
+                <strong>2 ספרים דיגיטליים</strong>
+                <span>קטלוג קטן, ממוקד ואיכותי.</span>
+              </div>
+              <div class="yb-hero__trust-item">
+                <strong>קישור הורדה אישי</strong>
+                <span>גישה לקובץ אחרי תשלום.</span>
+              </div>
+              <div class="yb-hero__trust-item">
+                <strong>ניהול הזמנות</strong>
+                <span>תיעוד רכישות, לקוחות והורדות.</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="yb-hero__visual-wrap" aria-label="תצוגת ספר דיגיטלי">
+            <div class="yb-hero__visual-card">
+              <div class="yb-hero__book-stage">
+                <article class="yb-book-cover" aria-label="כריכת ספר לדוגמה">
+                  <span class="yb-book-cover__label">Digital Book</span>
+                  <strong class="yb-book-cover__title">שם הספר הראשון</strong>
+                  <span class="yb-book-cover__author">יונתן</span>
+                </article>
+              </div>
+            </div>
+
+            <div class="yb-hero__floating-note">
+              <strong>רכישה דיגיטלית נקייה</strong>
+              ללא WordPress, ללא עומס מיותר, עם בסיס עתידי ל־Firebase, סליקה והורדות מוגנות.
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- =====================================================
+        SECTION 03: INTRO TEXT
+        Angular target: intro-info-section
+      ====================================================== -->
+      <section class="yb-intro" aria-labelledby="intro-title">
+        <div class="site-container">
+          <div class="yb-intro__panel">
+            <h2 id="intro-title" class="yb-intro__title">אתר קטן, אבל כזה שמרגיש כמו מוצר אמיתי.</h2>
+            <p class="yb-intro__text">
+              המטרה היא לא לבנות חנות גדולה ומסובכת, אלא חוויית רכישה שקטה, אמינה וברורה. האתר מציג את הספרים בצורה מכובדת, מסביר מה מקבלים, מוביל לרכישה, ושומר בצד הניהולי את פרטי ההזמנה והגישה להורדה. בשלב הבא ניתן יהיה לחבר את הממשק ל־Firebase, סליקה, יצירת הזמנה, ושליחת קישור הורדה מוגבל לפי זמן או מספר הורדות.
+            </p>
+          </div>
+        </div>
+      </section>
+
+      <!-- =====================================================
+        SECTION 04: BOOKS
+        Angular target: books-catalog-section
+        Future data source: Firebase collection /books
+      ====================================================== -->
+      <section class="yb-books" id="books" aria-labelledby="books-title">
+        <div class="site-container">
+          <div class="section-heading">
+            <span class="eyebrow">הספרים</span>
+            <h2 id="books-title">בחרו את הספר הדיגיטלי שלכם</h2>
+            <p>כרגע הקטלוג כולל שני ספרים בלבד, ולכן כל ספר מקבל מקום, נשימה ותיאור ברור.</p>
+          </div>
+
+          <div class="yb-books__grid">
+            <article class="yb-book-card">
+              <div class="yb-book-card__cover" aria-hidden="true">
+                <span class="yb-book-card__cover-title">שם הספר הראשון</span>
+                <span class="yb-book-card__meta">PDF / EPUB</span>
+              </div>
+
+              <div class="yb-book-card__body">
+                <h3>שם הספר הראשון</h3>
+                <p>
+                  תקציר קצר ומזמין של הספר. כאן יופיע תיאור אמיתי של התוכן, הטון, למי הספר מתאים ומה הערך שהקורא מקבל ממנו.
+                </p>
+
+                <ul class="yb-book-card__list">
+                  <li>קובץ דיגיטלי להורדה לאחר תשלום</li>
+                  <li>קישור אישי ומוגבל לשימוש הלקוח</li>
+                  <li>חשבונית / אישור הזמנה לפי הצורך</li>
+                </ul>
+
+                <div class="yb-book-card__footer">
+                  <span class="yb-book-card__price">₪79</span>
+                  <button class="yb-book-card__buy" type="button" data-book-id="book-01">רכישה והורדה</button>
+                </div>
+              </div>
+            </article>
+
+            <article class="yb-book-card">
+              <div class="yb-book-card__cover" aria-hidden="true">
+                <span class="yb-book-card__cover-title">שם הספר השני</span>
+                <span class="yb-book-card__meta">PDF / EPUB</span>
+              </div>
+
+              <div class="yb-book-card__body">
+                <h3>שם הספר השני</h3>
+                <p>
+                  תיאור קצר לספר השני, עם דגש על ההבדל בינו לבין הספר הראשון. חשוב שהמשתמש יבין מהר איזה ספר מתאים לו.
+                </p>
+
+                <ul class="yb-book-card__list">
+                  <li>רכישה מאובטחת דרך ספק סליקה</li>
+                  <li>שמירת הזמנה במערכת הניהול</li>
+                  <li>אפשרות להורדה חוזרת לפי מדיניות האתר</li>
+                </ul>
+
+                <div class="yb-book-card__footer">
+                  <span class="yb-book-card__price">₪89</span>
+                  <button class="yb-book-card__buy" type="button" data-book-id="book-02">רכישה והורדה</button>
+                </div>
+              </div>
+            </article>
+          </div>
+        </div>
+      </section>
+
+      <!-- =====================================================
+        SECTION 05: PURCHASE FLOW
+        Angular target: purchase-flow-section
+      ====================================================== -->
+      <section class="yb-flow" id="process" aria-labelledby="process-title">
+        <div class="site-container">
+          <div class="section-heading">
+            <span class="eyebrow">תהליך רכישה</span>
+            <h2 id="process-title">פשוט, ברור וללא חיכוך</h2>
+            <p>המשתמש צריך להבין בתוך כמה שניות מה קורה אחרי לחיצה על כפתור הרכישה.</p>
+          </div>
+
+          <div class="yb-flow__grid">
+            <article class="yb-flow__item">
+              <div class="yb-flow__number">1</div>
+              <h3>בוחרים ספר</h3>
+              <p>הלקוח קורא את התקציר, בוחר את הספר המתאים ולוחץ על רכישה.</p>
+            </article>
+
+            <article class="yb-flow__item">
+              <div class="yb-flow__number">2</div>
+              <h3>משלמים בצורה מאובטחת</h3>
+              <p>האתר עובר לתהליך סליקה מסודר. בפיתוח בפועל ניתן לחבר Stripe, Tranzila, Meshulam או ספק אחר לפי החלטה עסקית.</p>
+            </article>
+
+            <article class="yb-flow__item">
+              <div class="yb-flow__number">3</div>
+              <h3>מקבלים קישור הורדה</h3>
+              <p>לאחר אישור התשלום, נוצרת הזמנה ונשלח קישור הורדה אישי עם מגבלת זמן או מספר הורדות.</p>
+            </article>
+          </div>
+        </div>
+      </section>
+
+      <!-- =====================================================
+        SECTION 06: SYSTEM PREVIEW
+        Angular target: order-system-section
+        Future Firebase pieces:
+        - /orders
+        - /customers
+        - /downloadTokens
+        - Cloud Function after payment webhook
+      ====================================================== -->
+      <section class="yb-system" aria-labelledby="system-title">
+        <div class="site-container yb-system__grid">
+          <div>
+            <span class="eyebrow">מאחורי הקלעים</span>
+            <h2 id="system-title">ניהול הזמנות והורדות, בלי מערכת כבדה.</h2>
+            <p>
+              האתר מיועד להיבנות בצורה קאסטומית, נקייה ומהירה. במקום להישען על WordPress ופלאגינים, אפשר לבנות שכבה ממוקדת עם Firebase: שמירת הזמנות, סטטוס תשלום, יצירת קישור הורדה, ומעקב בסיסי אחרי מימוש ההורדה.
+            </p>
+
+            <div class="yb-system__features">
+              <div class="yb-system__feature"><span>✓</span> יצירת הזמנה לאחר תשלום מוצלח</div>
+              <div class="yb-system__feature"><span>✓</span> שמירת פרטי רכישה בסיסיים במערכת</div>
+              <div class="yb-system__feature"><span>✓</span> קישור הורדה מוגן לפי זמן או מספר שימושים</div>
+              <div class="yb-system__feature"><span>✓</span> בסיס נוח להרחבה עתידית לאזור ניהול</div>
+            </div>
+          </div>
+
+          <div class="yb-system__mock" aria-label="תצוגת מערכת ניהול הזמנות">
+            <div class="yb-dashboard">
+              <div class="yb-dashboard__top">
+                <strong>Orders Dashboard</strong>
+                <span class="yb-dashboard__status">Firebase Ready</span>
+              </div>
+
+              <div class="yb-dashboard__rows">
+                <div class="yb-dashboard__row">
+                  <div>
+                    <strong>הזמנה #1042</strong>
+                    <span>שם הספר הראשון · תשלום אושר</span>
+                  </div>
+                  <span>קישור נשלח</span>
+                </div>
+
+                <div class="yb-dashboard__row">
+                  <div>
+                    <strong>הזמנה #1043</strong>
+                    <span>שם הספר השני · ממתין לאישור סליקה</span>
+                  </div>
+                  <span>בטיפול</span>
+                </div>
+
+                <div class="yb-dashboard__row">
+                  <div>
+                    <strong>Download Token</strong>
+                    <span>תוקף: 72 שעות · 3 הורדות</span>
+                  </div>
+                  <span>פעיל</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- =====================================================
+        SECTION 07: AUTHOR
+        Angular target: author-section
+      ====================================================== -->
+      <section class="yb-author" id="author" aria-labelledby="author-title">
+        <div class="site-container">
+          <div class="yb-author__panel">
+            <div class="yb-author__portrait" aria-label="תמונה עתידית של יונתן">י</div>
+
+            <div class="yb-author__content">
+              <span class="eyebrow">על יונתן</span>
+              <h2 id="author-title">מקום אישי לספרים, לקוראים ולרכישה ישירה.</h2>
+              <p>
+                כאן יופיע טקסט אמיתי על יונתן, הרקע שלו, הסיבה לכתיבת הספרים והקשר עם הקוראים. הטון צריך להיות אישי, אמין ולא שיווקי מדי. המטרה היא לגרום לקורא להרגיש שהוא קונה ישירות מהמחבר, באתר שמכבד גם את הספרים וגם את תהליך הרכישה.
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- =====================================================
+        SECTION 08: FAQ
+        Angular target: faq-section
+      ====================================================== -->
+      <section class="yb-faq" id="faq" aria-labelledby="faq-title">
+        <div class="site-container">
+          <div class="section-heading">
+            <span class="eyebrow">שאלות נפוצות</span>
+            <h2 id="faq-title">כל מה שחשוב לדעת לפני רכישה</h2>
+            <p>שקיפות לפני תשלום מעלה אמון ומקטינה פניות תמיכה מיותרות.</p>
+          </div>
+
+          <div class="yb-faq__list">
+            <article class="yb-faq__item is-open">
+              <button class="yb-faq__button" type="button" aria-expanded="true">
+                איך מקבלים את הספר אחרי התשלום?
+                <span aria-hidden="true">+</span>
+              </button>
+              <div class="yb-faq__answer">
+                לאחר אישור התשלום, המערכת תיצור קישור הורדה אישי ותשלח אותו לכתובת המייל שהוזנה בתהליך הרכישה.
+              </div>
+            </article>
+
+            <article class="yb-faq__item">
+              <button class="yb-faq__button" type="button" aria-expanded="false">
+                האם ניתן להוריד את הספר יותר מפעם אחת?
+                <span aria-hidden="true">+</span>
+              </button>
+              <div class="yb-faq__answer">
+                כן, בהתאם למדיניות האתר. ניתן להגדיר קישור עם מגבלת זמן או מספר הורדות, לדוגמה 72 שעות או 3 הורדות.
+              </div>
+            </article>
+
+            <article class="yb-faq__item">
+              <button class="yb-faq__button" type="button" aria-expanded="false">
+                האם האתר כולל ספרים פיזיים ומשלוחים?
+                <span aria-hidden="true">+</span>
+              </button>
+              <div class="yb-faq__answer">
+                בשלב זה האתר מיועד למכירת ספרים דיגיטליים בלבד. אפשר להוסיף מכירת ספר פיזי ומשלוחים בשלב עתידי.
+              </div>
+            </article>
+
+            <article class="yb-faq__item">
+              <button class="yb-faq__button" type="button" aria-expanded="false">
+                מה קורה אם הקישור לא הגיע?
+                <span aria-hidden="true">+</span>
+              </button>
+              <div class="yb-faq__answer">
+                ניתן להוסיף טופס תמיכה קצר או כפתור WhatsApp. מנהל האתר יוכל לבדוק את ההזמנה במערכת ולשלוח קישור מחדש במידת הצורך.
+              </div>
+            </article>
+          </div>
+        </div>
+      </section>
+
+      <!-- =====================================================
+        SECTION 09: FINAL CTA
+        Angular target: final-cta-section
+      ====================================================== -->
+      <section class="yb-final-cta" aria-labelledby="final-cta-title">
+        <div class="site-container">
+          <div class="yb-final-cta__panel">
+            <h2 id="final-cta-title">מוכנים להתחיל לקרוא?</h2>
+            <p>
+              בחרו ספר, השלימו רכישה, וקבלו גישה דיגיטלית לקובץ. פשוט, נקי ומכובד.
+            </p>
+            <a class="primary-button" href="#books">בחירת ספר לרכישה</a>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <!-- =======================================================
+      SECTION 10: FOOTER
+      Angular target: footer-section
+    ======================================================== -->
+    <footer class="yb-footer">
+      <div class="site-container yb-footer__inner">
+        <span>© 2026 יונתן. כל הזכויות שמורות.</span>
+        <span>רכישה דיגיטלית · הורדה לאחר תשלום · ניהול הזמנות</span>
+      </div>
+    </footer>
+  </div>
+
+  <script src="js/app.js"></script>
 </body>
-
 </html>
