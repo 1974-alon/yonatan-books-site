@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>רכישה — יונתן | ספרים דיגיטליים</title>
+  <meta name="robots" content="noindex" />
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Heebo:wght@400;700;800;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/purchase.css">
+</head>
+<body>
+  <a href="#top" class="skip-link">דלג לתוכן הראשי</a>
+  <div class="page-shell">
+
+    <!-- =======================================================
+      HEADER
+    ======================================================== -->
+    <header class="yb-header" aria-label="ניווט ראשי">
+      <div class="site-container yb-header__inner">
+        <a class="yb-header__brand" href="index.html" aria-label="יונתן ספרים דיגיטליים">
+          <span class="yb-header__mark" aria-hidden="true">י</span>
+          <span>יונתן | ספרים</span>
+        </a>
+        <nav class="yb-header__nav" aria-label="קישורי עמוד">
+          <a href="index.html#books">הספרים</a>
+          <a href="index.html#process">איך זה עובד</a>
+          <a href="index.html#author">על המחבר</a>
+          <a href="index.html#faq">שאלות</a>
+        </nav>
+        <div class="yb-header__actions">
+          <button class="yb-header__mini-button has-ripple" type="button">האזור שלי</button>
+          <a class="yb-header__mini-button has-ripple" href="index.html#books">הספרים</a>
+          <button class="yb-header__hamburger has-ripple" type="button" aria-label="פתח תפריט ניווט" aria-expanded="false" aria-controls="yb-mobile-nav">
+            <span aria-hidden="true"></span>
+            <span aria-hidden="true"></span>
+            <span aria-hidden="true"></span>
+          </button>
+        </div>
+      </div>
+      <div id="yb-mobile-nav" class="yb-mobile-nav" hidden aria-hidden="true">
+        <div class="site-container">
+          <nav class="yb-mobile-nav__inner" aria-label="תפריט ניווט נייד">
+            <a href="index.html#books" class="yb-mobile-nav__link has-ripple">הספרים</a>
+            <a href="index.html#process" class="yb-mobile-nav__link has-ripple">איך זה עובד</a>
+            <a href="index.html#author" class="yb-mobile-nav__link has-ripple">על המחבר</a>
+            <a href="index.html#faq" class="yb-mobile-nav__link has-ripple">שאלות</a>
+          </nav>
+        </div>
+      </div>
+    </header>
+
+    <main id="top" tabindex="-1">
+
+      <!-- =======================================================
+        BOOK BANNER
+      ======================================================== -->
+      <div class="yb-purchase-banner" role="region" aria-labelledby="purchase-book-title">
+        <div class="site-container yb-purchase-banner__inner">
+
+          <div class="yb-purchase-banner__cover" id="banner-cover" aria-hidden="true">
+            <span class="yb-purchase-banner__cover-title" id="banner-cover-title"></span>
+            <span class="yb-purchase-banner__cover-format">PDF / EPUB</span>
+          </div>
+
+          <div class="yb-purchase-banner__info">
+            <a href="index.html#books" class="yb-purchase-banner__back">
+              <span aria-hidden="true">←</span> חזרה לבחירת ספר
+            </a>
+            <h1 id="purchase-book-title" class="yb-purchase-banner__title">טוען...</h1>
+            <p class="yb-purchase-banner__desc" id="banner-description"></p>
+            <div class="yb-purchase-banner__price-row">
+              <span class="yb-purchase-banner__price" id="banner-price"></span>
+              <span class="yb-purchase-banner__format-note">הורדה דיגיטלית · PDF / EPUB</span>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- =======================================================
+        PURCHASE FORM
+      ======================================================== -->
+      <div class="site-container yb-purchase-body">
+        <form id="purchase-form" novalidate>
+
+          <!-- STEP 1: BUYER DETAILS -->
+          <section class="yb-form-card" aria-labelledby="buyer-section-title">
+            <div class="yb-form-card__header">
+              <span class="eyebrow">שלב 1</span>
+              <h2 id="buyer-section-title">פרטי הרוכש</h2>
+            </div>
+            <div class="yb-form-grid">
+
+              <div class="yb-field yb-field--full">
+                <label class="yb-field__label" for="full-name">שם מלא <span class="yb-field__req" aria-hidden="true">*</span></label>
+                <input class="yb-field__input" type="text" id="full-name" name="full-name"
+                  autocomplete="name" required placeholder="ישראל ישראלי" />
+              </div>
+
+              <div class="yb-field yb-field--full">
+                <label class="yb-field__label" for="address">כתובת <span class="yb-field__req" aria-hidden="true">*</span></label>
+                <input class="yb-field__input" type="text" id="address" name="address"
+                  autocomplete="street-address" required placeholder="רחוב הרצל 12, תל אביב" />
+              </div>
+
+              <div class="yb-field yb-field--full">
+                <label class="yb-checkbox">
+                  <input class="yb-checkbox__input" type="checkbox" id="same-address" name="same-address" />
+                  <span class="yb-checkbox__box" aria-hidden="true"></span>
+                  <span class="yb-checkbox__text">כתובת זו תשמש גם למשלוח <span class="yb-field__note">*</span></span>
+                </label>
+              </div>
+
+              <div class="yb-field">
+                <label class="yb-field__label" for="phone">טלפון <span class="yb-field__req" aria-hidden="true">*</span></label>
+                <input class="yb-field__input" type="tel" id="phone" name="phone"
+                  autocomplete="tel" required placeholder="050-1234567" inputmode="tel" />
+              </div>
+
+              <div class="yb-field">
+                <label class="yb-field__label" for="email">אימייל <span class="yb-field__req" aria-hidden="true">*</span></label>
+                <input class="yb-field__input" type="email" id="email" name="email"
+                  autocomplete="email" required placeholder="israel@example.com" />
+              </div>
+
+            </div>
+          </section>
+
+          <!-- STEP 2: PAYMENT -->
+          <section class="yb-form-card" aria-labelledby="payment-section-title">
+            <div class="yb-form-card__header">
+              <span class="eyebrow">שלב 2</span>
+              <h2 id="payment-section-title">פרטי תשלום</h2>
+            </div>
+            <div class="yb-form-grid">
+
+              <div class="yb-field yb-field--full">
+                <label class="yb-field__label" for="card-name">שם בעל הכרטיס <span class="yb-field__req" aria-hidden="true">*</span></label>
+                <input class="yb-field__input" type="text" id="card-name" name="card-name"
+                  autocomplete="cc-name" required placeholder="כפי שמופיע על הכרטיס" />
+              </div>
+
+              <div class="yb-field yb-field--full">
+                <label class="yb-field__label" for="id-number">תעודת זהות <span class="yb-field__req" aria-hidden="true">*</span></label>
+                <input class="yb-field__input" type="text" id="id-number" name="id-number"
+                  inputmode="numeric" maxlength="9" required placeholder="000000000" />
+              </div>
+
+              <!-- Shipping address — visible when same-address is NOT checked -->
+              <div class="yb-shipping-wrapper" id="shipping-wrapper">
+                <div class="yb-field">
+                  <label class="yb-field__label" for="shipping-address">כתובת למשלוח <span class="yb-field__req" aria-hidden="true">*</span></label>
+                  <input class="yb-field__input" type="text" id="shipping-address" name="shipping-address"
+                    autocomplete="shipping street-address" required placeholder="רחוב, עיר, מיקוד" />
+                </div>
+              </div>
+
+              <div class="yb-field yb-field--full">
+                <label class="yb-field__label" for="card-number">מספר כרטיס <span class="yb-field__req" aria-hidden="true">*</span></label>
+                <input class="yb-field__input yb-field__input--ltr" type="text" id="card-number" name="card-number"
+                  autocomplete="cc-number" inputmode="numeric" maxlength="19" required placeholder="0000 0000 0000 0000" />
+              </div>
+
+              <div class="yb-field">
+                <label class="yb-field__label" for="card-expiry">תאריך תפוגה <span class="yb-field__req" aria-hidden="true">*</span></label>
+                <input class="yb-field__input yb-field__input--ltr" type="text" id="card-expiry" name="card-expiry"
+                  autocomplete="cc-exp" inputmode="numeric" maxlength="5" required placeholder="MM/YY" />
+              </div>
+
+              <div class="yb-field">
+                <label class="yb-field__label" for="card-cvv">CVV <span class="yb-field__req" aria-hidden="true">*</span></label>
+                <input class="yb-field__input yb-field__input--ltr" type="text" id="card-cvv" name="card-cvv"
+                  autocomplete="cc-csc" inputmode="numeric" maxlength="4" required placeholder="000" />
+              </div>
+
+            </div>
+          </section>
+
+          <!-- STEP 3: NOTES + TERMS + SUBMIT -->
+          <section class="yb-form-card" aria-labelledby="finish-section-title">
+            <div class="yb-form-card__header">
+              <span class="eyebrow">שלב 3</span>
+              <h2 id="finish-section-title">הערות ואישור</h2>
+            </div>
+            <div class="yb-form-grid">
+
+              <div class="yb-field yb-field--full">
+                <label class="yb-field__label" for="notes">הערות כלליות</label>
+                <textarea class="yb-field__input yb-field__input--textarea" id="notes" name="notes"
+                  rows="3" placeholder="הערות נוספות, בקשות מיוחדות..."></textarea>
+              </div>
+
+              <div class="yb-field yb-field--full">
+                <label class="yb-checkbox">
+                  <input class="yb-checkbox__input" type="checkbox" id="terms" name="terms" required />
+                  <span class="yb-checkbox__box" aria-hidden="true"></span>
+                  <span class="yb-checkbox__text">קראתי ואני מאשר/ת את <a href="#" class="yb-purchase-link">תנאי האתר ומדיניות הרכישה</a></span>
+                </label>
+              </div>
+
+            </div>
+
+            <div class="yb-purchase-submit">
+              <button type="submit" class="primary-button yb-purchase-submit__btn has-ripple">
+                לרכישה — <span id="submit-price"></span>
+              </button>
+              <p class="yb-purchase-submit__note">
+                תשלום מאובטח · קישור הורדה יישלח לאחר אישור התשלום
+              </p>
+            </div>
+          </section>
+
+        </form>
+      </div>
+
+    </main>
+
+    <!-- =======================================================
+      FOOTER
+    ======================================================== -->
+    <footer class="yb-footer">
+      <div class="site-container yb-footer__inner">
+        <div class="yb-footer__start">
+          <span>© 2026 יונתן. כל הזכויות שמורות.</span>
+          <span class="yb-footer__credit">נבנה ועוצב ע״י <a href="https://suntree.co.il" class="yb-footer__credit-link" target="_blank" rel="noopener">suntree</a></span>
+        </div>
+        <span>רכישה דיגיטלית · הורדה לאחר תשלום · ניהול הזמנות</span>
+      </div>
+    </footer>
+
+  </div>
+
+  <script src="js/app.js"></script>
+  <script>
+    /* =========================================================
+       PURCHASE PAGE — book data + form logic
+    ========================================================= */
+
+    const BOOKS = {
+      'book-01': {
+        title: 'שם הספר הראשון',
+        description: 'תקציר קצר ומזמין של הספר. כאן יופיע תיאור אמיתי של התוכן, הטון, למי הספר מתאים ומה הערך שהקורא מקבל ממנו.',
+        price: '₪79',
+        coverBg: 'linear-gradient(90deg, rgba(0,0,0,0.15), transparent 11%), linear-gradient(145deg, #d4b888, #7a4a1e)'
+      },
+      'book-02': {
+        title: 'שם הספר השני',
+        description: 'תיאור קצר לספר השני, עם דגש על ההבדל בינו לבין הספר הראשון. חשוב שהמשתמש יבין מהר איזה ספר מתאים לו.',
+        price: '₪89',
+        coverBg: 'linear-gradient(90deg, rgba(0,0,0,0.15), transparent 11%), linear-gradient(145deg, #e8efe5, #667f65)'
+      }
+    };
+
+    // Populate book info from URL param
+    const params  = new URLSearchParams(window.location.search);
+    const bookId  = params.get('book') || 'book-01';
+    const book    = BOOKS[bookId] || BOOKS['book-01'];
+
+    document.getElementById('banner-cover').style.background        = book.coverBg;
+    document.getElementById('banner-cover-title').textContent       = book.title;
+    document.getElementById('purchase-book-title').textContent      = book.title;
+    document.getElementById('banner-description').textContent       = book.description;
+    document.getElementById('banner-price').textContent             = book.price;
+    document.getElementById('submit-price').textContent             = book.price;
+    document.title = `רכישה — ${book.title} | יונתן`;
+
+    // Shipping address toggle
+    const sameAddressEl   = document.getElementById('same-address');
+    const shippingWrapper = document.getElementById('shipping-wrapper');
+    const shippingInput   = document.getElementById('shipping-address');
+
+    sameAddressEl.addEventListener('change', () => {
+      if (sameAddressEl.checked) {
+        shippingWrapper.classList.add('is-hidden');
+        shippingInput.removeAttribute('required');
+      } else {
+        shippingWrapper.classList.remove('is-hidden');
+        shippingInput.setAttribute('required', '');
+      }
+    });
+
+    // Form submit (demo)
+    document.getElementById('purchase-form').addEventListener('submit', (e) => {
+      e.preventDefault();
+      alert(
+        `Demo: רכישה של "${book.title}" — ${book.price}\n\n` +
+        `בפיתוח אמיתי: יצירת הזמנה ב-Firebase, העברה לסליקה, ושליחת קישור הורדה.`
+      );
+    });
+  </script>
+</body>
+</html>

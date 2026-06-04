@@ -71,15 +71,105 @@
       });
     });
 
+    // ── Book Cover Tilt on Hover ───────────────────────────
+    if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+      document.querySelectorAll('.yb-book-card').forEach((card) => {
+        let tiltTimer;
+        card.addEventListener('mouseenter', () => {
+          tiltTimer = setTimeout(() => card.classList.add('is-tilted'), 180);
+        });
+        card.addEventListener('mouseleave', () => {
+          clearTimeout(tiltTimer);
+          card.classList.remove('is-tilted');
+        });
+      });
+    }
+
+    // ── Unified Ripple ─────────────────────────────────────
+    const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+    if (!prefersReducedMotion) {
+      document.querySelectorAll('.has-ripple').forEach((el) => {
+        el.addEventListener('click', (e) => {
+          const rect   = el.getBoundingClientRect();
+          const size   = Math.max(rect.width, rect.height);
+          const x      = e.clientX - rect.left - size / 2;
+          const y      = e.clientY - rect.top  - size / 2;
+          const ripple = document.createElement('span');
+          ripple.className = 'yb-ripple';
+          ripple.style.cssText = `width:${size}px;height:${size}px;left:${x}px;top:${y}px`;
+          el.appendChild(ripple);
+          ripple.addEventListener('animationend', () => ripple.remove(), { once: true });
+        });
+      });
+    }
+
     // ── Buy Buttons (Demo) ─────────────────────────────────
     const buyButtons = document.querySelectorAll('.yb-book-card__buy');
-
     buyButtons.forEach((button) => {
       button.addEventListener('click', () => {
-        const bookId = button.dataset.bookId;
-
-        alert(
-          `Demo only: כאן בעתיד תתחיל רכישה עבור ${bookId}.\n\nבפיתוח אמיתי: יצירת הזמנה ב-Firebase, מעבר לסליקה, Webhook אחרי תשלום, ואז יצירת קישור הורדה.`
-        );
+        window.location.href = `purchase.html?book=${button.dataset.bookId}`;
       });
     });
+
+    // ── Testimonials Carousel ──────────────────────────────
+    (function () {
+      const runner = document.getElementById('yb-testimonials-runner');
+      const track  = document.getElementById('yb-testimonials-track');
+      if (!runner || !track) return;
+
+      const GAP         = 36;
+      const INTERVAL_MS = 4500;
+      let CARD_W, STEP;
+      let index  = 0;
+      let paused = false;
+
+      const origCards = [...track.querySelectorAll('.yb-testimonial')];
+
+      // Clone first 2 cards so the loop wraps seamlessly
+      [0, 1].forEach((i) => {
+        const clone = origCards[i].cloneNode(true);
+        clone.setAttribute('aria-hidden', 'true');
+        track.appendChild(clone);
+      });
+
+      function calcDimensions() {
+        const w     = runner.clientWidth;
+        const count = w < 500 ? 1 : 2;
+        CARD_W = Math.floor((w - GAP * (count - 1)) / count);
+        STEP   = CARD_W + GAP;
+        track.querySelectorAll('.yb-testimonial').forEach((c) => {
+          c.style.width = `${CARD_W}px`;
+        });
+        track.style.transition = 'none';
+        track.style.transform  = `translateX(${-(index * STEP)}px)`;
+      }
+
+      function advance() {
+        index++;
+        track.style.transition = 'transform 620ms cubic-bezier(0.4, 0, 0.2, 1)';
+        track.style.transform  = `translateX(${-(index * STEP)}px)`;
+
+        if (index >= origCards.length) {
+          track.addEventListener('transitionend', () => {
+            track.style.transition = 'none';
+            index = 0;
+            track.style.transform  = 'translateX(0)';
+          }, { once: true });
+        }
+      }
+
+      calcDimensions();
+
+      if (!prefersReducedMotion) {
+        runner.addEventListener('mouseenter', () => { paused = true; });
+        runner.addEventListener('mouseleave', () => { paused = false; });
+        setInterval(() => { if (!paused) advance(); }, INTERVAL_MS);
+
+        let resizeTimer;
+        window.addEventListener('resize', () => {
+          clearTimeout(resizeTimer);
+          resizeTimer = setTimeout(calcDimensions, 150);
+        });
+      }
+    }());

@@ -28,15 +28,15 @@
 
         <nav class="yb-header__nav" aria-label="קישורי עמוד">
           <a href="#books">הספרים</a>
-          <a href="#process">איך זה עובד</a>
           <a href="#author">על המחבר</a>
+          <a href="#process">איך זה עובד</a>
           <a href="#faq">שאלות</a>
         </nav>
 
         <div class="yb-header__actions">
-          <button class="yb-header__mini-button" type="button">האזור שלי</button>
-          <a class="yb-header__mini-button" href="#books">רכישה</a>
-          <button class="yb-header__hamburger" type="button" aria-label="פתח תפריט ניווט" aria-expanded="false" aria-controls="yb-mobile-nav">
+          <button class="yb-header__mini-button has-ripple" type="button">האזור שלי</button>
+          <a class="yb-header__mini-button has-ripple" href="#books">רכישה</a>
+          <button class="yb-header__hamburger has-ripple" type="button" aria-label="פתח תפריט ניווט" aria-expanded="false" aria-controls="yb-mobile-nav">
             <span aria-hidden="true"></span>
             <span aria-hidden="true"></span>
             <span aria-hidden="true"></span>
@@ -47,10 +47,10 @@
       <div id="yb-mobile-nav" class="yb-mobile-nav" hidden aria-hidden="true">
         <div class="site-container">
           <nav class="yb-mobile-nav__inner" aria-label="תפריט ניווט נייד">
-            <a href="#books" class="yb-mobile-nav__link">הספרים</a>
-            <a href="#process" class="yb-mobile-nav__link">איך זה עובד</a>
-            <a href="#author" class="yb-mobile-nav__link">על המחבר</a>
-            <a href="#faq" class="yb-mobile-nav__link">שאלות</a>
+            <a href="#books" class="yb-mobile-nav__link has-ripple">הספרים</a>
+            <a href="#author" class="yb-mobile-nav__link has-ripple">על המחבר</a>
+            <a href="#process" class="yb-mobile-nav__link has-ripple">איך זה עובד</a>
+            <a href="#faq" class="yb-mobile-nav__link has-ripple">שאלות</a>
           </nav>
         </div>
       </div>
@@ -78,7 +78,7 @@
       ====================================================== -->
       <section class="yb-intro" aria-labelledby="intro-title">
         <div class="site-container">
-          <div class="yb-intro__panel">
+          <div class="yb-intro__panel yb-klaf">
             <h2 id="intro-title" class="yb-intro__title">אתר קטן, אבל כזה שמרגיש כמו מוצר אמיתי.</h2>
             <p class="yb-intro__text">
               המטרה היא לא לבנות חנות גדולה ומסובכת, אלא חוויית רכישה שקטה, אמינה וברורה. האתר מציג את הספרים בצורה מכובדת, מסביר מה מקבלים, מוביל לרכישה, ושומר בצד הניהולי את פרטי ההזמנה והגישה להורדה. בשלב הבא ניתן יהיה לחבר את הממשק ל־Firebase, סליקה, יצירת הזמנה, ושליחת קישור הורדה מוגבל לפי זמן או מספר הורדות.
@@ -92,14 +92,8 @@
         Angular target: books-catalog-section
         Future data source: Firebase collection /books
       ====================================================== -->
-      <section class="yb-books" id="books" aria-labelledby="books-title">
+      <section class="yb-books" id="books" aria-label="הספרים">
         <div class="site-container">
-          <div class="section-heading">
-            <span class="eyebrow">הספרים</span>
-            <h2 id="books-title">בחרו את הספר הדיגיטלי שלכם</h2>
-            <p>כרגע הקטלוג כולל שני ספרים בלבד, ולכן כל ספר מקבל מקום, נשימה ותיאור ברור.</p>
-          </div>
-
           <div class="yb-books__grid">
             <article class="yb-book-card">
               <div class="yb-book-card__cover" aria-hidden="true">
@@ -121,7 +115,7 @@
 
                 <div class="yb-book-card__footer">
                   <span class="yb-book-card__price" aria-label="מחיר: 79 שקלים">₪79</span>
-                  <button class="yb-book-card__buy" type="button" data-book-id="book-01" aria-label="רכישה והורדה — שם הספר הראשון">רכישה והורדה</button>
+                  <button class="yb-book-card__buy has-ripple" type="button" data-book-id="book-01" aria-label="רכישה והורדה — שם הספר הראשון">רכישה והורדה</button>
                 </div>
               </div>
             </article>
@@ -146,7 +140,7 @@
 
                 <div class="yb-book-card__footer">
                   <span class="yb-book-card__price" aria-label="מחיר: 89 שקלים">₪89</span>
-                  <button class="yb-book-card__buy" type="button" data-book-id="book-02" aria-label="רכישה והורדה — שם הספר השני">רכישה והורדה</button>
+                  <button class="yb-book-card__buy has-ripple" type="button" data-book-id="book-02" aria-label="רכישה והורדה — שם הספר השני">רכישה והורדה</button>
                 </div>
               </div>
             </article>
@@ -155,7 +149,71 @@
       </section>
 
       <!-- =====================================================
-        SECTION 05: PURCHASE FLOW
+        SECTION 05: AUTHOR
+        Angular target: author-section
+      ====================================================== -->
+      <section class="yb-author" id="author" aria-labelledby="author-title">
+        <div class="site-container">
+          <div class="yb-author__panel">
+            <div class="yb-author__portrait" role="img" aria-label="תמונה עתידית של יונתן">י</div>
+
+            <div class="yb-author__content">
+              <span class="eyebrow">על יונתן</span>
+              <h2 id="author-title">מקום אישי לספרים, לקוראים ולרכישה ישירה.</h2>
+              <p>
+                כאן יופיע טקסט אמיתי על יונתן, הרקע שלו, הסיבה לכתיבת הספרים והקשר עם הקוראים. הטון צריך להיות אישי, אמין ולא שיווקי מדי. המטרה היא לגרום לקורא להרגיש שהוא קונה ישירות מהמחבר, באתר שמכבד גם את הספרים וגם את תהליך הרכישה.
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- =====================================================
+        SECTION 06: TESTIMONIALS
+        Angular target: testimonials-section
+        Future data source: Firebase collection /testimonials
+      ====================================================== -->
+      <section class="yb-testimonials" aria-label="המלצות קוראים">
+
+        <div class="site-container yb-testimonials__header">
+          <span class="eyebrow">מה אומרים הקוראים</span>
+        </div>
+
+        <div id="yb-testimonials-runner" class="yb-testimonials__runner" role="region" aria-label="קרוסלת המלצות">
+          <div id="yb-testimonials-track" class="yb-testimonials__track">
+
+            <blockquote class="yb-testimonial">
+              <p class="yb-testimonial__text">״ספר מצויין, גרם לי לשקוע ולצלול לתוך המחשבות. נתן לי פרספקטיבה שונה וגרם לי שינוי מאז שקראתי אותו.״</p>
+              <cite class="yb-testimonial__cite">אלון.ב</cite>
+            </blockquote>
+
+            <blockquote class="yb-testimonial">
+              <p class="yb-testimonial__text">״לא ציפיתי שספר דיגיטלי יגרום לי להתרגש כל כך. קראתי אותו בישיבה אחת ועוד מחפש לקנות את השני.״</p>
+              <cite class="yb-testimonial__cite">מיכל.כ</cite>
+            </blockquote>
+
+            <blockquote class="yb-testimonial">
+              <p class="yb-testimonial__text">״הכתיבה זורמת, הדברים נכנסים פנימה בצורה טבעית. ממליץ בחום לכל מי שרוצה לקרוא משהו שבאמת שווה את הזמן.״</p>
+              <cite class="yb-testimonial__cite">דניאל.ש</cite>
+            </blockquote>
+
+            <blockquote class="yb-testimonial">
+              <p class="yb-testimonial__text">״קראתי שתי פעמים. פעם ראשונה מסקרנות, פעם שניה כדי לחזור לדברים שרציתי לסמן. ספר שנשאר איתך.״</p>
+              <cite class="yb-testimonial__cite">רונית.מ</cite>
+            </blockquote>
+
+            <blockquote class="yb-testimonial">
+              <p class="yb-testimonial__text">״כתוב בצורה כנה ואישית. לא מרגיש כמו ספר עצה גנרי — מרגיש כמו שיחה אמיתית עם מישהו שחי את מה שהוא כותב.״</p>
+              <cite class="yb-testimonial__cite">יובל.ג</cite>
+            </blockquote>
+
+          </div>
+        </div>
+
+      </section>
+
+      <!-- =====================================================
+        SECTION 07: PURCHASE FLOW
         Angular target: purchase-flow-section
       ====================================================== -->
       <section class="yb-flow" id="process" aria-labelledby="process-title">
@@ -189,89 +247,6 @@
       </section>
 
       <!-- =====================================================
-        SECTION 06: SYSTEM PREVIEW
-        Angular target: order-system-section
-        Future Firebase pieces:
-        - /orders
-        - /customers
-        - /downloadTokens
-        - Cloud Function after payment webhook
-      ====================================================== -->
-      <section class="yb-system" aria-labelledby="system-title">
-        <div class="site-container yb-system__grid">
-          <div>
-            <span class="eyebrow">מאחורי הקלעים</span>
-            <h2 id="system-title">ניהול הזמנות והורדות, בלי מערכת כבדה.</h2>
-            <p>
-              האתר מיועד להיבנות בצורה קאסטומית, נקייה ומהירה. במקום להישען על WordPress ופלאגינים, אפשר לבנות שכבה ממוקדת עם Firebase: שמירת הזמנות, סטטוס תשלום, יצירת קישור הורדה, ומעקב בסיסי אחרי מימוש ההורדה.
-            </p>
-
-            <ul class="yb-system__features">
-              <li class="yb-system__feature"><span aria-hidden="true">✓</span> יצירת הזמנה לאחר תשלום מוצלח</li>
-              <li class="yb-system__feature"><span aria-hidden="true">✓</span> שמירת פרטי רכישה בסיסיים במערכת</li>
-              <li class="yb-system__feature"><span aria-hidden="true">✓</span> קישור הורדה מוגן לפי זמן או מספר שימושים</li>
-              <li class="yb-system__feature"><span aria-hidden="true">✓</span> בסיס נוח להרחבה עתידית לאזור ניהול</li>
-            </ul>
-          </div>
-
-          <div class="yb-system__mock" aria-label="תצוגת מערכת ניהול הזמנות">
-            <div class="yb-dashboard">
-              <div class="yb-dashboard__top">
-                <strong>Orders Dashboard</strong>
-                <span class="yb-dashboard__status">Firebase Ready</span>
-              </div>
-
-              <div class="yb-dashboard__rows">
-                <div class="yb-dashboard__row">
-                  <div>
-                    <strong>הזמנה #1042</strong>
-                    <span>שם הספר הראשון · תשלום אושר</span>
-                  </div>
-                  <span>קישור נשלח</span>
-                </div>
-
-                <div class="yb-dashboard__row">
-                  <div>
-                    <strong>הזמנה #1043</strong>
-                    <span>שם הספר השני · ממתין לאישור סליקה</span>
-                  </div>
-                  <span>בטיפול</span>
-                </div>
-
-                <div class="yb-dashboard__row">
-                  <div>
-                    <strong>Download Token</strong>
-                    <span>תוקף: 72 שעות · 3 הורדות</span>
-                  </div>
-                  <span>פעיל</span>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      <!-- =====================================================
-        SECTION 07: AUTHOR
-        Angular target: author-section
-      ====================================================== -->
-      <section class="yb-author" id="author" aria-labelledby="author-title">
-        <div class="site-container">
-          <div class="yb-author__panel">
-            <div class="yb-author__portrait" role="img" aria-label="תמונה עתידית של יונתן">י</div>
-
-            <div class="yb-author__content">
-              <span class="eyebrow">על יונתן</span>
-              <h2 id="author-title">מקום אישי לספרים, לקוראים ולרכישה ישירה.</h2>
-              <p>
-                כאן יופיע טקסט אמיתי על יונתן, הרקע שלו, הסיבה לכתיבת הספרים והקשר עם הקוראים. הטון צריך להיות אישי, אמין ולא שיווקי מדי. המטרה היא לגרום לקורא להרגיש שהוא קונה ישירות מהמחבר, באתר שמכבד גם את הספרים וגם את תהליך הרכישה.
-              </p>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      <!-- =====================================================
         SECTION 08: FAQ
         Angular target: faq-section
       ====================================================== -->
@@ -285,7 +260,7 @@
 
           <div class="yb-faq__list">
             <article class="yb-faq__item is-open">
-              <button id="faq-btn-1" class="yb-faq__button" type="button" aria-expanded="true" aria-controls="faq-ans-1">
+              <button id="faq-btn-1" class="yb-faq__button has-ripple" type="button" aria-expanded="true" aria-controls="faq-ans-1">
                 איך מקבלים את הספר אחרי התשלום?
                 <span aria-hidden="true">+</span>
               </button>
@@ -295,7 +270,7 @@
             </article>
 
             <article class="yb-faq__item">
-              <button id="faq-btn-2" class="yb-faq__button" type="button" aria-expanded="false" aria-controls="faq-ans-2">
+              <button id="faq-btn-2" class="yb-faq__button has-ripple" type="button" aria-expanded="false" aria-controls="faq-ans-2">
                 האם ניתן להוריד את הספר יותר מפעם אחת?
                 <span aria-hidden="true">+</span>
               </button>
@@ -305,7 +280,7 @@
             </article>
 
             <article class="yb-faq__item">
-              <button id="faq-btn-3" class="yb-faq__button" type="button" aria-expanded="false" aria-controls="faq-ans-3">
+              <button id="faq-btn-3" class="yb-faq__button has-ripple" type="button" aria-expanded="false" aria-controls="faq-ans-3">
                 האם האתר כולל ספרים פיזיים ומשלוחים?
                 <span aria-hidden="true">+</span>
               </button>
@@ -315,7 +290,7 @@
             </article>
 
             <article class="yb-faq__item">
-              <button id="faq-btn-4" class="yb-faq__button" type="button" aria-expanded="false" aria-controls="faq-ans-4">
+              <button id="faq-btn-4" class="yb-faq__button has-ripple" type="button" aria-expanded="false" aria-controls="faq-ans-4">
                 מה קורה אם הקישור לא הגיע?
                 <span aria-hidden="true">+</span>
               </button>
@@ -337,7 +312,7 @@
           <p>
             בחרו ספר, השלימו רכישה, וקבלו גישה דיגיטלית לקובץ. פשוט, נקי ומכובד.
           </p>
-          <a class="primary-button" href="#books">בחירת ספר לרכישה</a>
+          <a class="primary-button has-ripple" href="#books">בחירת ספר לרכישה</a>
         </div>
       </section>
     </main>
