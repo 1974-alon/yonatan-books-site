@@ -95,6 +95,146 @@
       font-size: 0.86rem;
     }
 
+    /* ── Delivery type selector ─────────────────────────── */
+
+    .yb-delivery-selector__options {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 14px;
+    }
+
+    .yb-delivery-option {
+      cursor: pointer;
+      display: block;
+    }
+
+    .yb-delivery-option__input {
+      position: absolute;
+      opacity: 0;
+      width: 0;
+      height: 0;
+    }
+
+    .yb-delivery-option__card {
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
+      padding: 22px 24px;
+      border: 2px solid rgba(42, 26, 14, 0.14);
+      border-radius: var(--radius-lg);
+      background: #fff;
+      transition: border-color 160ms ease, box-shadow 160ms ease, background 160ms ease;
+      height: 100%;
+      box-sizing: border-box;
+    }
+
+    .yb-delivery-option__card:hover {
+      border-color: rgba(42, 26, 14, 0.30);
+    }
+
+    .yb-delivery-option__input:checked + .yb-delivery-option__card {
+      border-color: var(--color-accent);
+      background: rgba(92, 140, 56, 0.04);
+      box-shadow: 0 0 0 3px rgba(92, 140, 56, 0.12);
+    }
+
+    .yb-delivery-option__input:focus-visible + .yb-delivery-option__card {
+      outline: 3px solid var(--color-accent);
+      outline-offset: 2px;
+    }
+
+    .yb-delivery-option__marker {
+      width: 18px;
+      height: 18px;
+      border-radius: 50%;
+      border: 2px solid rgba(42, 26, 14, 0.22);
+      background: #fff;
+      margin-bottom: 10px;
+      flex-shrink: 0;
+      position: relative;
+      transition: border-color 160ms ease;
+    }
+
+    .yb-delivery-option__marker::after {
+      content: '';
+      position: absolute;
+      inset: 3px;
+      border-radius: 50%;
+      background: var(--color-accent);
+      opacity: 0;
+      transition: opacity 160ms ease;
+    }
+
+    .yb-delivery-option__input:checked + .yb-delivery-option__card .yb-delivery-option__marker {
+      border-color: var(--color-accent);
+    }
+
+    .yb-delivery-option__input:checked + .yb-delivery-option__card .yb-delivery-option__marker::after {
+      opacity: 1;
+    }
+
+    .yb-delivery-option__title {
+      font-size: 1rem;
+      font-weight: 800;
+      color: var(--color-ink);
+      letter-spacing: -0.02em;
+    }
+
+    .yb-delivery-option__desc {
+      font-size: 0.85rem;
+      color: var(--color-muted);
+      line-height: 1.45;
+    }
+
+    /* ── Shipping notice ─────────────────────────────────── */
+
+    .yb-shipping-notice {
+      grid-column: 1 / -1;
+      display: flex;
+      align-items: flex-start;
+      gap: 14px;
+      padding: 16px 20px;
+      border-radius: var(--radius-md);
+      background: rgba(92, 140, 56, 0.06);
+      border: 1px solid rgba(92, 140, 56, 0.22);
+      border-inline-start: 4px solid var(--color-accent);
+    }
+
+    .yb-shipping-notice[hidden] {
+      display: none;
+    }
+
+    .yb-shipping-notice::before {
+      content: 'i';
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+      border: 2px solid var(--color-accent);
+      color: var(--color-accent);
+      font-size: 0.72rem;
+      font-weight: 900;
+      font-style: italic;
+      flex-shrink: 0;
+      margin-top: 1px;
+    }
+
+    .yb-shipping-notice__text {
+      margin: 0;
+      font-size: 0.9rem;
+      color: var(--color-accent-dark);
+      line-height: 1.65;
+      font-weight: 600;
+    }
+
+    @media (max-width: 640px) {
+      .yb-delivery-selector__options {
+        grid-template-columns: 1fr;
+      }
+    }
+
     /* ── Form body ───────────────────────────────────────── */
 
     .yb-purchase-body {
@@ -104,6 +244,8 @@
     #purchase-form {
       display: grid;
       gap: 20px;
+      max-width: 660px;
+      margin-inline: auto;
     }
 
     /* ── Form card ───────────────────────────────────────── */
@@ -163,57 +305,112 @@
       color: var(--color-muted);
     }
 
+    .yb-field__label-note {
+      font-weight: 400;
+      font-size: 0.9em;
+      text-transform: none;
+      letter-spacing: 0;
+      color: var(--color-muted);
+      opacity: 0.75;
+    }
+
     .yb-field__input {
       display: block;
       width: 100%;
       padding: 13px 16px;
-      border: 1.5px solid rgba(42, 26, 14, 0.14);
+      border: 1.5px solid rgba(42, 26, 14, 0.18);
       border-radius: var(--radius-md);
-      background: var(--color-soft-2);
+      background: #fff;
       font-family: var(--font-main);
       font-size: 1rem;
       color: var(--color-ink);
       line-height: 1.5;
+      text-align: right;
       outline: none;
-      transition: border-color 160ms ease, background 160ms ease, box-shadow 160ms ease;
+      transition: border-color 160ms ease, box-shadow 160ms ease;
       -webkit-appearance: none;
       appearance: none;
     }
 
     .yb-field__input::placeholder {
-      color: rgba(122, 92, 64, 0.38);
+      color: rgba(122, 92, 64, 0.34);
     }
 
     .yb-field__input:focus {
       border-color: var(--color-accent);
-      background: #fff;
       box-shadow: 0 0 0 3px rgba(92, 140, 56, 0.13);
     }
 
+    /* ── Validation states ───────────────────────────────── */
+
+    .yb-field__input.is-error {
+      border-color: #c0392b;
+      box-shadow: 0 0 0 3px rgba(192, 57, 43, 0.10);
+    }
+
+    .yb-field__input.is-valid {
+      border-color: var(--color-green);
+    }
+
+    .yb-field__error {
+      margin: 6px 0 0;
+      font-size: 0.82rem;
+      font-weight: 700;
+      color: #c0392b;
+      line-height: 1.4;
+      min-height: 0;
+    }
+
     .yb-field__input--textarea {
-      resize: vertical;
-      min-height: 92px;
+      resize: none;
+      height: 120px;
     }
 
     .yb-field__input--ltr {
       direction: ltr;
-      text-align: left;
     }
 
-    /* ── Shipping wrapper — animated collapse ────────────── */
+    /* ── Phone + email flex row ──────────────────────────── */
+
+    .yb-field-row {
+      display: flex;
+      gap: 24px;
+      align-items: flex-start;
+    }
+
+    .yb-field-row .yb-field--phone {
+      flex: 0 0 200px;
+    }
+
+    .yb-field-row .yb-field--email {
+      flex: 1;
+      min-width: 0;
+    }
+
+    /* ── Field size modifiers ────────────────────────────── */
+
+    .yb-field--cvv .yb-field__input {
+      max-width: 100px;
+    }
+
+    .yb-field--zip .yb-field__input {
+      max-width: 130px;
+    }
+
+    /* ── Shipping wrapper ────────────────────────────────── */
 
     .yb-shipping-wrapper {
       grid-column: 1 / -1;
-      max-height: 120px;
-      overflow: hidden;
-      opacity: 1;
-      transition: max-height 300ms ease, opacity 250ms ease;
     }
 
-    .yb-shipping-wrapper.is-hidden {
-      max-height: 0;
-      opacity: 0;
-      pointer-events: none;
+    .yb-shipping-wrapper[hidden] {
+      display: none;
+    }
+
+    .yb-shipping-inner {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 20px 24px;
     }
 
     /* ── Custom checkbox ─────────────────────────────────── */
@@ -270,6 +467,11 @@
       border-color: var(--color-accent);
     }
 
+    .yb-checkbox.is-error .yb-checkbox__box {
+      border-color: #c0392b;
+      box-shadow: 0 0 0 3px rgba(192, 57, 43, 0.10);
+    }
+
     .yb-checkbox__text {
       font-size: 0.96rem;
       color: var(--color-ink);
@@ -300,6 +502,39 @@
       font-size: 0.88rem;
       color: var(--color-muted);
       line-height: 1.5;
+    }
+
+    .yb-form-submit-error {
+      flex-basis: 100%;
+      display: none;
+      align-items: center;
+      gap: 10px;
+      padding: 14px 18px;
+      border-radius: var(--radius-md);
+      background: rgba(192, 57, 43, 0.07);
+      border: 1px solid rgba(192, 57, 43, 0.22);
+      color: #c0392b;
+      font-size: 0.9rem;
+      font-weight: 700;
+      line-height: 1.4;
+    }
+
+    .yb-form-submit-error.is-visible {
+      display: flex;
+    }
+
+    .yb-form-submit-error::before {
+      content: '!';
+      width: 22px;
+      height: 22px;
+      border-radius: 50%;
+      background: #c0392b;
+      color: #fff;
+      font-size: 0.8rem;
+      font-weight: 900;
+      display: grid;
+      place-items: center;
+      flex-shrink: 0;
     }
 
     .yb-purchase-link {
@@ -339,8 +574,18 @@
         padding: 24px 20px;
       }
 
-      .yb-form-grid {
+      .yb-form-grid,
+      .yb-shipping-inner {
         grid-template-columns: 1fr;
+      }
+
+      .yb-field-row {
+        flex-direction: column;
+      }
+
+      .yb-field-row .yb-field--phone {
+        flex: 0 0 auto;
+        width: 100%;
       }
 
       .yb-purchase-submit {

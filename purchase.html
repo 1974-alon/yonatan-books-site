@@ -74,7 +74,7 @@
             <p class="yb-purchase-banner__desc" id="banner-description"></p>
             <div class="yb-purchase-banner__price-row">
               <span class="yb-purchase-banner__price" id="banner-price"></span>
-              <span class="yb-purchase-banner__format-note">הורדה דיגיטלית · PDF / EPUB</span>
+              <span class="yb-purchase-banner__format-note" id="banner-format-note">הורדה דיגיטלית · PDF / EPUB</span>
             </div>
           </div>
 
@@ -87,7 +87,43 @@
       <div class="site-container yb-purchase-body">
         <form id="purchase-form" novalidate>
 
-          <!-- STEP 1: BUYER DETAILS -->
+          <!-- ─────────────────────────────────────────────────
+            DELIVERY TYPE SELECTION
+          ────────────────────────────────────────────────── -->
+          <div class="yb-form-card" role="group" aria-labelledby="delivery-type-heading">
+            <div class="yb-form-card__header">
+              <span class="eyebrow">לפני הכל</span>
+              <h2 id="delivery-type-heading">כיצד תרצו לקבל את הספר?</h2>
+            </div>
+
+            <div class="yb-delivery-selector__options">
+
+              <label class="yb-delivery-option">
+                <input class="yb-delivery-option__input" type="radio" name="delivery-type"
+                  id="delivery-digital" value="digital" checked />
+                <div class="yb-delivery-option__card">
+                  <span class="yb-delivery-option__marker" aria-hidden="true"></span>
+                  <span class="yb-delivery-option__title">הורדה דיגיטלית</span>
+                  <span class="yb-delivery-option__desc">PDF / EPUB · קישור הורדה אישי מיד לאחר אישור התשלום</span>
+                </div>
+              </label>
+
+              <label class="yb-delivery-option">
+                <input class="yb-delivery-option__input" type="radio" name="delivery-type"
+                  id="delivery-physical" value="physical" />
+                <div class="yb-delivery-option__card">
+                  <span class="yb-delivery-option__marker" aria-hidden="true"></span>
+                  <span class="yb-delivery-option__title">שליחה בדואר</span>
+                  <span class="yb-delivery-option__desc">ספר פיזי · עד 7 ימי עבודה מאישור ההזמנה</span>
+                </div>
+              </label>
+
+            </div>
+          </div>
+
+          <!-- ─────────────────────────────────────────────────
+            STEP 1: BUYER DETAILS
+          ────────────────────────────────────────────────── -->
           <section class="yb-form-card" aria-labelledby="buyer-section-title">
             <div class="yb-form-card__header">
               <span class="eyebrow">שלב 1</span>
@@ -98,39 +134,68 @@
               <div class="yb-field yb-field--full">
                 <label class="yb-field__label" for="full-name">שם מלא <span class="yb-field__req" aria-hidden="true">*</span></label>
                 <input class="yb-field__input" type="text" id="full-name" name="full-name"
-                  autocomplete="name" required placeholder="ישראל ישראלי" />
+                  autocomplete="name" required placeholder="ישראל ישראלי"
+                  aria-describedby="full-name-error" />
+                <p class="yb-field__error" id="full-name-error" aria-live="polite"></p>
               </div>
 
+              <!-- Billing address — optional, for invoice -->
               <div class="yb-field yb-field--full">
-                <label class="yb-field__label" for="address">כתובת <span class="yb-field__req" aria-hidden="true">*</span></label>
+                <label class="yb-field__label" for="address">
+                  כתובת
+                  <span class="yb-field__label-note"> (לחשבונית, אופציונלי)</span>
+                </label>
                 <input class="yb-field__input" type="text" id="address" name="address"
-                  autocomplete="street-address" required placeholder="רחוב הרצל 12, תל אביב" />
+                  autocomplete="billing street-address" placeholder="רחוב הרצל 12, דירה 5" />
               </div>
 
-              <div class="yb-field yb-field--full">
-                <label class="yb-checkbox">
+              <div class="yb-field">
+                <label class="yb-field__label" for="address-city">עיר</label>
+                <input class="yb-field__input" type="text" id="address-city" name="address-city"
+                  autocomplete="billing locality" placeholder="תל אביב" />
+              </div>
+
+              <div class="yb-field yb-field--zip">
+                <label class="yb-field__label" for="address-zip">מיקוד</label>
+                <input class="yb-field__input yb-field__input--ltr" type="text" id="address-zip" name="address-zip"
+                  autocomplete="billing postal-code" inputmode="numeric" maxlength="7" placeholder="1234567" />
+              </div>
+
+              <!-- Same-address checkbox — physical only -->
+              <div class="yb-field yb-field--full" id="same-address-row" hidden>
+                <label class="yb-checkbox" id="same-address-label">
                   <input class="yb-checkbox__input" type="checkbox" id="same-address" name="same-address" />
                   <span class="yb-checkbox__box" aria-hidden="true"></span>
-                  <span class="yb-checkbox__text">כתובת זו תשמש גם למשלוח <span class="yb-field__note">*</span></span>
+                  <span class="yb-checkbox__text">כתובת זו תשמש גם כתובת המשלוח</span>
                 </label>
               </div>
 
-              <div class="yb-field">
-                <label class="yb-field__label" for="phone">טלפון <span class="yb-field__req" aria-hidden="true">*</span></label>
-                <input class="yb-field__input" type="tel" id="phone" name="phone"
-                  autocomplete="tel" required placeholder="050-1234567" inputmode="tel" />
-              </div>
+              <div class="yb-field-row yb-field--full">
 
-              <div class="yb-field">
-                <label class="yb-field__label" for="email">אימייל <span class="yb-field__req" aria-hidden="true">*</span></label>
-                <input class="yb-field__input" type="email" id="email" name="email"
-                  autocomplete="email" required placeholder="israel@example.com" />
+                <div class="yb-field yb-field--phone">
+                  <label class="yb-field__label" for="phone">טלפון <span class="yb-field__req" aria-hidden="true">*</span></label>
+                  <input class="yb-field__input" type="text" id="phone" name="phone"
+                    autocomplete="tel" required placeholder="050-1234567" inputmode="tel"
+                    aria-describedby="phone-error" />
+                  <p class="yb-field__error" id="phone-error" aria-live="polite"></p>
+                </div>
+
+                <div class="yb-field yb-field--email">
+                  <label class="yb-field__label" for="email">אימייל <span class="yb-field__req" aria-hidden="true">*</span></label>
+                  <input class="yb-field__input" type="text" id="email" name="email"
+                    autocomplete="email" required inputmode="email" placeholder="israel@example.com"
+                    aria-describedby="email-error" />
+                  <p class="yb-field__error" id="email-error" aria-live="polite"></p>
+                </div>
+
               </div>
 
             </div>
           </section>
 
-          <!-- STEP 2: PAYMENT -->
+          <!-- ─────────────────────────────────────────────────
+            STEP 2: PAYMENT
+          ────────────────────────────────────────────────── -->
           <section class="yb-form-card" aria-labelledby="payment-section-title">
             <div class="yb-form-card__header">
               <span class="eyebrow">שלב 2</span>
@@ -141,46 +206,89 @@
               <div class="yb-field yb-field--full">
                 <label class="yb-field__label" for="card-name">שם בעל הכרטיס <span class="yb-field__req" aria-hidden="true">*</span></label>
                 <input class="yb-field__input" type="text" id="card-name" name="card-name"
-                  autocomplete="cc-name" required placeholder="כפי שמופיע על הכרטיס" />
+                  autocomplete="cc-name" required placeholder="כפי שמופיע על הכרטיס"
+                  aria-describedby="card-name-error" />
+                <p class="yb-field__error" id="card-name-error" aria-live="polite"></p>
               </div>
 
               <div class="yb-field yb-field--full">
                 <label class="yb-field__label" for="id-number">תעודת זהות <span class="yb-field__req" aria-hidden="true">*</span></label>
                 <input class="yb-field__input" type="text" id="id-number" name="id-number"
-                  inputmode="numeric" maxlength="9" required placeholder="000000000" />
+                  inputmode="numeric" maxlength="9" required placeholder="000000000"
+                  aria-describedby="id-number-error" />
+                <p class="yb-field__error" id="id-number-error" aria-live="polite"></p>
               </div>
 
-              <!-- Shipping address — visible when same-address is NOT checked -->
-              <div class="yb-shipping-wrapper" id="shipping-wrapper">
-                <div class="yb-field">
-                  <label class="yb-field__label" for="shipping-address">כתובת למשלוח <span class="yb-field__req" aria-hidden="true">*</span></label>
-                  <input class="yb-field__input" type="text" id="shipping-address" name="shipping-address"
-                    autocomplete="shipping street-address" required placeholder="רחוב, עיר, מיקוד" />
+              <!-- Shipping address + notice — physical only -->
+              <div class="yb-shipping-wrapper" id="shipping-wrapper" hidden>
+                <div class="yb-shipping-inner">
+
+                  <div class="yb-field yb-field--full">
+                    <label class="yb-field__label" for="shipping-address">רחוב ומספר בית <span class="yb-field__req" aria-hidden="true">*</span></label>
+                    <input class="yb-field__input" type="text" id="shipping-address" name="shipping-address"
+                      autocomplete="shipping street-address" placeholder="רחוב הרצל 12, דירה 5"
+                      aria-describedby="shipping-address-error" />
+                    <p class="yb-field__error" id="shipping-address-error" aria-live="polite"></p>
+                  </div>
+
+                  <div class="yb-field">
+                    <label class="yb-field__label" for="shipping-city">עיר <span class="yb-field__req" aria-hidden="true">*</span></label>
+                    <input class="yb-field__input" type="text" id="shipping-city" name="shipping-city"
+                      autocomplete="shipping locality" placeholder="תל אביב"
+                      aria-describedby="shipping-city-error" />
+                    <p class="yb-field__error" id="shipping-city-error" aria-live="polite"></p>
+                  </div>
+
+                  <div class="yb-field yb-field--zip">
+                    <label class="yb-field__label" for="shipping-zip">מיקוד <span class="yb-field__req" aria-hidden="true">*</span></label>
+                    <input class="yb-field__input yb-field__input--ltr" type="text" id="shipping-zip" name="shipping-zip"
+                      autocomplete="shipping postal-code" inputmode="numeric" maxlength="7" placeholder="1234567"
+                      aria-describedby="shipping-zip-error" />
+                    <p class="yb-field__error" id="shipping-zip-error" aria-live="polite"></p>
+                  </div>
+
                 </div>
+              </div>
+
+              <div class="yb-shipping-notice" id="shipping-notice" hidden>
+                <p class="yb-shipping-notice__text">
+                  הספר יישלח תוך 7 ימי עבודה מאישור ההזמנה. לאחר המשלוח תישלח הודעה עם לינק מעקב מחברת השליחויות לכתובת האימייל שהזנתם.
+                </p>
               </div>
 
               <div class="yb-field yb-field--full">
                 <label class="yb-field__label" for="card-number">מספר כרטיס <span class="yb-field__req" aria-hidden="true">*</span></label>
                 <input class="yb-field__input yb-field__input--ltr" type="text" id="card-number" name="card-number"
-                  autocomplete="cc-number" inputmode="numeric" maxlength="19" required placeholder="0000 0000 0000 0000" />
+                  autocomplete="cc-number" inputmode="numeric" maxlength="19" required placeholder="0000 0000 0000 0000"
+                  aria-describedby="card-number-error" />
+                <p class="yb-field__error" id="card-number-error" aria-live="polite"></p>
               </div>
 
               <div class="yb-field">
                 <label class="yb-field__label" for="card-expiry">תאריך תפוגה <span class="yb-field__req" aria-hidden="true">*</span></label>
                 <input class="yb-field__input yb-field__input--ltr" type="text" id="card-expiry" name="card-expiry"
-                  autocomplete="cc-exp" inputmode="numeric" maxlength="5" required placeholder="MM/YY" />
+                  autocomplete="cc-exp" inputmode="numeric" maxlength="5" required placeholder="MM/YY"
+                  aria-describedby="card-expiry-error" />
+                <p class="yb-field__error" id="card-expiry-error" aria-live="polite"></p>
               </div>
 
-              <div class="yb-field">
-                <label class="yb-field__label" for="card-cvv">CVV <span class="yb-field__req" aria-hidden="true">*</span></label>
+              <div class="yb-field yb-field--cvv">
+                <label class="yb-field__label" for="card-cvv">
+                  CVV <span class="yb-field__req" aria-hidden="true">*</span>
+                  <span class="yb-field__label-note"> (3 ספרות בגב הכרטיס)</span>
+                </label>
                 <input class="yb-field__input yb-field__input--ltr" type="text" id="card-cvv" name="card-cvv"
-                  autocomplete="cc-csc" inputmode="numeric" maxlength="4" required placeholder="000" />
+                  autocomplete="cc-csc" inputmode="numeric" maxlength="4" required placeholder="000"
+                  aria-describedby="card-cvv-error" />
+                <p class="yb-field__error" id="card-cvv-error" aria-live="polite"></p>
               </div>
 
             </div>
           </section>
 
-          <!-- STEP 3: NOTES + TERMS + SUBMIT -->
+          <!-- ─────────────────────────────────────────────────
+            STEP 3: NOTES + TERMS + SUBMIT
+          ────────────────────────────────────────────────── -->
           <section class="yb-form-card" aria-labelledby="finish-section-title">
             <div class="yb-form-card__header">
               <span class="eyebrow">שלב 3</span>
@@ -195,11 +303,13 @@
               </div>
 
               <div class="yb-field yb-field--full">
-                <label class="yb-checkbox">
-                  <input class="yb-checkbox__input" type="checkbox" id="terms" name="terms" required />
+                <label class="yb-checkbox" id="terms-label">
+                  <input class="yb-checkbox__input" type="checkbox" id="terms" name="terms" required
+                    aria-describedby="terms-error" />
                   <span class="yb-checkbox__box" aria-hidden="true"></span>
                   <span class="yb-checkbox__text">קראתי ואני מאשר/ת את <a href="#" class="yb-purchase-link">תנאי האתר ומדיניות הרכישה</a></span>
                 </label>
+                <p class="yb-field__error" id="terms-error" aria-live="polite"></p>
               </div>
 
             </div>
@@ -208,9 +318,12 @@
               <button type="submit" class="primary-button yb-purchase-submit__btn has-ripple">
                 לרכישה — <span id="submit-price"></span>
               </button>
-              <p class="yb-purchase-submit__note">
+              <p class="yb-purchase-submit__note" id="submit-note">
                 תשלום מאובטח · קישור הורדה יישלח לאחר אישור התשלום
               </p>
+              <div class="yb-form-submit-error" id="form-submit-error" role="alert" aria-live="assertive">
+                נא למלא את כל השדות המסומנים לפני המשך הרכישה
+              </div>
             </div>
           </section>
 
@@ -237,7 +350,7 @@
   <script src="js/app.js"></script>
   <script>
     /* =========================================================
-       PURCHASE PAGE — book data + form logic
+       BOOK DATA + DYNAMIC BANNER
     ========================================================= */
 
     const BOOKS = {
@@ -255,40 +368,334 @@
       }
     };
 
-    // Populate book info from URL param
-    const params  = new URLSearchParams(window.location.search);
-    const bookId  = params.get('book') || 'book-01';
-    const book    = BOOKS[bookId] || BOOKS['book-01'];
+    const params = new URLSearchParams(window.location.search);
+    const bookId = params.get('book') || 'book-01';
+    const book   = BOOKS[bookId] || BOOKS['book-01'];
 
-    document.getElementById('banner-cover').style.background        = book.coverBg;
-    document.getElementById('banner-cover-title').textContent       = book.title;
-    document.getElementById('purchase-book-title').textContent      = book.title;
-    document.getElementById('banner-description').textContent       = book.description;
-    document.getElementById('banner-price').textContent             = book.price;
-    document.getElementById('submit-price').textContent             = book.price;
+    document.getElementById('banner-cover').style.background   = book.coverBg;
+    document.getElementById('banner-cover-title').textContent  = book.title;
+    document.getElementById('purchase-book-title').textContent = book.title;
+    document.getElementById('banner-description').textContent  = book.description;
+    document.getElementById('banner-price').textContent        = book.price;
+    document.getElementById('submit-price').textContent        = book.price;
     document.title = `רכישה — ${book.title} | יונתן`;
 
-    // Shipping address toggle
-    const sameAddressEl   = document.getElementById('same-address');
-    const shippingWrapper = document.getElementById('shipping-wrapper');
-    const shippingInput   = document.getElementById('shipping-address');
+    /* =========================================================
+       DELIVERY MODE
+    ========================================================= */
 
-    sameAddressEl.addEventListener('change', () => {
-      if (sameAddressEl.checked) {
-        shippingWrapper.classList.add('is-hidden');
-        shippingInput.removeAttribute('required');
+    const sameAddressRow   = document.getElementById('same-address-row');
+    const sameAddressEl    = document.getElementById('same-address');
+    const shippingWrapper  = document.getElementById('shipping-wrapper');
+    const shippingInput    = document.getElementById('shipping-address');
+    const shippingCityEl   = document.getElementById('shipping-city');
+    const shippingZipEl    = document.getElementById('shipping-zip');
+    const shippingNotice   = document.getElementById('shipping-notice');
+    const bannerFormatNote = document.getElementById('banner-format-note');
+    const submitNote       = document.getElementById('submit-note');
+
+    function setShippingRequired(required) {
+      [shippingInput, shippingCityEl, shippingZipEl].forEach(el => {
+        if (required) el.setAttribute('required', '');
+        else {
+          el.removeAttribute('required');
+          clearFieldState(el);
+        }
+      });
+    }
+
+    function getDeliveryMode() {
+      return document.querySelector('input[name="delivery-type"]:checked').value;
+    }
+
+    function applyDeliveryMode(mode) {
+      const isPhysical = mode === 'physical';
+
+      // Same-address checkbox row
+      sameAddressRow.hidden = !isPhysical;
+      if (!isPhysical) sameAddressEl.checked = false;
+
+      // Shipping address + notice
+      const shippingSynced = isPhysical && sameAddressEl.checked;
+      shippingWrapper.hidden = !isPhysical || shippingSynced;
+      shippingNotice.hidden  = !isPhysical;
+
+      setShippingRequired(isPhysical && !shippingSynced);
+
+      // Update banner format note + submit note
+      if (isPhysical) {
+        bannerFormatNote.textContent = 'שליחה בדואר · ספר פיזי';
+        submitNote.textContent = 'תשלום מאובטח · הספר יישלח תוך 7 ימי עבודה';
       } else {
-        shippingWrapper.classList.remove('is-hidden');
-        shippingInput.setAttribute('required', '');
+        bannerFormatNote.textContent = 'הורדה דיגיטלית · PDF / EPUB';
+        submitNote.textContent = 'תשלום מאובטח · קישור הורדה יישלח לאחר אישור התשלום';
       }
+    }
+
+    document.querySelectorAll('input[name="delivery-type"]').forEach(radio => {
+      radio.addEventListener('change', () => applyDeliveryMode(getDeliveryMode()));
     });
 
-    // Form submit (demo)
-    document.getElementById('purchase-form').addEventListener('submit', (e) => {
+    // Same-address checkbox toggles shipping address visibility
+    sameAddressEl.addEventListener('change', () => {
+      const synced = sameAddressEl.checked;
+      shippingWrapper.hidden = synced;
+      setShippingRequired(!synced);
+    });
+
+    // Init
+    applyDeliveryMode(getDeliveryMode());
+
+    /* =========================================================
+       VALIDATION RULES
+    ========================================================= */
+
+    const RE = {
+      email:   /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/,
+      phone:   /^0[0-9]{8,9}$/,
+      idNum:   /^\d{9}$/,
+      cardNum: /^\d{13,19}$/,
+      expiry:  /^(0[1-9]|1[0-2])\/\d{2}$/,
+      cvv:     /^\d{3,4}$/,
+      zip:     /^\d{5}(\d{2})?$/,
+    };
+
+    const FIELD_RULES = [
+      {
+        id: 'full-name',
+        rules: [
+          { test: v => v.trim().length > 0, msg: 'נא להזין שם מלא' },
+        ]
+      },
+      {
+        id: 'phone',
+        rules: [
+          { test: v => v.trim().length > 0,                      msg: 'נא להזין מספר טלפון' },
+          { test: v => RE.phone.test(v.replace(/[-\s]/g, '')),   msg: 'מספר טלפון לא תקין (לדוגמה: 050-1234567)' },
+        ]
+      },
+      {
+        id: 'email',
+        rules: [
+          { test: v => v.trim().length > 0,            msg: 'נא להזין כתובת אימייל' },
+          { test: v => RE.email.test(v.trim()),         msg: 'כתובת האימייל אינה תקינה (לדוגמה: name@example.com)' },
+        ]
+      },
+      {
+        id: 'card-name',
+        rules: [
+          { test: v => v.trim().length > 0, msg: 'נא להזין שם בעל הכרטיס' },
+        ]
+      },
+      {
+        id: 'id-number',
+        rules: [
+          { test: v => v.trim().length > 0,       msg: 'נא להזין תעודת זהות' },
+          { test: v => RE.idNum.test(v.trim()),    msg: 'תעודת זהות חייבת להכיל 9 ספרות' },
+        ]
+      },
+      {
+        id: 'shipping-address',
+        conditional: true,
+        rules: [
+          { test: v => v.trim().length > 0, msg: 'נא להזין רחוב ומספר בית' },
+        ]
+      },
+      {
+        id: 'shipping-city',
+        conditional: true,
+        rules: [
+          { test: v => v.trim().length > 0, msg: 'נא להזין עיר' },
+        ]
+      },
+      {
+        id: 'shipping-zip',
+        conditional: true,
+        rules: [
+          { test: v => v.trim().length > 0,    msg: 'נא להזין מיקוד' },
+          { test: v => RE.zip.test(v.trim()),   msg: 'מיקוד לא תקין (5 או 7 ספרות)' },
+        ]
+      },
+      {
+        id: 'card-number',
+        rules: [
+          { test: v => v.trim().length > 0,                          msg: 'נא להזין מספר כרטיס' },
+          { test: v => RE.cardNum.test(v.replace(/[\s-]/g, '')),     msg: 'מספר כרטיס לא תקין' },
+        ]
+      },
+      {
+        id: 'card-expiry',
+        rules: [
+          { test: v => v.trim().length > 0,       msg: 'נא להזין תאריך תפוגה' },
+          { test: v => RE.expiry.test(v.trim()),   msg: 'תאריך תפוגה לא תקין (לדוגמה: 12/28)' },
+        ]
+      },
+      {
+        id: 'card-cvv',
+        rules: [
+          { test: v => v.trim().length > 0,    msg: 'נא להזין CVV' },
+          { test: v => RE.cvv.test(v.trim()),   msg: 'CVV לא תקין (3-4 ספרות)' },
+        ]
+      },
+    ];
+
+    /* =========================================================
+       FIELD STATE HELPERS
+    ========================================================= */
+
+    function setFieldError(input, message) {
+      const errorEl = document.getElementById(`${input.id}-error`);
+      input.classList.add('is-error');
+      input.classList.remove('is-valid');
+      input.setAttribute('aria-invalid', 'true');
+      if (errorEl) errorEl.textContent = message;
+    }
+
+    function setFieldValid(input) {
+      const errorEl = document.getElementById(`${input.id}-error`);
+      input.classList.remove('is-error');
+      input.classList.add('is-valid');
+      input.setAttribute('aria-invalid', 'false');
+      if (errorEl) errorEl.textContent = '';
+    }
+
+    function clearFieldState(input) {
+      const errorEl = document.getElementById(`${input.id}-error`);
+      input.classList.remove('is-error', 'is-valid');
+      input.removeAttribute('aria-invalid');
+      if (errorEl) errorEl.textContent = '';
+    }
+
+    /* =========================================================
+       PER-FIELD VALIDATION
+    ========================================================= */
+
+    function validateInput(fieldDef) {
+      const input = document.getElementById(fieldDef.id);
+      if (!input) return true;
+
+      if (fieldDef.conditional && shippingWrapper.hidden) {
+        clearFieldState(input);
+        return true;
+      }
+
+      for (const rule of fieldDef.rules) {
+        if (!rule.test(input.value)) {
+          setFieldError(input, rule.msg);
+          return false;
+        }
+      }
+
+      setFieldValid(input);
+      return true;
+    }
+
+    function validateTerms() {
+      const termsEl = document.getElementById('terms');
+      const labelEl = document.getElementById('terms-label');
+      const errorEl = document.getElementById('terms-error');
+      if (!termsEl.checked) {
+        labelEl.classList.add('is-error');
+        errorEl.textContent = 'יש לאשר את תנאי האתר להמשך הרכישה';
+        return false;
+      }
+      labelEl.classList.remove('is-error');
+      errorEl.textContent = '';
+      return true;
+    }
+
+    /* =========================================================
+       ATTACH LISTENERS
+    ========================================================= */
+
+    FIELD_RULES.forEach(def => {
+      const input = document.getElementById(def.id);
+      if (!input) return;
+
+      input.addEventListener('blur', () => {
+        if (input.value.trim() || input.classList.contains('is-error')) validateInput(def);
+      });
+
+      input.addEventListener('input', () => {
+        if (input.classList.contains('is-error')) validateInput(def);
+      });
+    });
+
+    document.getElementById('terms').addEventListener('change', validateTerms);
+
+    /* =========================================================
+       INPUT MASKS
+    ========================================================= */
+
+    document.getElementById('card-number').addEventListener('input', function () {
+      const digits = this.value.replace(/\D/g, '').slice(0, 16);
+      this.value = digits.replace(/(.{4})/g, '$1 ').trim();
+    });
+
+    document.getElementById('card-expiry').addEventListener('input', function () {
+      let val = this.value.replace(/\D/g, '').slice(0, 4);
+      if (val.length >= 3) val = val.slice(0, 2) + '/' + val.slice(2);
+      this.value = val;
+    });
+
+    document.getElementById('id-number').addEventListener('input', function () {
+      this.value = this.value.replace(/\D/g, '').slice(0, 9);
+    });
+
+    document.getElementById('card-cvv').addEventListener('input', function () {
+      this.value = this.value.replace(/\D/g, '').slice(0, 4);
+    });
+
+    document.getElementById('address-zip').addEventListener('input', function () {
+      this.value = this.value.replace(/\D/g, '').slice(0, 7);
+    });
+
+    document.getElementById('shipping-zip').addEventListener('input', function () {
+      this.value = this.value.replace(/\D/g, '').slice(0, 7);
+    });
+
+    /* =========================================================
+       FORM SUBMIT
+    ========================================================= */
+
+    document.getElementById('purchase-form').addEventListener('submit', e => {
       e.preventDefault();
+
+      let allValid = true;
+      let firstErrorInput = null;
+
+      FIELD_RULES.forEach(def => {
+        const valid = validateInput(def);
+        if (!valid) {
+          allValid = false;
+          if (!firstErrorInput) firstErrorInput = document.getElementById(def.id);
+        }
+      });
+
+      const termsValid = validateTerms();
+      if (!termsValid) {
+        allValid = false;
+        if (!firstErrorInput) firstErrorInput = document.getElementById('terms');
+      }
+
+      const submitError = document.getElementById('form-submit-error');
+
+      if (!allValid) {
+        submitError.classList.add('is-visible');
+        if (firstErrorInput) {
+          firstErrorInput.scrollIntoView({ behavior: 'smooth', block: 'center' });
+          setTimeout(() => firstErrorInput.focus(), 320);
+        }
+        return;
+      }
+
+      submitError.classList.remove('is-visible');
+
+      const mode = getDeliveryMode();
       alert(
-        `Demo: רכישה של "${book.title}" — ${book.price}\n\n` +
-        `בפיתוח אמיתי: יצירת הזמנה ב-Firebase, העברה לסליקה, ושליחת קישור הורדה.`
+        `Demo: רכישה של "${book.title}" — ${book.price}\n` +
+        `מסלול: ${mode === 'physical' ? 'שליחה בדואר (7 ימי עבודה)' : 'הורדה דיגיטלית'}\n\n` +
+        `בפיתוח אמיתי: יצירת הזמנה ב-Firebase, ${mode === 'physical' ? 'שליחה לכתובת המשלוח' : 'שליחת קישור הורדה'}.`
       );
     });
   </script>
