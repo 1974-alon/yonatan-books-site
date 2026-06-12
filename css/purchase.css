@@ -244,7 +244,7 @@
     #purchase-form {
       display: grid;
       gap: 20px;
-      max-width: 660px;
+      max-width: 760px;
       margin-inline: auto;
     }
 
