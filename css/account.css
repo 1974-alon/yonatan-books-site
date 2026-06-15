@@ -191,18 +191,48 @@
 
 /* ── Mobile ───────────────────────────────────────────────── */
 @media (max-width: 640px) {
+  /* Logout button lives in mobile nav on small screens */
+  .yb-header .yb-account__logout {
+    display: none;
+  }
+
+  .yb-account {
+    padding: 36px 0 60px;
+  }
+
   .yb-account__welcome {
     flex-direction: column;
     align-items: flex-start;
+    margin-bottom: 36px;
+    padding-bottom: 20px;
+  }
+
+  .yb-account__greeting {
+    font-size: 1.4rem;
+  }
+
+  .yb-account__section {
+    margin-bottom: 44px;
   }
 
   .yb-account__purchase-card {
     flex-direction: column;
     gap: 16px;
+    padding: 18px;
   }
 
   .yb-account__purchase-cover {
     width: 48px;
     height: 60px;
+  }
+
+  .yb-account__purchase-meta {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 6px;
+  }
+
+  .yb-account__message-form {
+    max-width: 100%;
   }
 }

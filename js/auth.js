@@ -311,13 +311,29 @@ if (window.location.hash === '#my-area') {
 }
 
 // ── Triggers ──────────────────────────────────────────────
-myAreaBtn.addEventListener('click', () => {
+function handleMyAreaClick() {
+  // Close mobile nav if open
+  const hamburger = document.querySelector('.yb-header__hamburger');
+  const mobileNav = document.getElementById('yb-mobile-nav');
+  if (hamburger && mobileNav && !mobileNav.hidden) {
+    hamburger.classList.remove('is-open');
+    hamburger.setAttribute('aria-expanded', 'false');
+    mobileNav.hidden = true;
+    mobileNav.setAttribute('aria-hidden', 'true');
+    document.body.style.overflow = '';
+  }
+
   if (sessionStorage.getItem('yb-auth-customer')) {
     window.location.href = 'account.html';
   } else {
     openAuthModal();
   }
-});
+}
+
+myAreaBtn.addEventListener('click', handleMyAreaClick);
+
+const myAreaMobileBtn = document.getElementById('my-area-mobile-btn');
+if (myAreaMobileBtn) myAreaMobileBtn.addEventListener('click', handleMyAreaClick);
 authClose.addEventListener('click', closeAuthModal);
 authOverlay.addEventListener('click', closeAuthModal);
 authModal.addEventListener('keydown', e => { if (e.key === 'Escape') closeAuthModal(); });
