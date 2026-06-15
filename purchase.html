@@ -60,6 +60,7 @@
         BOOK BANNER
       ======================================================== -->
       <div class="yb-purchase-banner" role="region" aria-labelledby="purchase-book-title">
+        <div class="yb-purchase-banner__backdrop" id="banner-backdrop" aria-hidden="true"></div>
         <div class="site-container yb-purchase-banner__inner">
 
           <div class="yb-purchase-banner__cover" id="banner-cover" aria-hidden="true">
@@ -72,7 +73,7 @@
               <span aria-hidden="true">←</span> חזרה לבחירת ספר
             </a>
             <h1 id="purchase-book-title" class="yb-purchase-banner__title">טוען...</h1>
-            <p class="yb-purchase-banner__desc" id="banner-description"></p>
+            <div class="yb-purchase-banner__desc" id="banner-description"></div>
             <div class="yb-purchase-banner__price-row">
               <span class="yb-purchase-banner__price" id="banner-price"></span>
               <span class="yb-purchase-banner__format-note" id="banner-format-note">הורדה דיגיטלית · PDF / EPUB</span>
@@ -164,7 +165,7 @@
                 <label class="yb-checkbox">
                   <input class="yb-checkbox__input" type="checkbox" id="same-address" name="same-address" />
                   <span class="yb-checkbox__box" aria-hidden="true"></span>
-                  <span class="yb-checkbox__text">כתובת המשלוח שונה מהכתובת שלעיל</span>
+                  <span class="yb-checkbox__text">הוסף כתובת שונה למשלוח</span>
                 </label>
               </div>
 
@@ -236,6 +237,19 @@
               <span class="eyebrow">שלב 2</span>
               <h2 id="payment-section-title">פרטי תשלום</h2>
             </div>
+
+            <div class="yb-payment-method-tabs" role="group" aria-label="בחירת אמצעי תשלום">
+              <button type="button" class="yb-payment-tab is-active" data-method="card" aria-pressed="true">
+                <span class="yb-payment-tab__card-icon" aria-hidden="true"></span>
+                כרטיס אשראי
+              </button>
+              <button type="button" class="yb-payment-tab" data-method="bit" aria-pressed="false">
+                <span class="yb-bit-badge" aria-hidden="true">bit</span>
+                ביט
+              </button>
+            </div>
+
+            <div id="card-fields-panel">
             <div class="yb-form-grid">
 
               <div class="yb-field yb-field--full">
@@ -282,6 +296,29 @@
               </div>
 
             </div>
+            </div><!-- /card-fields-panel -->
+
+            <div id="bit-panel" class="yb-bit-panel" hidden>
+              <div class="yb-bit-panel__main">
+                <div class="yb-bit-qr-box" aria-label="קוד QR לתשלום בביט">
+                  <div class="yb-bit-qr-grid" aria-hidden="true"></div>
+                  <p class="yb-bit-qr-hint">קוד QR יופיע כאן<br>לאחר לחיצה על ״תשלום בביט״</p>
+                </div>
+                <div class="yb-bit-panel__info">
+                  <p class="yb-bit-panel__step"><span aria-hidden="true">1</span> סרקו את קוד ה-QR עם אפליקציית ביט</p>
+                  <p class="yb-bit-panel__step"><span aria-hidden="true">2</span> אשרו את הרכישה בביומטריקה</p>
+                  <p class="yb-bit-panel__step"><span aria-hidden="true">3</span> קבלו אישור רכישה וקישור הורדה</p>
+                </div>
+              </div>
+              <div class="yb-bit-panel__mobile">
+                <button type="button" class="yb-bit-open-btn" id="bit-open-app">
+                  <span class="yb-bit-badge" aria-hidden="true">bit</span>
+                  פתח אפליקציית ביט לתשלום
+                </button>
+                <p class="yb-bit-panel__mobile-note">לאחר אישור התשלום בביט, תחזרו לאתר לאישור הרכישה</p>
+              </div>
+            </div>
+
           </section>
 
           <!-- ─────────────────────────────────────────────────
@@ -314,7 +351,7 @@
 
             <div class="yb-purchase-submit">
               <button type="submit" class="primary-button yb-purchase-submit__btn has-ripple">
-                לרכישה — <span id="submit-price"></span>
+                <span id="submit-btn-label">לרכישה</span> — <span id="submit-price"></span>
               </button>
               <p class="yb-purchase-submit__note" id="submit-note">
                 תשלום מאובטח · קישור הורדה יישלח לאחר אישור התשלום
@@ -353,16 +390,20 @@
 
     const BOOKS = {
       'book-01': {
-        title: 'שם הספר הראשון',
-        description: 'תקציר קצר ומזמין של הספר. כאן יופיע תיאור אמיתי של התוכן, הטון, למי הספר מתאים ומה הערך שהקורא מקבל ממנו.',
+        title: 'דמיון לנחמה',
+        description: '<p>שמונה סיפורים קצרים ונובלה אחת: בלש משטרה מסור נקלע לסיטואציה מתעתעת; ארבעה חיילים נערכים לקרב גורלי; מפגש בחנות נעליים יוצא משליטה; חוקרת חיות יפה עומדת במרכזה של אי-הבנה; בדירה תל-אביבית מתארגנים לערב מיוחד; על שפת הבריכה בקיבוץ משתקפים החיים; סופר הספדים בודד מחפש חום אנושי בטיסה לדאלאס; ביקור בבית מרקחת הזוי בסנט-לואיס, בזמן מגפה עולמית, מניע מסע אל הרי ההימאליה, למפגש עם הדרקון.</p><p>פסיפס של דמויות אנושיות הנעות בעקבות מודעות חדשה והצורך בחמלה, בעולם היפר-ריאליסטי וכאוטי.</p>',
         price: '₪79',
-        coverBg: 'linear-gradient(90deg, rgba(0,0,0,0.15), transparent 11%), linear-gradient(145deg, #d4b888, #7a4a1e)'
+        coverBg: "url('images/books/כריכה_דמיון%20לנחמה.jpg') center/cover no-repeat",
+        coverImg: 'images/books/כריכה_דמיון%20לנחמה.jpg',
+        hasPhoto: true
       },
       'book-02': {
-        title: 'שם הספר השני',
-        description: 'תיאור קצר לספר השני, עם דגש על ההבדל בינו לבין הספר הראשון. חשוב שהמשתמש יבין מהר איזה ספר מתאים לו.',
+        title: 'דרום מערב',
+        description: '<p>עשרה סיפורים קצרים: שני טירונים בורחים מהבסיס; פרמדיק נאבק על פתיל חייו של גבר; צעיר ישראלי פוגש את ניו-יורק בדרך לא שגרתית; במשאית ההובלות נארזים חיים שלמים; במשמרת במסעדה מגמגמת מבין הטבח לאן פני הדברים; בחור מצליח נקלע לפי פחת; סוכן מכירות מוטרד ממה שמתחת לפני השטח; שני אנשי עסקים קרובים יוצאים למסע באסיה; ביקור אצל סוחר סמים הופך לחיפוש אחר מקלט מטילים; חבורת ילדים מגלה שהשער אל החופש אינו נעול.</p><p>על התפר שבין מציאות דוחקת למפגש חשוף עם זרם התודעה, מנסים גיבורי הספר להישאר בתנועה אל עבר מקום מוקיר ערך.</p>',
         price: '₪89',
-        coverBg: 'linear-gradient(90deg, rgba(0,0,0,0.15), transparent 11%), linear-gradient(145deg, #e8efe5, #667f65)'
+        coverBg: "url('images/books/כריכה_דרום%20מערב.jpg') center/cover no-repeat",
+        coverImg: 'images/books/כריכה_דרום%20מערב.jpg',
+        hasPhoto: true
       }
     };
 
@@ -373,10 +414,23 @@
     document.getElementById('banner-cover').style.background   = book.coverBg;
     document.getElementById('banner-cover-title').textContent  = book.title;
     document.getElementById('purchase-book-title').textContent = book.title;
-    document.getElementById('banner-description').textContent  = book.description;
+    document.getElementById('banner-description').innerHTML    = book.description;
     document.getElementById('banner-price').textContent        = book.price;
     document.getElementById('submit-price').textContent        = book.price;
     document.title = `רכישה — ${book.title} | יונתן`;
+
+    if (book.hasPhoto) {
+      document.getElementById('banner-cover-title').hidden = true;
+      document.getElementById('banner-cover').classList.add('has-photo');
+      const coverFormat = document.querySelector('.yb-purchase-banner__cover-format');
+      if (coverFormat) coverFormat.hidden = true;
+    }
+
+    if (book.coverImg) {
+      document.getElementById('banner-backdrop').style.backgroundImage = `url('${book.coverImg}')`;
+    }
+
+    let activePaymentMethod = 'card';
 
     /* =========================================================
        DELIVERY MODE
@@ -462,6 +516,39 @@
     applyDeliveryMode(getDeliveryMode());
 
     /* =========================================================
+       PAYMENT METHOD
+    ========================================================= */
+
+    function applyPaymentMethod(method) {
+      activePaymentMethod = method;
+      document.querySelectorAll('.yb-payment-tab').forEach(tab => {
+        const isActive = tab.dataset.method === method;
+        tab.classList.toggle('is-active', isActive);
+        tab.setAttribute('aria-pressed', isActive ? 'true' : 'false');
+      });
+      document.getElementById('card-fields-panel').hidden = method === 'bit';
+      const bitPanel = document.getElementById('bit-panel');
+      if (method === 'bit') {
+        bitPanel.hidden = false;
+        bitPanel.classList.remove('is-entering');
+        void bitPanel.offsetWidth;
+        bitPanel.classList.add('is-entering');
+        bitPanel.addEventListener('animationend', () => bitPanel.classList.remove('is-entering'), { once: true });
+      } else {
+        bitPanel.hidden = true;
+      }
+      document.getElementById('submit-btn-label').textContent = method === 'bit' ? 'תשלום בביט' : 'לרכישה';
+    }
+
+    document.querySelectorAll('.yb-payment-tab').forEach(tab => {
+      tab.addEventListener('click', () => applyPaymentMethod(tab.dataset.method));
+    });
+
+    document.getElementById('bit-open-app').addEventListener('click', () => {
+      alert('Demo: פתיחת אפליקציית ביט\n\nבפיתוח אמיתי: deep link לאפליקציית ביט עם פרטי העסקה.');
+    });
+
+    /* =========================================================
        VALIDATION RULES
     ========================================================= */
 
@@ -498,12 +585,14 @@
       },
       {
         id: 'card-name',
+        cardOnly: true,
         rules: [
           { test: v => v.trim().length > 0, msg: 'נא להזין שם בעל הכרטיס' },
         ]
       },
       {
         id: 'id-number',
+        cardOnly: true,
         rules: [
           { test: v => v.trim().length > 0,       msg: 'נא להזין תעודת זהות' },
           { test: v => RE.idNum.test(v.trim()),    msg: 'תעודת זהות חייבת להכיל 9 ספרות' },
@@ -533,6 +622,7 @@
       },
       {
         id: 'card-number',
+        cardOnly: true,
         rules: [
           { test: v => v.trim().length > 0,                          msg: 'נא להזין מספר כרטיס' },
           { test: v => RE.cardNum.test(v.replace(/[\s-]/g, '')),     msg: 'מספר כרטיס לא תקין' },
@@ -540,6 +630,7 @@
       },
       {
         id: 'card-expiry',
+        cardOnly: true,
         rules: [
           { test: v => v.trim().length > 0,       msg: 'נא להזין תאריך תפוגה' },
           { test: v => RE.expiry.test(v.trim()),   msg: 'תאריך תפוגה לא תקין (לדוגמה: 12/28)' },
@@ -547,6 +638,7 @@
       },
       {
         id: 'card-cvv',
+        cardOnly: true,
         rules: [
           { test: v => v.trim().length > 0,    msg: 'נא להזין CVV' },
           { test: v => RE.cvv.test(v.trim()),   msg: 'CVV לא תקין (3-4 ספרות)' },
@@ -590,6 +682,11 @@
       if (!input) return true;
 
       if (fieldDef.conditional && shippingWrapper.hidden) {
+        clearFieldState(input);
+        return true;
+      }
+
+      if (fieldDef.cardOnly && activePaymentMethod === 'bit') {
         clearFieldState(input);
         return true;
       }
@@ -705,6 +802,16 @@
       }
 
       submitError.classList.remove('is-visible');
+
+      if (activePaymentMethod === 'bit') {
+        const mode = getDeliveryMode();
+        alert(
+          `Demo: תשלום בביט — ${book.price}\n` +
+          `מסלול: ${mode === 'physical' ? 'שליחה בדואר' : 'הורדה דיגיטלית'}\n\n` +
+          `בפיתוח אמיתי: קריאה ל-API של Tranzila / PayMe, קבלת QR / deep link, אישור ב-webhook.`
+        );
+        return;
+      }
 
       const mode = getDeliveryMode();
       alert(

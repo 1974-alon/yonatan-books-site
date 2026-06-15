@@ -23,14 +23,27 @@
     list.innerHTML = '<p class="yb-account__no-purchases">לא נמצאו רכישות בחשבון זה.</p>';
   } else {
     list.innerHTML = customer.purchases.map(renderPurchaseCard).join('');
+    setupReviewForms();
+  }
+
+  function formatReviewName(fullName) {
+    const parts = fullName.trim().split(/\s+/);
+    if (parts.length < 2) return fullName;
+    return `${parts[0]}.${parts[1].charAt(0)}`;
   }
 
   function renderPurchaseCard(p) {
-    const isDigital    = p.type === 'digital';
-    const coverLetter  = p.bookTitle.charAt(0);
-    const formattedDate = new Date(p.date).toLocaleDateString('he-IL', {
+    const isDigital      = p.type === 'digital';
+    const coverLetter    = p.bookTitle.charAt(0);
+    const formattedDate  = new Date(p.date).toLocaleDateString('he-IL', {
       day: 'numeric', month: 'long', year: 'numeric'
     });
+    const storedReviews  = JSON.parse(localStorage.getItem('yb-reviews') || '[]');
+    const existingReview = storedReviews.find(r => r.orderId === p.id);
+    const reviewed       = !!existingReview;
+
+    const savedName = reviewed ? existingReview.name : formatReviewName(customer.name);
+    const savedText = reviewed ? existingReview.text : '';
 
     return `
       <div class="yb-account__purchase-card">
@@ -47,9 +60,139 @@
           ${isDigital
             ? `<a class="yb-account__download-btn" href="#" aria-label="הורדת ${p.bookTitle}">הורדת הספר</a>`
             : ''}
+          <div class="yb-account__review-section" id="review-section-${p.id}">
+            <div class="yb-account__review-header">
+              <h4 class="yb-account__review-title">חוות דעת הקורא</h4>
+              <p class="yb-account__review-sub">״דעתך משמעותית לי, אשמח לשמוע אותה״</p>
+            </div>
+            ${!reviewed
+              ? `<button type="button" class="yb-account__review-toggle has-ripple" id="review-toggle-${p.id}">כתוב ביקורת</button>`
+              : ''}
+            <form class="yb-account__review-form" id="review-form-${p.id}" ${reviewed ? '' : 'hidden'} novalidate>
+              <div class="yb-field">
+                <label class="yb-field__label">שם הספר</label>
+                <input class="yb-field__input yb-account__review-book" type="text"
+                  value="${p.bookTitle}" readonly tabindex="-1" aria-label="שם הספר (לא לעריכה)" />
+              </div>
+              <div class="yb-field">
+                <label class="yb-field__label" for="review-name-${p.id}">
+                  שם לתצוגה <span class="yb-field__note">ניתן לשנות</span>
+                </label>
+                <input class="yb-field__input yb-account__review-name" type="text"
+                  id="review-name-${p.id}" value="${savedName}" ${reviewed ? 'disabled' : ''} />
+              </div>
+              <div class="yb-field">
+                <label class="yb-field__label" for="review-text-${p.id}">
+                  הביקורת שלך <span class="yb-field__req">*</span>
+                </label>
+                <textarea class="yb-field__input yb-field__input--textarea yb-account__review-text"
+                  id="review-text-${p.id}"
+                  placeholder="שתף את דעתך על הספר..."
+                  aria-describedby="review-text-error-${p.id}"
+                  ${reviewed ? 'disabled' : ''}>${savedText}</textarea>
+                <p class="yb-field__error" id="review-text-error-${p.id}" aria-live="polite"></p>
+              </div>
+              <div class="yb-account__review-form-actions">
+                <button class="primary-button has-ripple" type="submit"
+                  id="review-submit-${p.id}" ${reviewed ? 'hidden' : ''}>שלח ביקורת</button>
+              </div>
+              <div class="yb-account__review-status" id="review-status-${p.id}" ${reviewed ? '' : 'hidden'}>
+                <p class="yb-account__review-sent">✓ הביקורת נקלטה במערכת ותתפרסם בהקדם</p>
+                <button type="button" class="yb-account__review-edit has-ripple"
+                  id="review-edit-${p.id}">ערוך</button>
+              </div>
+            </form>
+          </div>
         </div>
       </div>
     `;
+  }
+
+  function setupReviewForms() {
+    customer.purchases.forEach(p => {
+      const form      = document.getElementById(`review-form-${p.id}`);
+      const toggleBtn = document.getElementById(`review-toggle-${p.id}`);
+      const submitBtn = document.getElementById(`review-submit-${p.id}`);
+      const statusBar = document.getElementById(`review-status-${p.id}`);
+      const editBtn   = document.getElementById(`review-edit-${p.id}`);
+      const textEl    = form.querySelector('.yb-account__review-text');
+      const nameEl    = form.querySelector('.yb-account__review-name');
+      const errorEl   = form.querySelector('.yb-field__error');
+
+      if (!form) return;
+
+      // Toggle (only present when not yet reviewed)
+      if (toggleBtn) {
+        toggleBtn.addEventListener('click', () => {
+          const isOpen = !form.hidden;
+          if (isOpen) {
+            form.hidden = true;
+            toggleBtn.textContent = 'כתוב ביקורת';
+            toggleBtn.classList.remove('is-open');
+          } else {
+            form.hidden = false;
+            form.classList.remove('is-entering');
+            void form.offsetWidth;
+            form.classList.add('is-entering');
+            form.addEventListener('animationend', () => form.classList.remove('is-entering'), { once: true });
+            toggleBtn.textContent = 'סגור';
+            toggleBtn.classList.add('is-open');
+            textEl.focus();
+          }
+        });
+      }
+
+      // Edit button — re-enables the form for editing
+      editBtn.addEventListener('click', () => {
+        [nameEl, textEl].forEach(el => { el.disabled = false; });
+        submitBtn.hidden = false;
+        statusBar.hidden = true;
+        textEl.focus();
+      });
+
+      // Submit (shared: first send + re-send after edit)
+      form.addEventListener('submit', e => {
+        e.preventDefault();
+        const text = textEl.value.trim();
+
+        errorEl.textContent = '';
+        textEl.classList.remove('is-error');
+
+        if (!text) {
+          textEl.classList.add('is-error');
+          errorEl.textContent = 'נא להזין טקסט ביקורת';
+          textEl.focus();
+          return;
+        }
+
+        // Save or update localStorage
+        const reviews = JSON.parse(localStorage.getItem('yb-reviews') || '[]');
+        const idx = reviews.findIndex(r => r.orderId === p.id);
+        const entry = {
+          orderId:   p.id,
+          bookId:    p.bookId || p.id,
+          bookTitle: p.bookTitle,
+          name:      nameEl.value.trim() || customer.name,
+          text,
+          date:      new Date().toISOString()
+        };
+        if (idx >= 0) reviews[idx] = entry;
+        else reviews.push(entry);
+        localStorage.setItem('yb-reviews', JSON.stringify(reviews));
+
+        // Disable fields, hide submit
+        [nameEl, textEl].forEach(el => { el.disabled = true; });
+        submitBtn.hidden = true;
+        if (toggleBtn) toggleBtn.hidden = true;
+
+        // Fade in status bar
+        statusBar.style.opacity = '0';
+        statusBar.hidden = false;
+        void statusBar.offsetWidth;
+        statusBar.style.transition = 'opacity 220ms';
+        statusBar.style.opacity = '1';
+      });
+    });
   }
 
   // ── Logout ────────────────────────────────────────────────

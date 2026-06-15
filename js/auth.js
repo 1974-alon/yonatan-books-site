@@ -14,7 +14,8 @@ const MOCK_DB = [
     purchases: [
       {
         id: 'ORD-001',
-        bookTitle: 'הפרחים שבלב',
+        bookId: 'book-01',
+        bookTitle: 'דמיון לנחמה',
         type: 'digital',
         status: 'הושלם',
         date: '2026-06-01'

@@ -113,6 +113,24 @@
       });
     });
 
+    // ── Inject user-submitted reviews into carousel ────────
+    (function () {
+      const track = document.getElementById('yb-testimonials-track');
+      if (!track) return;
+      const reviews = JSON.parse(localStorage.getItem('yb-reviews') || '[]');
+      reviews.forEach(r => {
+        const parts       = r.name.trim().split(/\s+/);
+        const displayName = parts.length >= 2 ? `${parts[0]}.${parts[1].charAt(0)}` : r.name;
+        const bq = document.createElement('blockquote');
+        bq.className = 'yb-testimonial';
+        bq.innerHTML =
+          `<span class="yb-testimonial__book">${r.bookTitle}</span>` +
+          `<p class="yb-testimonial__text">״${r.text}״</p>` +
+          `<cite class="yb-testimonial__cite">${displayName}</cite>`;
+        track.appendChild(bq);
+      });
+    }());
+
     // ── Testimonials Carousel ──────────────────────────────
     (function () {
       const runner = document.getElementById('yb-testimonials-runner');
