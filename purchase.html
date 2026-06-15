@@ -32,7 +32,7 @@
           <a href="index.html#faq">שאלות</a>
         </nav>
         <div class="yb-header__actions">
-          <button class="yb-header__mini-button has-ripple" type="button">האזור שלי</button>
+          <button class="yb-header__mini-button has-ripple" type="button" id="my-area-btn">האזור שלי</button>
           <a class="yb-header__mini-button has-ripple" href="index.html#books">הספרים</a>
           <button class="yb-header__hamburger has-ripple" type="button" aria-label="פתח תפריט ניווט" aria-expanded="false" aria-controls="yb-mobile-nav">
             <span aria-hidden="true"></span>
@@ -206,7 +206,7 @@
               <div class="yb-field yb-field--full">
                 <label class="yb-field__label" for="card-name">שם בעל הכרטיס <span class="yb-field__req" aria-hidden="true">*</span></label>
                 <input class="yb-field__input" type="text" id="card-name" name="card-name"
-                  autocomplete="cc-name" required placeholder="כפי שמופיע על הכרטיס"
+                  autocomplete="off" required placeholder="כפי שמופיע על הכרטיס"
                   aria-describedby="card-name-error" />
                 <p class="yb-field__error" id="card-name-error" aria-live="polite"></p>
               </div>
@@ -259,7 +259,7 @@
               <div class="yb-field yb-field--full">
                 <label class="yb-field__label" for="card-number">מספר כרטיס <span class="yb-field__req" aria-hidden="true">*</span></label>
                 <input class="yb-field__input yb-field__input--ltr" type="text" id="card-number" name="card-number"
-                  autocomplete="cc-number" inputmode="numeric" maxlength="19" required placeholder="0000 0000 0000 0000"
+                  autocomplete="off" inputmode="numeric" maxlength="19" required placeholder="0000 0000 0000 0000"
                   aria-describedby="card-number-error" />
                 <p class="yb-field__error" id="card-number-error" aria-live="polite"></p>
               </div>
@@ -699,5 +699,75 @@
       );
     });
   </script>
+
+  <div class="yb-auth-modal" id="auth-modal" role="dialog" aria-modal="true" aria-labelledby="auth-modal-title" hidden>
+    <div class="yb-auth-modal__overlay" id="auth-modal-overlay"></div>
+    <div class="yb-auth-modal__box">
+      <button class="yb-auth-modal__close" id="auth-modal-close" type="button" aria-label="סגור חלון">×</button>
+
+      <!-- Step 1: Identify -->
+      <div class="yb-auth-step" id="auth-step-identify">
+        <h2 class="yb-auth-modal__title" id="auth-modal-title">האזור האישי שלי</h2>
+        <p class="yb-auth-modal__sub">הזן שם מלא ואחד מאמצעי ההתקשרות שסיפקת בעת הרכישה</p>
+        <div class="yb-auth-form">
+          <div class="yb-field">
+            <label class="yb-field__label" for="auth-name">שם מלא <span class="yb-field__req">*</span></label>
+            <input class="yb-field__input" type="text" id="auth-name" autocomplete="name"
+              placeholder="ישראל ישראלי" aria-describedby="auth-name-error" />
+            <p class="yb-field__error" id="auth-name-error" aria-live="polite"></p>
+          </div>
+
+          <div class="yb-auth-contact-tabs" role="group" aria-label="בחר שיטת אימות">
+            <button type="button" class="yb-auth-tab is-active" data-tab="email">אימייל</button>
+            <button type="button" class="yb-auth-tab" data-tab="phone">טלפון</button>
+          </div>
+
+          <div class="yb-field" id="auth-email-field">
+            <label class="yb-field__label" for="auth-email">אימייל <span class="yb-field__req">*</span></label>
+            <input class="yb-field__input" type="text" id="auth-email" inputmode="email"
+              autocomplete="email" placeholder="israel@example.com" aria-describedby="auth-email-error" />
+            <p class="yb-field__error" id="auth-email-error" aria-live="polite"></p>
+          </div>
+
+          <div class="yb-field" id="auth-phone-field" hidden>
+            <label class="yb-field__label" for="auth-phone">טלפון <span class="yb-field__req">*</span></label>
+            <input class="yb-field__input" type="text" id="auth-phone" inputmode="tel"
+              autocomplete="tel" placeholder="0501234567" aria-describedby="auth-phone-error" />
+            <p class="yb-field__error" id="auth-phone-error" aria-live="polite"></p>
+          </div>
+
+          <p class="yb-auth-error" id="auth-lookup-error" aria-live="polite" hidden></p>
+
+          <button class="primary-button has-ripple yb-auth-submit" type="button" id="auth-identify-submit">
+            כניסה לאזור האישי
+          </button>
+        </div>
+      </div>
+
+      <!-- Step 2: OTP -->
+      <div class="yb-auth-step" id="auth-step-otp" hidden>
+        <h2 class="yb-auth-modal__title">אימות קוד</h2>
+        <p class="yb-auth-modal__sub" id="otp-hint">שלחנו קוד אימות לאמצעי ההתקשרות שלך</p>
+        <div class="yb-auth-form">
+          <div class="yb-field">
+            <p class="yb-field__label" id="otp-label">קוד אימות <span class="yb-field__req">*</span></p>
+            <div class="yb-otp-group" id="otp-group" role="group" aria-labelledby="otp-label" aria-describedby="auth-otp-error">
+              <input class="yb-otp-box" type="text" inputmode="numeric" maxlength="1" pattern="[0-9]" aria-label="ספרה 1" autocomplete="one-time-code" />
+              <input class="yb-otp-box" type="text" inputmode="numeric" maxlength="1" pattern="[0-9]" aria-label="ספרה 2" autocomplete="off" />
+              <input class="yb-otp-box" type="text" inputmode="numeric" maxlength="1" pattern="[0-9]" aria-label="ספרה 3" autocomplete="off" />
+              <input class="yb-otp-box" type="text" inputmode="numeric" maxlength="1" pattern="[0-9]" aria-label="ספרה 4" autocomplete="off" />
+            </div>
+            <p class="yb-field__error" id="auth-otp-error" aria-live="polite"></p>
+          </div>
+          <button class="primary-button has-ripple yb-auth-submit" type="button" id="auth-otp-submit">
+            אישור וכניסה
+          </button>
+          <button class="yb-auth-back" type="button" id="auth-back">חזרה</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="js/auth.js"></script>
 </body>
 </html>

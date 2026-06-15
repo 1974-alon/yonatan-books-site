@@ -18,38 +18,39 @@
     const hamburger = document.querySelector('.yb-header__hamburger');
     const mobileNav = document.querySelector('#yb-mobile-nav');
 
-    function closeMobileNav(returnFocus = true) {
-      hamburger.classList.remove('is-open');
-      hamburger.setAttribute('aria-expanded', 'false');
-      hamburger.setAttribute('aria-label', 'פתח תפריט ניווט');
-      mobileNav.hidden = true;
-      mobileNav.setAttribute('aria-hidden', 'true');
-      if (returnFocus) hamburger.focus();
+    if (hamburger && mobileNav) {
+      function closeMobileNav(returnFocus = true) {
+        hamburger.classList.remove('is-open');
+        hamburger.setAttribute('aria-expanded', 'false');
+        hamburger.setAttribute('aria-label', 'פתח תפריט ניווט');
+        mobileNav.hidden = true;
+        mobileNav.setAttribute('aria-hidden', 'true');
+        if (returnFocus) hamburger.focus();
+      }
+
+      hamburger.addEventListener('click', () => {
+        const isOpen = hamburger.classList.toggle('is-open');
+        hamburger.setAttribute('aria-expanded', String(isOpen));
+        hamburger.setAttribute('aria-label', isOpen ? 'סגור תפריט ניווט' : 'פתח תפריט ניווט');
+        mobileNav.hidden = !isOpen;
+        mobileNav.setAttribute('aria-hidden', String(!isOpen));
+
+        if (isOpen) {
+          const firstLink = mobileNav.querySelector('.yb-mobile-nav__link');
+          if (firstLink) firstLink.focus();
+        }
+      });
+
+      mobileNav.querySelectorAll('.yb-mobile-nav__link').forEach((link) => {
+        link.addEventListener('click', () => closeMobileNav(false));
+      });
+
+      document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape' && hamburger.classList.contains('is-open')) {
+          closeMobileNav();
+        }
+      });
     }
-
-    hamburger.addEventListener('click', () => {
-      const isOpen = hamburger.classList.toggle('is-open');
-      hamburger.setAttribute('aria-expanded', String(isOpen));
-      hamburger.setAttribute('aria-label', isOpen ? 'סגור תפריט ניווט' : 'פתח תפריט ניווט');
-      mobileNav.hidden = !isOpen;
-      mobileNav.setAttribute('aria-hidden', String(!isOpen));
-
-      if (isOpen) {
-        const firstLink = mobileNav.querySelector('.yb-mobile-nav__link');
-        if (firstLink) firstLink.focus();
-      }
-    });
-
-    mobileNav.querySelectorAll('.yb-mobile-nav__link').forEach((link) => {
-      link.addEventListener('click', () => closeMobileNav(false));
-    });
-
-    // Close mobile nav on Escape
-    document.addEventListener('keydown', (e) => {
-      if (e.key === 'Escape' && hamburger.classList.contains('is-open')) {
-        closeMobileNav();
-      }
-    });
 
     // ── FAQ Accordion ──────────────────────────────────────
     const faqItems = document.querySelectorAll('.yb-faq__item');

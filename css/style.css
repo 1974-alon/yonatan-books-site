@@ -30,6 +30,10 @@
       box-sizing: border-box;
     }
 
+    [hidden] {
+      display: none !important;
+    }
+
     html {
       scroll-behavior: smooth;
     }
@@ -424,8 +428,8 @@
 
     .yb-intro__panel {
       display: grid;
-      grid-template-columns: 0.75fr 1.25fr;
-      gap: 56px;
+      grid-template-columns: 0.55fr 1.45fr;
+      gap: 36px;
       padding: 52px 56px 64px;
       border: none;
       border-radius: 0;
@@ -439,11 +443,26 @@
       color: #2a1c0c;
     }
 
+    .yb-intro__quote {
+      margin: 0;
+      padding: 0;
+      border: none;
+    }
+
     .yb-intro__text {
       margin: 0;
       font-size: 1.08rem;
       line-height: 1.75;
       color: #5a3e22;
+    }
+
+    .yb-intro__cite {
+      display: block;
+      margin-top: 20px;
+      font-size: 0.88rem;
+      font-style: normal;
+      color: #8a6a40;
+      letter-spacing: 0.01em;
     }
 
     /* =========================================================
@@ -1040,4 +1059,324 @@
       .yb-faq__button span {
         transition: none;
       }
+    }
+
+    /* =========================================================
+       SHARED FORM FIELDS
+       Used by auth modal (index.html) and account.html.
+       purchase.css extends these for the purchase form.
+    ========================================================= */
+
+    .yb-field {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .yb-field__label {
+      display: block;
+      margin-bottom: 8px;
+      font-size: 0.79rem;
+      font-weight: 700;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      color: var(--color-muted);
+    }
+
+    .yb-field__req {
+      color: var(--color-accent);
+    }
+
+    .yb-field__input {
+      display: block;
+      width: 100%;
+      padding: 13px 16px;
+      border: 1.5px solid rgba(42, 26, 14, 0.18);
+      border-radius: var(--radius-md);
+      background: #fff;
+      font-family: var(--font-main);
+      font-size: 1rem;
+      color: var(--color-ink);
+      line-height: 1.5;
+      text-align: right;
+      outline: none;
+      box-sizing: border-box;
+      transition: border-color 160ms ease, box-shadow 160ms ease;
+      -webkit-appearance: none;
+      appearance: none;
+    }
+
+    .yb-field__input::placeholder {
+      color: rgba(122, 92, 64, 0.34);
+    }
+
+    .yb-field__input:focus {
+      border-color: var(--color-accent);
+      box-shadow: 0 0 0 3px rgba(92, 140, 56, 0.13);
+    }
+
+    .yb-field__input.is-error {
+      border-color: #c0392b;
+      box-shadow: 0 0 0 3px rgba(192, 57, 43, 0.10);
+    }
+
+    .yb-field__input--textarea {
+      resize: none;
+      height: 120px;
+    }
+
+    .yb-field__error {
+      margin: 6px 0 0;
+      font-size: 0.82rem;
+      font-weight: 700;
+      color: #c0392b;
+      line-height: 1.4;
+      min-height: 0;
+    }
+
+    /* =========================================================
+       AUTH MODAL
+    ========================================================= */
+
+    .yb-auth-modal {
+      position: fixed;
+      inset: 0;
+      z-index: 10000;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+
+    .yb-auth-modal[hidden] {
+      display: none;
+    }
+
+    .yb-auth-modal__overlay {
+      position: absolute;
+      inset: 0;
+      background: rgba(15, 34, 24, 0.65);
+      backdrop-filter: blur(4px);
+      -webkit-backdrop-filter: blur(4px);
+    }
+
+    .yb-auth-modal__box {
+      position: relative;
+      background: #fff;
+      border-radius: 16px;
+      padding: 44px 40px 40px;
+      width: 100%;
+      max-width: 440px;
+      max-height: 90vh;
+      overflow-y: auto;
+      box-shadow: 0 24px 64px rgba(15, 34, 24, 0.28);
+    }
+
+    .yb-auth-modal__close {
+      position: absolute;
+      top: 14px;
+      inset-inline-start: 14px;
+      background: none;
+      border: none;
+      font-size: 1.4rem;
+      line-height: 1;
+      cursor: pointer;
+      color: var(--color-muted);
+      padding: 6px 10px;
+      border-radius: 6px;
+      transition: background 160ms, color 160ms;
+    }
+
+    .yb-auth-modal__close:hover {
+      background: var(--color-soft);
+      color: var(--color-ink);
+    }
+
+    .yb-auth-modal__title {
+      margin: 0 0 8px;
+      font-size: 1.5rem;
+      font-weight: 800;
+      color: var(--color-ink);
+    }
+
+    .yb-auth-modal__sub {
+      margin: 0 0 28px;
+      font-size: 0.9rem;
+      color: var(--color-muted);
+      line-height: 1.65;
+    }
+
+    .yb-auth-form {
+      display: flex;
+      flex-direction: column;
+      gap: 18px;
+    }
+
+    /* Tab switcher: אימייל / טלפון */
+    .yb-auth-contact-tabs {
+      display: flex;
+      gap: 6px;
+      background: var(--color-soft);
+      border-radius: 10px;
+      padding: 4px;
+    }
+
+    .yb-auth-tab {
+      flex: 1;
+      padding: 8px 14px;
+      background: none;
+      border: none;
+      border-radius: 7px;
+      cursor: pointer;
+      font-size: 0.9rem;
+      font-family: var(--font-main);
+      color: var(--color-muted);
+      transition: all 160ms;
+    }
+
+    .yb-auth-tab.is-active {
+      background: #fff;
+      color: var(--color-accent);
+      font-weight: 700;
+      box-shadow: 0 1px 4px rgba(0, 0, 0, 0.10);
+    }
+
+    /* Lookup error banner */
+    .yb-auth-error {
+      margin: 0;
+      font-size: 0.88rem;
+      line-height: 1.55;
+      color: #b03020;
+      background: #fdf1f0;
+      border-inline-end: 3px solid #c0392b;
+      padding: 10px 14px;
+      border-radius: 8px;
+    }
+
+    .yb-auth-error[hidden] {
+      display: none;
+    }
+
+    /* ── OTP boxes ──────────────────────────────────────── */
+
+    .yb-otp-group {
+      display: flex;
+      gap: 10px;
+      justify-content: center;
+      direction: ltr;
+    }
+
+    .yb-otp-box {
+      width: 56px;
+      height: 64px;
+      border: 2px solid rgba(42, 26, 14, 0.18);
+      border-radius: 12px;
+      background: #fff;
+      font-family: var(--font-main);
+      font-size: 1.8rem;
+      font-weight: 700;
+      text-align: center;
+      color: var(--color-ink);
+      outline: none;
+      caret-color: transparent;
+      transition: border-color 180ms, box-shadow 180ms, background 180ms;
+      -webkit-appearance: none;
+      appearance: none;
+    }
+
+    .yb-otp-box:focus {
+      border-color: var(--color-accent);
+      box-shadow: 0 0 0 3px rgba(42, 122, 78, 0.15);
+      background: #f5fbf7;
+    }
+
+    .yb-otp-box.is-filled {
+      border-color: var(--color-accent);
+      background: #f0f8f3;
+    }
+
+    .yb-otp-group.is-error .yb-otp-box {
+      border-color: #c0392b;
+      background: #fdf1f0;
+    }
+
+    /* Pop animation on digit entry */
+    @keyframes otp-pop {
+      0%   { transform: scale(1); }
+      35%  { transform: scale(1.2); }
+      65%  { transform: scale(0.92); }
+      100% { transform: scale(1); }
+    }
+
+    .yb-otp-box.is-popping {
+      animation: otp-pop 300ms cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+
+    /* Shake on wrong code */
+    @keyframes otp-shake {
+      0%, 100% { transform: translateX(0); }
+      15%  { transform: translateX(-8px); }
+      30%  { transform: translateX(8px); }
+      45%  { transform: translateX(-5px); }
+      60%  { transform: translateX(5px); }
+      75%  { transform: translateX(-2px); }
+      90%  { transform: translateX(2px); }
+    }
+
+    .yb-otp-group.is-shaking {
+      animation: otp-shake 500ms cubic-bezier(0.36, 0.07, 0.19, 0.97);
+    }
+
+    /* ── Step transitions ───────────────────────────────── */
+
+    @keyframes auth-step-in {
+      from { opacity: 0; transform: translateY(14px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    .yb-auth-step {
+      animation: auth-step-in 380ms cubic-bezier(0.22, 1, 0.36, 1);
+    }
+
+    /* ── Modal box entrance ─────────────────────────────── */
+
+    @keyframes modal-box-in {
+      from { opacity: 0; transform: translateY(28px) scale(0.95); }
+      to   { opacity: 1; transform: translateY(0)  scale(1); }
+    }
+
+    .yb-auth-modal__box {
+      animation: modal-box-in 420ms cubic-bezier(0.22, 1, 0.36, 1);
+    }
+
+    @keyframes modal-overlay-in {
+      from { opacity: 0; }
+      to   { opacity: 1; }
+    }
+
+    .yb-auth-modal__overlay {
+      animation: modal-overlay-in 300ms ease;
+    }
+
+    /* Full-width submit */
+    .yb-auth-submit {
+      width: 100%;
+      justify-content: center;
+    }
+
+    /* Back link */
+    .yb-auth-back {
+      background: none;
+      border: none;
+      font-family: var(--font-main);
+      font-size: 0.88rem;
+      color: var(--color-muted);
+      cursor: pointer;
+      text-decoration: underline;
+      text-align: center;
+      padding: 0;
+      transition: color 160ms;
+    }
+
+    .yb-auth-back:hover {
+      color: var(--color-ink);
     }

@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>האזור האישי שלי | יונתן</title>
+  <meta name="robots" content="noindex, nofollow" />
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Heebo:wght@400;700;800;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/account.css">
+</head>
+<body>
+  <div class="page-shell">
+    <header class="yb-header" aria-label="ניווט ראשי">
+      <div class="site-container yb-header__inner">
+        <a class="yb-header__brand" href="index.html" aria-label="יונתן ספרים דיגיטליים">
+          <span class="yb-header__mark" aria-hidden="true">י</span>
+          <span>יונתן | ספרים</span>
+        </a>
+
+        <nav class="yb-header__nav" aria-label="קישורי עמוד">
+          <a href="index.html#books">הספרים</a>
+          <a href="index.html#author">על המחבר</a>
+          <a href="index.html#process">איך זה עובד</a>
+          <a href="index.html#faq">שאלות</a>
+        </nav>
+
+        <div class="yb-header__actions">
+          <button class="yb-account__logout has-ripple js-logout" type="button">התנתקות מאזור אישי</button>
+          <a class="yb-header__mini-button has-ripple" href="index.html#books">רכישה</a>
+          <button class="yb-header__hamburger has-ripple" type="button" aria-label="פתח תפריט ניווט" aria-expanded="false" aria-controls="yb-mobile-nav">
+            <span aria-hidden="true"></span>
+            <span aria-hidden="true"></span>
+            <span aria-hidden="true"></span>
+          </button>
+        </div>
+      </div>
+
+      <div id="yb-mobile-nav" class="yb-mobile-nav" hidden aria-hidden="true">
+        <div class="site-container">
+          <nav class="yb-mobile-nav__inner" aria-label="תפריט ניווט נייד">
+            <a href="index.html#books" class="yb-mobile-nav__link has-ripple">הספרים</a>
+            <a href="index.html#author" class="yb-mobile-nav__link has-ripple">על המחבר</a>
+            <a href="index.html#process" class="yb-mobile-nav__link has-ripple">איך זה עובד</a>
+            <a href="index.html#faq" class="yb-mobile-nav__link has-ripple">שאלות</a>
+          </nav>
+        </div>
+      </div>
+    </header>
+
+    <main class="yb-account" id="top" tabindex="-1">
+      <div class="site-container">
+
+        <!-- Welcome -->
+        <div class="yb-account__welcome">
+          <h1 class="yb-account__greeting">שלום, <span id="account-name">—</span></h1>
+        </div>
+
+        <!-- Purchases -->
+        <section class="yb-account__section" aria-labelledby="purchases-title">
+          <h2 class="yb-account__section-title" id="purchases-title">הרכישות שלי</h2>
+          <div class="yb-account__section-rule" aria-hidden="true"></div>
+          <div class="yb-account__purchases" id="purchases-list">
+            <!-- Populated by account.js -->
+          </div>
+        </section>
+
+        <!-- Message to author -->
+        <section class="yb-account__section" aria-labelledby="message-title">
+          <h2 class="yb-account__section-title" id="message-title">פנייה למחבר</h2>
+          <div class="yb-account__section-rule" aria-hidden="true"></div>
+          <p class="yb-account__section-sub">שאלה על הספר? נתקלת בבעיה? שלח הודעה ישירה ליונתן.</p>
+
+          <form class="yb-account__message-form" id="message-form" novalidate>
+            <div class="yb-field">
+              <label class="yb-field__label" for="msg-text">ההודעה שלך <span class="yb-field__req">*</span></label>
+              <textarea class="yb-field__input yb-field__input--textarea" id="msg-text" name="msg-text"
+                placeholder="כתוב כאן את הודעתך..."
+                aria-describedby="msg-text-error"></textarea>
+              <p class="yb-field__error" id="msg-text-error" aria-live="polite"></p>
+            </div>
+            <div>
+              <button class="primary-button has-ripple" type="submit">שליחת הודעה</button>
+            </div>
+            <p class="yb-account__msg-sent" id="msg-sent" hidden>ההודעה נשלחה בהצלחה. יונתן יחזור אליך בהקדם.</p>
+          </form>
+        </section>
+
+      </div>
+    </main>
+
+    <footer class="yb-footer">
+      <div class="site-container yb-footer__inner">
+        <div class="yb-footer__start">
+          <span>© 2026 יונתן. כל הזכויות שמורות.</span>
+          <span class="yb-footer__credit">נבנה ועוצב ע״י <a href="https://suntree.co.il" class="yb-footer__credit-link" target="_blank" rel="noopener">suntree</a></span>
+        </div>
+        <span>רכישה דיגיטלית · הורדה לאחר תשלום · ניהול הזמנות</span>
+      </div>
+    </footer>
+  </div>
+
+  <script src="js/app.js"></script>
+  <script src="js/account.js"></script>
+</body>
+</html>
