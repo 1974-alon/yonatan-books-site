@@ -139,43 +139,40 @@
                 <p class="yb-field__error" id="full-name-error" aria-live="polite"></p>
               </div>
 
-              <!-- Billing address — optional, for invoice -->
+              <!-- Address (billing + shipping by default) -->
               <div class="yb-field yb-field--full">
-                <label class="yb-field__label" for="address">
-                  כתובת
-                  <span class="yb-field__label-note"> (לחשבונית, אופציונלי)</span>
-                </label>
+                <label class="yb-field__label" for="address">כתובת</label>
                 <input class="yb-field__input" type="text" id="address" name="address"
-                  autocomplete="billing street-address" placeholder="רחוב הרצל 12, דירה 5" />
+                  autocomplete="street-address" placeholder="רחוב הרצל 12, דירה 5" />
               </div>
 
               <div class="yb-field">
                 <label class="yb-field__label" for="address-city">עיר</label>
                 <input class="yb-field__input" type="text" id="address-city" name="address-city"
-                  autocomplete="billing locality" placeholder="תל אביב" />
+                  autocomplete="address-level2" placeholder="תל אביב" />
               </div>
 
               <div class="yb-field yb-field--zip">
                 <label class="yb-field__label" for="address-zip">מיקוד</label>
                 <input class="yb-field__input yb-field__input--ltr" type="text" id="address-zip" name="address-zip"
-                  autocomplete="billing postal-code" inputmode="numeric" maxlength="7" placeholder="1234567" />
+                  autocomplete="postal-code" inputmode="numeric" maxlength="7" placeholder="1234567" />
               </div>
 
-              <!-- Same-address checkbox — physical only -->
+              <!-- Different shipping address checkbox — physical delivery only -->
               <div class="yb-field yb-field--full" id="same-address-row" hidden>
-                <label class="yb-checkbox" id="same-address-label">
+                <label class="yb-checkbox">
                   <input class="yb-checkbox__input" type="checkbox" id="same-address" name="same-address" />
                   <span class="yb-checkbox__box" aria-hidden="true"></span>
-                  <span class="yb-checkbox__text">כתובת זו תשמש גם כתובת המשלוח</span>
+                  <span class="yb-checkbox__text">כתובת המשלוח שונה מהכתובת שלעיל</span>
                 </label>
               </div>
 
-              <!-- Shipping address — shows when physical + same-address unchecked -->
+              <!-- Shipping address panel — slides open when checkbox checked -->
               <div class="yb-shipping-wrapper" id="shipping-wrapper" hidden>
                 <div class="yb-shipping-inner">
 
                   <div class="yb-field yb-field--full">
-                    <label class="yb-field__label" for="shipping-address">כתובת משלוח — רחוב ומספר בית <span class="yb-field__req" aria-hidden="true">*</span></label>
+                    <label class="yb-field__label" for="shipping-address">כתובת משלוח <span class="yb-field__req" aria-hidden="true">*</span></label>
                     <input class="yb-field__input" type="text" id="shipping-address" name="shipping-address"
                       autocomplete="shipping street-address" placeholder="רחוב הרצל 12, דירה 5"
                       aria-describedby="shipping-address-error" />
@@ -408,21 +405,38 @@
       return document.querySelector('input[name="delivery-type"]:checked').value;
     }
 
+    function openShippingPanel() {
+      shippingWrapper.hidden = false;
+      shippingWrapper.classList.remove('is-entering');
+      void shippingWrapper.offsetWidth;
+      shippingWrapper.classList.add('is-entering');
+      shippingWrapper.addEventListener('animationend',
+        () => shippingWrapper.classList.remove('is-entering'), { once: true });
+    }
+
+    function closeShippingPanel() {
+      shippingWrapper.hidden = true;
+    }
+
     function applyDeliveryMode(mode) {
       const isPhysical = mode === 'physical';
 
-      // Same-address checkbox row
+      // Checkbox row — physical only
       sameAddressRow.hidden = !isPhysical;
-      if (!isPhysical) sameAddressEl.checked = false;
 
-      // Shipping address + notice
-      const shippingSynced = isPhysical && sameAddressEl.checked;
-      shippingWrapper.hidden = !isPhysical || shippingSynced;
-      shippingNotice.hidden  = !isPhysical;
+      if (!isPhysical) {
+        sameAddressEl.checked = false;
+        closeShippingPanel();
+        setShippingRequired(false);
+      } else {
+        // Physical: shipping panel only if "different address" checkbox is checked
+        const isDifferent = sameAddressEl.checked;
+        if (isDifferent) openShippingPanel(); else closeShippingPanel();
+        setShippingRequired(isDifferent);
+      }
 
-      setShippingRequired(isPhysical && !shippingSynced);
+      shippingNotice.hidden = !isPhysical;
 
-      // Update banner format note + submit note
       if (isPhysical) {
         bannerFormatNote.textContent = 'שליחה בדואר · ספר פיזי';
         submitNote.textContent = 'תשלום מאובטח · הספר יישלח תוך 7 ימי עבודה';
@@ -436,11 +450,11 @@
       radio.addEventListener('change', () => applyDeliveryMode(getDeliveryMode()));
     });
 
-    // Same-address checkbox toggles shipping address visibility
+    // "Different shipping address" checkbox
     sameAddressEl.addEventListener('change', () => {
-      const synced = sameAddressEl.checked;
-      shippingWrapper.hidden = synced;
-      setShippingRequired(!synced);
+      const isDifferent = sameAddressEl.checked;
+      if (isDifferent) openShippingPanel(); else closeShippingPanel();
+      setShippingRequired(isDifferent);
     });
 
     // Init
