@@ -220,92 +220,90 @@
       </section>
 
       <!-- =====================================================
-        SECTION 07: PURCHASE FLOW
-        Angular target: purchase-flow-section
+        SECTION 07+08: INFO (process + FAQ merged)
+        Angular target: info-section
       ====================================================== -->
-      <section class="yb-flow" id="process" aria-labelledby="process-title">
+      <section class="yb-info" id="process" aria-labelledby="process-title">
         <div class="site-container">
-          <div class="section-heading">
-            <span class="eyebrow">תהליך רכישה</span>
-            <h2 id="process-title">פשוט, ברור וללא חיכוך</h2>
-            <p>המשתמש צריך להבין בתוך כמה שניות מה קורה אחרי לחיצה על כפתור הרכישה.</p>
+
+          <div class="yb-info__lead-block">
+            <span class="eyebrow">לפני שרוכשים</span>
+            <h2 id="process-title" class="yb-info__title">רכישה ישירה.<br>ממני אליכם.</h2>
+            <p class="yb-info__body">לוחצים על רכישה, עוברים לדף תשלום מאובטח, ותוך מספר שניות יישלח אליך קישור הורדה אישי ישירות למייל הפרטי שלך.</p>
           </div>
 
-          <ol class="yb-flow__grid">
-            <li class="yb-flow__item">
-              <div class="yb-flow__number" aria-hidden="true">1</div>
-              <h3>בוחרים ספר</h3>
-              <p>הלקוח קורא את התקציר, בוחר את הספר המתאים ולוחץ על רכישה.</p>
+          <ol class="yb-steps" aria-label="שלבי הרכישה">
+            <li class="yb-steps__item">
+              <span class="yb-steps__num" aria-hidden="true">1</span>
+              <span class="yb-steps__label">בחירת ספר</span>
             </li>
-
-            <li class="yb-flow__item">
-              <div class="yb-flow__number" aria-hidden="true">2</div>
-              <h3>משלמים בצורה מאובטחת</h3>
-              <p>האתר עובר לתהליך סליקה מסודר. בפיתוח בפועל ניתן לחבר Stripe, Tranzila, Meshulam או ספק אחר לפי החלטה עסקית.</p>
+            <li class="yb-steps__item">
+              <span class="yb-steps__num" aria-hidden="true">2</span>
+              <span class="yb-steps__label">תשלום מאובטח</span>
             </li>
-
-            <li class="yb-flow__item">
-              <div class="yb-flow__number" aria-hidden="true">3</div>
-              <h3>מקבלים קישור הורדה</h3>
-              <p>לאחר אישור התשלום, נוצרת הזמנה ונשלח קישור הורדה אישי עם מגבלת זמן או מספר הורדות.</p>
+            <li class="yb-steps__item">
+              <span class="yb-steps__num" aria-hidden="true">3</span>
+              <span class="yb-steps__label">קישור הורדה אישי</span>
             </li>
           </ol>
-        </div>
-      </section>
 
-      <!-- =====================================================
-        SECTION 08: FAQ
-        Angular target: faq-section
-      ====================================================== -->
-      <section class="yb-faq" id="faq" aria-labelledby="faq-title">
-        <div class="site-container">
-          <div class="section-heading">
-            <span class="eyebrow">שאלות נפוצות</span>
-            <h2 id="faq-title">כל מה שחשוב לדעת לפני רכישה</h2>
-            <p>שקיפות לפני תשלום מעלה אמון ומקטינה פניות תמיכה מיותרות.</p>
+          <div class="yb-info__sep" aria-hidden="true"></div>
+
+          <div id="faq">
+            <p class="yb-info__faq-label">יש שאלות?</p>
+            <div class="yb-faq__list">
+              <article class="yb-faq__item is-open">
+                <button id="faq-btn-1" class="yb-faq__button has-ripple" type="button" aria-expanded="true" aria-controls="faq-ans-1">
+                  איך מקבלים את הספר אחרי התשלום?
+                  <span aria-hidden="true">+</span>
+                </button>
+                <div id="faq-ans-1" class="yb-faq__answer" role="region" aria-labelledby="faq-btn-1">
+                  לאחר אישור התשלום, המערכת שולחת קישור הורדה אישי לכתובת המייל שהוזנה בתהליך הרכישה.
+                </div>
+              </article>
+
+              <article class="yb-faq__item">
+                <button id="faq-btn-2" class="yb-faq__button has-ripple" type="button" aria-expanded="false" aria-controls="faq-ans-2">
+                  האם ניתן להוריד את הספר יותר מפעם אחת?
+                  <span aria-hidden="true">+</span>
+                </button>
+                <div id="faq-ans-2" class="yb-faq__answer" role="region" aria-labelledby="faq-btn-2">
+                  כן. הקישור האישי מאפשר מספר הורדות בהתאם למדיניות האתר, לדוגמה 3 הורדות או בתוך 72 שעות.
+                </div>
+              </article>
+
+              <article class="yb-faq__item">
+                <button id="faq-btn-3" class="yb-faq__button has-ripple" type="button" aria-expanded="false" aria-controls="faq-ans-3">
+                  האם האתר כולל ספרים פיזיים?
+                  <span aria-hidden="true">+</span>
+                </button>
+                <div id="faq-ans-3" class="yb-faq__answer" role="region" aria-labelledby="faq-btn-3">
+                  כן. המשלוח מתבצע דרך חברת שליחויות חיצונית. קישור המעקב יגיע ישירות למייל שהוזן בתהליך הרכישה, ולא דרך האתר.
+                </div>
+              </article>
+
+              <article class="yb-faq__item">
+                <button id="faq-btn-4" class="yb-faq__button has-ripple" type="button" aria-expanded="false" aria-controls="faq-ans-4">
+                  מה קורה אם הקישור לא הגיע?
+                  <span aria-hidden="true">+</span>
+                </button>
+                <div id="faq-ans-4" class="yb-faq__answer" role="region" aria-labelledby="faq-btn-4">
+                  כדאי לבדוק ספאם קודם. אם הקישור לא הגיע, ניתן לפנות דרך האזור האישי ויטופל בהקדם.
+                </div>
+              </article>
+
+              <article class="yb-faq__item">
+                <button id="faq-btn-5" class="yb-faq__button has-ripple" type="button" aria-expanded="false" aria-controls="faq-ans-5">
+                  מה זה האזור האישי?
+                  <span aria-hidden="true">+</span>
+                </button>
+                <div id="faq-ans-5" class="yb-faq__answer" role="region" aria-labelledby="faq-btn-5">
+                  האזור האישי מאפשר לצפות בכל הרכישות שלך, להוריד את הספרים, לכתוב ביקורת ולשלוח הודעה ישירות אליי. הכניסה מתבצעת עם השם והמייל שהוזנו בעת הרכישה.
+                </div>
+              </article>
+            </div>
           </div>
 
-          <div class="yb-faq__list">
-            <article class="yb-faq__item is-open">
-              <button id="faq-btn-1" class="yb-faq__button has-ripple" type="button" aria-expanded="true" aria-controls="faq-ans-1">
-                איך מקבלים את הספר אחרי התשלום?
-                <span aria-hidden="true">+</span>
-              </button>
-              <div id="faq-ans-1" class="yb-faq__answer" role="region" aria-labelledby="faq-btn-1">
-                לאחר אישור התשלום, המערכת תיצור קישור הורדה אישי ותשלח אותו לכתובת המייל שהוזנה בתהליך הרכישה.
-              </div>
-            </article>
-
-            <article class="yb-faq__item">
-              <button id="faq-btn-2" class="yb-faq__button has-ripple" type="button" aria-expanded="false" aria-controls="faq-ans-2">
-                האם ניתן להוריד את הספר יותר מפעם אחת?
-                <span aria-hidden="true">+</span>
-              </button>
-              <div id="faq-ans-2" class="yb-faq__answer" role="region" aria-labelledby="faq-btn-2">
-                כן, בהתאם למדיניות האתר. ניתן להגדיר קישור עם מגבלת זמן או מספר הורדות, לדוגמה 72 שעות או 3 הורדות.
-              </div>
-            </article>
-
-            <article class="yb-faq__item">
-              <button id="faq-btn-3" class="yb-faq__button has-ripple" type="button" aria-expanded="false" aria-controls="faq-ans-3">
-                האם האתר כולל ספרים פיזיים ומשלוחים?
-                <span aria-hidden="true">+</span>
-              </button>
-              <div id="faq-ans-3" class="yb-faq__answer" role="region" aria-labelledby="faq-btn-3">
-                בשלב זה האתר מיועד למכירת ספרים דיגיטליים בלבד. אפשר להוסיף מכירת ספר פיזי ומשלוחים בשלב עתידי.
-              </div>
-            </article>
-
-            <article class="yb-faq__item">
-              <button id="faq-btn-4" class="yb-faq__button has-ripple" type="button" aria-expanded="false" aria-controls="faq-ans-4">
-                מה קורה אם הקישור לא הגיע?
-                <span aria-hidden="true">+</span>
-              </button>
-              <div id="faq-ans-4" class="yb-faq__answer" role="region" aria-labelledby="faq-btn-4">
-                ניתן להוסיף טופס תמיכה קצר או כפתור WhatsApp. מנהל האתר יוכל לבדוק את ההזמנה במערכת ולשלוח קישור מחדש במידת הצורך.
-              </div>
-            </article>
-          </div>
         </div>
       </section>
 

@@ -640,54 +640,92 @@
 
 
     /* =========================================================
-       SECTION 05: PURCHASE FLOW
+       SECTION 07+08: INFO (process + FAQ merged)
     ========================================================= */
 
-    .yb-flow {
+    .yb-info {
       padding: var(--section-space) 0;
+      background: rgba(255, 255, 255, 0.36);
     }
 
-    .yb-flow__grid {
-      display: grid;
-      grid-template-columns: repeat(3, minmax(0, 1fr));
-      gap: 18px;
-      list-style: none;
+    .yb-info__lead-block {
+      max-width: 620px;
+      margin: 0 auto 40px;
+      text-align: center;
+    }
+
+    .yb-info__title {
+      margin: 16px 0 14px;
+      font-size: clamp(1.6rem, 2.6vw, 2.2rem);
+      font-weight: 900;
+      color: var(--color-ink);
+      letter-spacing: -0.03em;
+      line-height: 1.15;
+    }
+
+    .yb-info__body {
+      font-size: 1.05rem;
+      color: var(--color-muted);
+      line-height: 1.7;
       margin: 0;
+    }
+
+    .yb-steps {
+      list-style: none;
       padding: 0;
+      margin: 0 0 52px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      align-items: center;
+      justify-content: center;
     }
 
-    .yb-flow__item {
-      padding: 36px 32px;
-      border-radius: var(--radius-lg);
-      background: rgba(255, 255, 255, 0.6);
-      border: 1px solid rgba(42, 26, 14, 0.06);
-      transition: box-shadow 240ms ease;
+    .yb-steps__item {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px 20px 10px 16px;
+      background: #fff;
+      border: 1.5px solid var(--color-line);
+      border-radius: 100px;
     }
 
-    .yb-flow__item:hover {
-      box-shadow: var(--shadow-small);
-    }
-
-    .yb-flow__number {
-      width: 42px;
-      height: 42px;
-      display: grid;
-      place-items: center;
+    .yb-steps__num {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 22px;
+      height: 22px;
       border-radius: 50%;
       background: var(--color-ink);
       color: #fff;
+      font-size: 0.72rem;
       font-weight: 900;
-      margin-bottom: 18px;
+      flex-shrink: 0;
     }
 
-    .yb-flow__item h3 {
-      margin: 0 0 8px;
-      font-size: 1.1rem;
+    .yb-steps__label {
+      font-size: 0.88rem;
+      font-weight: 700;
+      color: var(--color-ink);
     }
 
-    .yb-flow__item p {
-      margin: 0;
+    .yb-info__sep {
+      max-width: 760px;
+      height: 1px;
+      background: var(--color-line);
+      margin: 0 auto 52px;
+    }
+
+    .yb-info__faq-label {
+      max-width: 760px;
+      margin: 0 auto 8px;
+      font-size: 0.82rem;
+      font-weight: 800;
       color: var(--color-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
     }
 
     /* =========================================================
@@ -824,15 +862,6 @@
       margin: 0;
       color: var(--color-muted);
       font-size: 1.07rem;
-    }
-
-    /* =========================================================
-       SECTION 08: FAQ
-    ========================================================= */
-
-    .yb-faq {
-      padding: var(--section-space) 0;
-      background: rgba(255, 255, 255, 0.36);
     }
 
     .yb-faq__list {
@@ -999,8 +1028,7 @@
         grid-template-columns: 1fr;
       }
 
-      .yb-books__grid,
-      .yb-flow__grid {
+      .yb-books__grid {
         grid-template-columns: 1fr;
       }
 
@@ -1052,10 +1080,6 @@
         max-width: 210px;
       }
 
-      .yb-flow__item {
-        padding: 22px;
-      }
-
       .yb-testimonial {
         padding: 24px 26px 20px;
       }
@@ -1075,8 +1099,7 @@
       /* Remove positional transforms and hover filters */
       .yb-book-card:hover,
       .yb-book-card:hover .yb-book-card__cover,
-      .yb-book-card.is-tilted .yb-book-card__cover,
-      .yb-flow__item:hover {
+      .yb-book-card.is-tilted .yb-book-card__cover {
         transform: none;
       }
 
