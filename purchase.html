@@ -170,6 +170,43 @@
                 </label>
               </div>
 
+              <!-- Shipping address — shows when physical + same-address unchecked -->
+              <div class="yb-shipping-wrapper" id="shipping-wrapper" hidden>
+                <div class="yb-shipping-inner">
+
+                  <div class="yb-field yb-field--full">
+                    <label class="yb-field__label" for="shipping-address">כתובת משלוח — רחוב ומספר בית <span class="yb-field__req" aria-hidden="true">*</span></label>
+                    <input class="yb-field__input" type="text" id="shipping-address" name="shipping-address"
+                      autocomplete="shipping street-address" placeholder="רחוב הרצל 12, דירה 5"
+                      aria-describedby="shipping-address-error" />
+                    <p class="yb-field__error" id="shipping-address-error" aria-live="polite"></p>
+                  </div>
+
+                  <div class="yb-field">
+                    <label class="yb-field__label" for="shipping-city">עיר <span class="yb-field__req" aria-hidden="true">*</span></label>
+                    <input class="yb-field__input" type="text" id="shipping-city" name="shipping-city"
+                      autocomplete="shipping locality" placeholder="תל אביב"
+                      aria-describedby="shipping-city-error" />
+                    <p class="yb-field__error" id="shipping-city-error" aria-live="polite"></p>
+                  </div>
+
+                  <div class="yb-field yb-field--zip">
+                    <label class="yb-field__label" for="shipping-zip">מיקוד <span class="yb-field__req" aria-hidden="true">*</span></label>
+                    <input class="yb-field__input yb-field__input--ltr" type="text" id="shipping-zip" name="shipping-zip"
+                      autocomplete="shipping postal-code" inputmode="numeric" maxlength="7" placeholder="1234567"
+                      aria-describedby="shipping-zip-error" />
+                    <p class="yb-field__error" id="shipping-zip-error" aria-live="polite"></p>
+                  </div>
+
+                </div>
+              </div>
+
+              <div class="yb-shipping-notice" id="shipping-notice" hidden>
+                <p class="yb-shipping-notice__text">
+                  הספר יישלח תוך 7 ימי עבודה מאישור ההזמנה. לאחר המשלוח תישלח הודעה עם לינק מעקב מחברת השליחויות לכתובת האימייל שהזנתם.
+                </p>
+              </div>
+
               <div class="yb-field-row yb-field--full">
 
                 <div class="yb-field yb-field--phone">
@@ -217,43 +254,6 @@
                   inputmode="numeric" maxlength="9" required placeholder="000000000"
                   aria-describedby="id-number-error" />
                 <p class="yb-field__error" id="id-number-error" aria-live="polite"></p>
-              </div>
-
-              <!-- Shipping address + notice — physical only -->
-              <div class="yb-shipping-wrapper" id="shipping-wrapper" hidden>
-                <div class="yb-shipping-inner">
-
-                  <div class="yb-field yb-field--full">
-                    <label class="yb-field__label" for="shipping-address">רחוב ומספר בית <span class="yb-field__req" aria-hidden="true">*</span></label>
-                    <input class="yb-field__input" type="text" id="shipping-address" name="shipping-address"
-                      autocomplete="shipping street-address" placeholder="רחוב הרצל 12, דירה 5"
-                      aria-describedby="shipping-address-error" />
-                    <p class="yb-field__error" id="shipping-address-error" aria-live="polite"></p>
-                  </div>
-
-                  <div class="yb-field">
-                    <label class="yb-field__label" for="shipping-city">עיר <span class="yb-field__req" aria-hidden="true">*</span></label>
-                    <input class="yb-field__input" type="text" id="shipping-city" name="shipping-city"
-                      autocomplete="shipping locality" placeholder="תל אביב"
-                      aria-describedby="shipping-city-error" />
-                    <p class="yb-field__error" id="shipping-city-error" aria-live="polite"></p>
-                  </div>
-
-                  <div class="yb-field yb-field--zip">
-                    <label class="yb-field__label" for="shipping-zip">מיקוד <span class="yb-field__req" aria-hidden="true">*</span></label>
-                    <input class="yb-field__input yb-field__input--ltr" type="text" id="shipping-zip" name="shipping-zip"
-                      autocomplete="shipping postal-code" inputmode="numeric" maxlength="7" placeholder="1234567"
-                      aria-describedby="shipping-zip-error" />
-                    <p class="yb-field__error" id="shipping-zip-error" aria-live="polite"></p>
-                  </div>
-
-                </div>
-              </div>
-
-              <div class="yb-shipping-notice" id="shipping-notice" hidden>
-                <p class="yb-shipping-notice__text">
-                  הספר יישלח תוך 7 ימי עבודה מאישור ההזמנה. לאחר המשלוח תישלח הודעה עם לינק מעקב מחברת השליחויות לכתובת האימייל שהזנתם.
-                </p>
               </div>
 
               <div class="yb-field yb-field--full">
