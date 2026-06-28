@@ -933,6 +933,17 @@
       padding-bottom: 28px;
     }
 
+    .yb-faq__answer a {
+      color: var(--color-accent);
+      font-weight: 700;
+      text-decoration: underline;
+      text-underline-offset: 3px;
+    }
+
+    .yb-faq__answer a:hover {
+      color: var(--color-accent-dark);
+    }
+
     /* =========================================================
        SECTION 09: FINAL CTA
     ========================================================= */
@@ -1004,6 +1015,17 @@
       color: inherit;
       font-weight: 700;
       text-decoration: none;
+    }
+
+    .yb-footer__email {
+      color: var(--color-muted);
+      text-decoration: none;
+      direction: ltr;
+      display: inline-block;
+    }
+
+    .yb-footer__email:hover {
+      color: var(--color-accent);
     }
 
     /* =========================================================

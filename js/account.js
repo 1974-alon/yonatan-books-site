@@ -24,6 +24,7 @@
   } else {
     list.innerHTML = customer.purchases.map(renderPurchaseCard).join('');
     setupReviewForms();
+    setupDownloadButtons();
   }
 
   function formatReviewName(fullName) {
@@ -58,7 +59,7 @@
             <span class="yb-account__purchase-detail">${formattedDate}</span>
           </div>
           ${isDigital
-            ? `<a class="yb-account__download-btn" href="#" aria-label="הורדת ${p.bookTitle}">הורדת הספר</a>`
+            ? `<a class="yb-account__download-btn" href="#" data-book-id="${p.bookId || p.id}" aria-label="הורדת ${p.bookTitle}">הורדת הספר</a>`
             : ''}
           <div class="yb-account__review-section" id="review-section-${p.id}">
             <div class="yb-account__review-header">
@@ -195,6 +196,39 @@
     });
   }
 
+  // ── Download buttons ─────────────────────────────────────
+  function setupDownloadButtons() {
+    const STORAGE_PATHS = {
+      'book-01': 'books/book01.pdf',
+      'book-02': 'books/book02.pdf'
+    };
+
+    document.querySelectorAll('.yb-account__download-btn').forEach(btn => {
+      btn.addEventListener('click', async e => {
+        e.preventDefault();
+        const bookId = btn.dataset.bookId;
+        const path   = STORAGE_PATHS[bookId];
+        if (!path || !window.ybStorage) return;
+
+        const original = btn.textContent;
+        btn.textContent = 'מכין הורדה...';
+        btn.setAttribute('aria-disabled', 'true');
+
+        try {
+          const url = await window.ybStorage.ref(path).getDownloadURL();
+          window.open(url, '_blank', 'noopener');
+        } catch {
+          btn.textContent = 'שגיאה — נסה שוב';
+        } finally {
+          setTimeout(() => {
+            btn.textContent = original;
+            btn.removeAttribute('aria-disabled');
+          }, 2000);
+        }
+      });
+    });
+  }
+
   // ── Logout ────────────────────────────────────────────────
   document.querySelectorAll('.js-logout').forEach(btn =>
     btn.addEventListener('click', () => {
@@ -224,5 +258,6 @@
     msgText.value  = '';
     msgSent.hidden = false;
     setTimeout(() => { msgSent.hidden = true; }, 6000);
+    // Future Firebase: send message to yonatanbrennerbooks@gmail.com via Cloud Functions / Gmail API
   });
 }());

@@ -335,6 +335,9 @@ myAreaBtn.addEventListener('click', handleMyAreaClick);
 
 const myAreaMobileBtn = document.getElementById('my-area-mobile-btn');
 if (myAreaMobileBtn) myAreaMobileBtn.addEventListener('click', handleMyAreaClick);
+
+const faqAccountLink = document.getElementById('faq-account-link');
+if (faqAccountLink) faqAccountLink.addEventListener('click', e => { e.preventDefault(); handleMyAreaClick(); });
 authClose.addEventListener('click', closeAuthModal);
 authOverlay.addEventListener('click', closeAuthModal);
 authModal.addEventListener('keydown', e => { if (e.key === 'Escape') closeAuthModal(); });
