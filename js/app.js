@@ -208,9 +208,13 @@
       }
 
       function closeModal() {
-        modal.hidden = true;
-        document.body.style.overflow = '';
-        openBtn.focus();
+        modal.classList.add('is-closing');
+        setTimeout(() => {
+          modal.classList.remove('is-closing');
+          modal.hidden = true;
+          document.body.style.overflow = '';
+          openBtn.focus();
+        }, 660);
       }
 
       openBtn.addEventListener('click', openModal);

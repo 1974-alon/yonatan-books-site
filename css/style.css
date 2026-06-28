@@ -930,12 +930,26 @@
       to   { opacity: 1; transform: translateY(0); }
     }
 
+    @keyframes author-overlay-out {
+      from { opacity: 1; }
+      to   { opacity: 0; }
+    }
+
+    @keyframes author-box-out {
+      from { opacity: 1; transform: translateY(0); }
+      to   { opacity: 0; transform: translateY(10px); }
+    }
+
     .yb-author-modal__overlay {
       position: absolute;
       inset: 0;
       background: rgba(15, 34, 24, 0.72);
       backdrop-filter: blur(3px);
       animation: author-overlay-in 220ms ease both;
+    }
+
+    .yb-author-modal.is-closing .yb-author-modal__overlay {
+      animation: author-overlay-out 480ms 160ms ease both;
     }
 
     .yb-author-modal__box {
@@ -949,6 +963,10 @@
       overflow-y: auto;
       padding: 48px 52px;
       animation: author-box-in 300ms 80ms ease both;
+    }
+
+    .yb-author-modal.is-closing .yb-author-modal__box {
+      animation: author-box-out 180ms ease both;
       box-shadow: 0 24px 80px rgba(15, 34, 24, 0.28);
     }
 
