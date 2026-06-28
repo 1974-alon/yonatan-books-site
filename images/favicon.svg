@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32">
+  <rect width="32" height="32" rx="7" fill="#0f2218"/>
+  <text
+    x="16" y="23"
+    font-family="Heebo, Arial, sans-serif"
+    font-size="20"
+    font-weight="900"
+    fill="#eaf1ec"
+    text-anchor="middle"
+    dominant-baseline="auto">י</text>
+</svg>
