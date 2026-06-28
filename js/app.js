@@ -193,6 +193,40 @@
       }
     }());
 
+    // ── Legal modal ────────────────────────────────────────
+    (function () {
+      const modal    = document.getElementById('legal-modal');
+      const overlay  = document.getElementById('legal-modal-overlay');
+      const closeBtn = document.getElementById('legal-modal-close');
+      const title    = document.getElementById('legal-modal-title');
+      if (!modal) return;
+
+      const CONTENT = {
+        terms:   { title: 'תנאי שימוש',         body: '<p>תוכן זה יעודכן בקרוב.</p>' },
+        privacy: { title: 'מדיניות פרטיות', body: '<p>תוכן זה יעודכן בקרוב.</p>' }
+      };
+
+      function openLegal(type) {
+        const c = CONTENT[type];
+        title.textContent = c.title;
+        document.getElementById('legal-modal-body').innerHTML = c.body;
+        modal.hidden = false;
+        document.body.style.overflow = 'hidden';
+        closeBtn.focus();
+      }
+
+      function closeLegal() {
+        modal.hidden = true;
+        document.body.style.overflow = '';
+      }
+
+      document.getElementById('footer-terms-btn')  ?.addEventListener('click', () => openLegal('terms'));
+      document.getElementById('footer-privacy-btn') ?.addEventListener('click', () => openLegal('privacy'));
+      closeBtn.addEventListener('click', closeLegal);
+      overlay.addEventListener('click', closeLegal);
+      modal.addEventListener('keydown', e => { if (e.key === 'Escape') closeLegal(); });
+    }());
+
     // ── Author modal ───────────────────────────────────────
     (function () {
       const modal   = document.getElementById('author-modal');
