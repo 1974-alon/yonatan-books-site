@@ -157,18 +157,72 @@
       <section class="yb-author" id="author" aria-labelledby="author-title">
         <div class="site-container">
           <div class="yb-author__panel">
-            <div class="yb-author__portrait" role="img" aria-label="תמונה עתידית של יונתן">י</div>
+            <div class="yb-author__portrait" role="img" aria-label="יונתן ברנר">י</div>
 
             <div class="yb-author__content">
               <span class="eyebrow">על יונתן</span>
-              <h2 id="author-title">מקום אישי לספרים, לקוראים ולרכישה ישירה.</h2>
+              <h2 id="author-title">מילים הן עולם מקביל.</h2>
               <p>
-                כאן יופיע טקסט אמיתי על יונתן, הרקע שלו, הסיבה לכתיבת הספרים והקשר עם הקוראים. הטון צריך להיות אישי, אמין ולא שיווקי מדי. המטרה היא לגרום לקורא להרגיש שהוא קונה ישירות מהמחבר, באתר שמכבד גם את הספרים וגם את תהליך הרכישה.
+                אני סופר עצמאי, יליד 1976, חי ויוצר בקיבוץ חצור. את חלק מהסיפורים המופיעים בשני הספרים, סיפרתי לעצמי בראשי משך שנים. אחרים נולדו מתוך מסעות של הדמיון, מפגשים עם אנשים, והרושם שהותירו מקומות רחוקים.
               </p>
+              <button class="yb-author__read-more has-ripple" id="author-read-more" aria-haspopup="dialog">
+                קרא עוד
+                <span class="yb-author__read-more-arrow" aria-hidden="true">←</span>
+              </button>
             </div>
           </div>
         </div>
       </section>
+
+      <!-- AUTHOR MODAL -->
+      <div class="yb-author-modal" id="author-modal" hidden role="dialog" aria-modal="true" aria-labelledby="author-modal-title">
+        <div class="yb-author-modal__overlay" id="author-modal-overlay"></div>
+        <div class="yb-author-modal__box">
+          <button class="yb-author-modal__close" id="author-modal-close" aria-label="סגור">✕</button>
+
+          <div class="yb-author-modal__profile">
+            <div class="yb-author-modal__portrait" aria-hidden="true">י</div>
+            <div class="yb-author-modal__bio">
+              <span class="eyebrow">יונתן ברנר</span>
+              <h2 id="author-modal-title">מילים הן עולם מקביל אשר בתוכו אני מתקיים.</h2>
+              <p>אני סופר עצמאי, יליד 1976, חי ויוצר בקיבוץ חצור. את חלק מהסיפורים המופיעים בשני הספרים, סיפרתי לעצמי בראשי משך שנים. אחרים נולדו מתוך מסעות של הדמיון, מפגשים עם אנשים, והרושם שהותירו מקומות רחוקים, והחיים בישראל.</p>
+              <p>האתר נוצר כפלטפורמה ישירה להגשת היצירות לקוראים.</p>
+            </div>
+          </div>
+
+          <div class="yb-author-modal__credits-section">
+            <h3 class="yb-author-modal__credits-title">תודות</h3>
+            <p class="yb-author-modal__credits-intro">למיטב מזלי, זכיתי לעבוד עם צוות של אנשים מוכשרים ויצירתיים.</p>
+            <div class="yb-author-modal__credits-grid">
+
+              <div class="yb-credit-card">
+                <span class="yb-credit-card__role">עריכה ספרותית</span>
+                <strong class="yb-credit-card__name">דורית פרידמן</strong>
+                <p class="yb-credit-card__desc">מורתי לספרות בתיכון, אשת ספר ומילה נדירה, לשעבר עורכת בהוצאת הפועלים, נרתמה ועשתה מלאכת מחשבת בעריכה לשונית, הגהה ועריכה ספרותית, תהליך מרתק שהיווה עבורי חלק מהותי בחוויית הכתיבה. תודה מעומק לבי.</p>
+              </div>
+
+              <div class="yb-credit-card">
+                <span class="yb-credit-card__role">צילומי שער ואתר</span>
+                <strong class="yb-credit-card__name">טל בדראק</strong>
+                <p class="yb-credit-card__desc">צלם עצמאי וחבר בקבוצת היוצרים "מתחת לפנס", ולפני הכל, חבר ילדות שלי. טל אמון על התמונות המקוריות של כריכות שני הספרים, ועל אלו כאן באתר. תודה, בנאדם!</p>
+              </div>
+
+              <div class="yb-credit-card">
+                <span class="yb-credit-card__role">עיצוב גרפי</span>
+                <strong class="yb-credit-card__name">מארי רייזמן</strong>
+                <p class="yb-credit-card__desc">תודה לך, שוב, מארי רייזמן הנפלאה, מסטודיו מארי.</p>
+              </div>
+
+              <div class="yb-credit-card">
+                <span class="yb-credit-card__role">בניית ועיצוב האתר</span>
+                <strong class="yb-credit-card__name">אלון ברילנט</strong>
+                <p class="yb-credit-card__desc">SUNTREE האגדי. איזה כיף לי.</p>
+              </div>
+
+            </div>
+          </div>
+        </div>
+      </div>
 
       <!-- =====================================================
         SECTION 06: TESTIMONIALS

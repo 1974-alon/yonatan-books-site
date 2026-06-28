@@ -192,3 +192,29 @@
         });
       }
     }());
+
+    // ── Author modal ───────────────────────────────────────
+    (function () {
+      const modal   = document.getElementById('author-modal');
+      const overlay = document.getElementById('author-modal-overlay');
+      const closeBtn = document.getElementById('author-modal-close');
+      const openBtn  = document.getElementById('author-read-more');
+      if (!modal || !openBtn) return;
+
+      function openModal() {
+        modal.hidden = false;
+        document.body.style.overflow = 'hidden';
+        closeBtn.focus();
+      }
+
+      function closeModal() {
+        modal.hidden = true;
+        document.body.style.overflow = '';
+        openBtn.focus();
+      }
+
+      openBtn.addEventListener('click', openModal);
+      closeBtn.addEventListener('click', closeModal);
+      overlay.addEventListener('click', closeModal);
+      modal.addEventListener('keydown', e => { if (e.key === 'Escape') closeModal(); });
+    }());
