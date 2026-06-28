@@ -59,7 +59,7 @@
             <span class="yb-account__purchase-detail">${formattedDate}</span>
           </div>
           ${isDigital
-            ? `<a class="yb-account__download-btn" href="#" data-book-id="${p.bookId || p.id}" aria-label="הורדת ${p.bookTitle}">הורדת הספר</a>`
+            ? `<a class="yb-account__download-btn" href="#" data-book-id="${p.bookId || p.id}" data-book-title="${p.bookTitle}" aria-label="הורדת ${p.bookTitle}">הורדת הספר</a>`
             : ''}
           <div class="yb-account__review-section" id="review-section-${p.id}">
             <div class="yb-account__review-header">
@@ -215,8 +215,17 @@
         btn.setAttribute('aria-disabled', 'true');
 
         try {
-          const url = await window.ybStorage.ref(path).getDownloadURL();
-          window.open(url, '_blank', 'noopener');
+          const url      = await window.ybStorage.ref(path).getDownloadURL();
+          const response = await fetch(url);
+          const blob     = await response.blob();
+          const blobUrl  = URL.createObjectURL(blob);
+          const a        = document.createElement('a');
+          a.href         = blobUrl;
+          a.download     = `${btn.dataset.bookTitle}.pdf`;
+          document.body.appendChild(a);
+          a.click();
+          document.body.removeChild(a);
+          setTimeout(() => URL.revokeObjectURL(blobUrl), 1000);
         } catch {
           btn.textContent = 'שגיאה — נסה שוב';
         } finally {
