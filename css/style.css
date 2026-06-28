@@ -1216,74 +1216,21 @@
 
     .yb-footer {
       border-top: 1px solid var(--color-line);
-      color: var(--color-muted);
+      min-height: 100px;
+      display: flex;
+      align-items: center;
       font-size: 0.8rem;
+      color: var(--color-muted);
     }
 
-    .yb-footer__bar {
+    .yb-footer__inner {
       display: flex;
       justify-content: space-between;
       align-items: center;
-      padding: 14px 0;
-      border-bottom: 1px solid var(--color-soft);
-    }
-
-    .yb-footer__site-name {
-      font-size: 0.85rem;
-      font-weight: 700;
-      color: var(--color-ink);
-    }
-
-    .yb-footer__email-btn {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      width: 30px;
-      height: 30px;
-      border-radius: 7px;
-      border: 1px solid var(--color-line);
-      color: var(--color-muted);
-      text-decoration: none;
-      transition: color 160ms, border-color 160ms;
-    }
-
-    .yb-footer__email-btn:hover {
-      color: var(--color-accent);
-      border-color: rgba(42, 122, 78, 0.4);
-    }
-
-    .yb-footer__meta {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      padding: 10px 0;
-      flex-wrap: wrap;
-    }
-
-    .yb-footer__dot {
-      opacity: 0.35;
-    }
-
-    .yb-footer__legal-btn {
-      background: none;
-      border: none;
-      padding: 0;
-      font-family: var(--font-main);
-      font-size: 0.8rem;
-      color: var(--color-muted);
-      cursor: pointer;
-      text-decoration: underline;
-      text-underline-offset: 2px;
-      text-decoration-color: rgba(74, 106, 82, 0.3);
-      transition: color 160ms;
-    }
-
-    .yb-footer__legal-btn:hover {
-      color: var(--color-accent);
+      width: 100%;
     }
 
     .yb-footer__credit {
-      margin-right: auto;
       color: var(--color-muted);
     }
 
@@ -1295,6 +1242,57 @@
     }
 
     .yb-footer__credit-link:hover {
+      color: var(--color-accent);
+    }
+
+    .yb-footer__end {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-end;
+      gap: 5px;
+    }
+
+    .yb-footer__copy {
+      font-size: 0.8rem;
+      color: var(--color-muted);
+    }
+
+    .yb-footer__links {
+      display: flex;
+      align-items: center;
+      gap: 7px;
+    }
+
+    .yb-footer__pipe {
+      opacity: 0.25;
+      font-size: 0.7rem;
+      user-select: none;
+    }
+
+    .yb-footer__email-icon {
+      display: flex;
+      align-items: center;
+      color: var(--color-muted);
+      text-decoration: none;
+      transition: color 160ms;
+    }
+
+    .yb-footer__email-icon:hover {
+      color: var(--color-accent);
+    }
+
+    .yb-footer__legal-btn {
+      background: none;
+      border: none;
+      padding: 0;
+      font-family: var(--font-main);
+      font-size: 0.8rem;
+      color: var(--color-muted);
+      cursor: pointer;
+      transition: color 160ms;
+    }
+
+    .yb-footer__legal-btn:hover {
       color: var(--color-accent);
     }
 
