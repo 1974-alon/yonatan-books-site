@@ -1321,6 +1321,22 @@
       .yb-testimonial {
         padding: 24px 26px 20px;
       }
+
+      .yb-author-modal {
+        padding: 12px;
+        align-items: flex-end;
+      }
+
+      .yb-author-modal__box {
+        padding: 28px 20px 32px;
+        border-radius: 18px 18px 0 0;
+        max-height: 92vh;
+      }
+
+      .yb-author-modal__close {
+        top: 14px;
+        left: 14px;
+      }
     }
 
     /* =========================================================
