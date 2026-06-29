@@ -59,20 +59,31 @@
             <span class="yb-account__purchase-detail">${formattedDate}</span>
           </div>
           ${isDigital ? (() => {
-              const downloads = JSON.parse(localStorage.getItem('yb-downloads') || '[]');
-              const done = downloads.includes(p.id);
+              const MAX_DL   = 3;
+              const dlData   = JSON.parse(localStorage.getItem('yb-downloads') || '{}');
+              const dlCount  = !Array.isArray(dlData) ? (dlData[p.id] || 0) : 0;
+              const remaining = MAX_DL - dlCount;
+              const exhausted = dlCount >= MAX_DL;
               return `
-                <a class="yb-account__download-btn${done ? ' is-done' : ''}" href="#"
-                   data-book-id="${p.bookId || p.id}"
-                   data-book-title="${p.bookTitle}"
-                   data-order-id="${p.id}"
-                   ${done ? 'aria-disabled="true"' : ''}
-                   aria-label="הורדת ${p.bookTitle}">
-                  ${done ? 'הספר הורד ✓' : 'הורדת הספר'}
-                </a>
-                <p class="yb-account__download-note" ${done ? '' : 'hidden'}>
+                <div class="yb-account__download-area">
+                  <a class="yb-account__download-btn${exhausted ? ' is-done' : ''}" href="#"
+                     data-book-id="${p.bookId || p.id}"
+                     data-book-title="${p.bookTitle}"
+                     data-order-id="${p.id}"
+                     ${exhausted ? 'aria-disabled="true"' : ''}
+                     aria-label="הורדת ${p.bookTitle}">
+                    ${exhausted ? 'הספר הורד ✓' : 'הורדת הספר'}
+                  </a>
+                  <span class="yb-account__download-status" ${dlCount > 0 && !exhausted ? '' : 'hidden'}>
+                    הורד בהצלחה · נותרו עוד ${remaining} הורדות
+                  </span>
+                </div>
+                <p class="yb-account__download-note" ${exhausted ? '' : 'hidden'}>
                   הספר ירד בהצלחה. נתקלת בבעיה?
                   <a href="#message-form">פנה ליונתן מהאזור האישי</a>
+                </p>
+                <p class="yb-account__download-hint">
+                  נתקלת בבעיה? <a class="yb-account__scroll-link" href="#message-form">פנה ליונתן</a>
                 </p>`;
             })() : ''}
           <div class="yb-account__review-section" id="review-section-${p.id}">
@@ -212,6 +223,7 @@
 
   // ── Download buttons ─────────────────────────────────────
   function setupDownloadButtons() {
+    const MAX_DL = 3;
     const STORAGE_PATHS = {
       'book-01': 'books/book02.pdf',
       'book-02': 'books/book01.pdf'
@@ -220,11 +232,12 @@
     document.querySelectorAll('.yb-account__download-btn').forEach(btn => {
       btn.addEventListener('click', async e => {
         e.preventDefault();
+        if (btn.getAttribute('aria-disabled') === 'true') return;
+
         const bookId = btn.dataset.bookId;
         const path   = STORAGE_PATHS[bookId];
         if (!path || !window.ybStorage) return;
 
-        const original = btn.textContent;
         btn.textContent = 'מכין הורדה...';
         btn.setAttribute('aria-disabled', 'true');
 
@@ -241,20 +254,35 @@
           document.body.removeChild(a);
           setTimeout(() => URL.revokeObjectURL(blobUrl), 1000);
 
-          const orderId  = btn.dataset.orderId;
-          const downloads = JSON.parse(localStorage.getItem('yb-downloads') || '[]');
-          if (!downloads.includes(orderId)) downloads.push(orderId);
-          localStorage.setItem('yb-downloads', JSON.stringify(downloads));
+          const orderId = btn.dataset.orderId;
+          const dlData  = JSON.parse(localStorage.getItem('yb-downloads') || '{}');
+          const saved   = Array.isArray(dlData) ? {} : dlData;
+          const newCount = (saved[orderId] || 0) + 1;
+          saved[orderId] = newCount;
+          localStorage.setItem('yb-downloads', JSON.stringify(saved));
 
-          btn.textContent = 'הספר הורד ✓';
-          btn.classList.add('is-done');
-          const note = btn.nextElementSibling;
-          if (note) note.hidden = false;
+          const remaining = MAX_DL - newCount;
+          const statusEl  = btn.nextElementSibling;
+          const note      = btn.closest('.yb-account__download-area').nextElementSibling;
+
+          if (remaining > 0) {
+            btn.textContent = 'הורדת הספר';
+            btn.removeAttribute('aria-disabled');
+            if (statusEl) {
+              statusEl.textContent = `הורד בהצלחה · נותרו עוד ${remaining} הורדות`;
+              statusEl.hidden = false;
+            }
+          } else {
+            btn.textContent = 'הספר הורד ✓';
+            btn.classList.add('is-done');
+            if (statusEl) statusEl.hidden = true;
+            if (note) note.hidden = false;
+          }
 
         } catch {
           btn.textContent = 'שגיאה — נסה שוב';
           setTimeout(() => {
-            btn.textContent = original;
+            btn.textContent = 'הורדת הספר';
             btn.removeAttribute('aria-disabled');
           }, 2000);
         }

@@ -147,6 +147,44 @@
   color: var(--color-muted);
 }
 
+.yb-account__download-area {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 4px;
+}
+
+.yb-account__download-status {
+  font-size: 0.8rem;
+  color: var(--color-accent);
+  font-weight: 700;
+}
+
+.yb-account__download-status[hidden] {
+  display: none;
+}
+
+.yb-account__download-hint {
+  margin: 6px 0 0;
+  font-size: 0.76rem;
+  color: var(--color-muted);
+  font-weight: 400;
+}
+
+.yb-account__download-hint a {
+  color: var(--color-muted);
+  font-weight: 600;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+  text-decoration-color: rgba(74, 106, 82, 0.3);
+  transition: color 160ms;
+  margin: 0 3px 0 0;
+}
+
+.yb-account__download-hint a:hover {
+  color: var(--color-accent);
+}
+
 .yb-account__download-btn {
   display: inline-block;
   padding: 9px 22px;
@@ -162,6 +200,31 @@
 
 .yb-account__download-btn:hover {
   background: var(--color-accent-dark);
+}
+
+.yb-account__download-btn.is-done {
+  background: var(--color-soft);
+  color: var(--color-muted);
+  cursor: default;
+  pointer-events: none;
+}
+
+.yb-account__download-note {
+  margin: 8px 0 0;
+  font-size: 0.82rem;
+  color: var(--color-muted);
+  line-height: 1.5;
+}
+
+.yb-account__download-note a {
+  color: var(--color-accent);
+  font-weight: 700;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+.yb-account__download-note[hidden] {
+  display: none;
 }
 
 .yb-account__no-purchases {
