@@ -58,9 +58,23 @@
             <span class="yb-account__purchase-detail">סטטוס: ${p.status}</span>
             <span class="yb-account__purchase-detail">${formattedDate}</span>
           </div>
-          ${isDigital
-            ? `<a class="yb-account__download-btn" href="#" data-book-id="${p.bookId || p.id}" data-book-title="${p.bookTitle}" aria-label="הורדת ${p.bookTitle}">הורדת הספר</a>`
-            : ''}
+          ${isDigital ? (() => {
+              const downloads = JSON.parse(localStorage.getItem('yb-downloads') || '[]');
+              const done = downloads.includes(p.id);
+              return `
+                <a class="yb-account__download-btn${done ? ' is-done' : ''}" href="#"
+                   data-book-id="${p.bookId || p.id}"
+                   data-book-title="${p.bookTitle}"
+                   data-order-id="${p.id}"
+                   ${done ? 'aria-disabled="true"' : ''}
+                   aria-label="הורדת ${p.bookTitle}">
+                  ${done ? 'הספר הורד ✓' : 'הורדת הספר'}
+                </a>
+                <p class="yb-account__download-note" ${done ? '' : 'hidden'}>
+                  הספר ירד בהצלחה. נתקלת בבעיה?
+                  <a href="#message-form">פנה ליונתן מהאזור האישי</a>
+                </p>`;
+            })() : ''}
           <div class="yb-account__review-section" id="review-section-${p.id}">
             <div class="yb-account__review-header">
               <h4 class="yb-account__review-title">חוות דעת הקורא</h4>
@@ -199,8 +213,8 @@
   // ── Download buttons ─────────────────────────────────────
   function setupDownloadButtons() {
     const STORAGE_PATHS = {
-      'book-01': 'books/book01.pdf',
-      'book-02': 'books/book02.pdf'
+      'book-01': 'books/book02.pdf',
+      'book-02': 'books/book01.pdf'
     };
 
     document.querySelectorAll('.yb-account__download-btn').forEach(btn => {
@@ -226,9 +240,19 @@
           a.click();
           document.body.removeChild(a);
           setTimeout(() => URL.revokeObjectURL(blobUrl), 1000);
+
+          const orderId  = btn.dataset.orderId;
+          const downloads = JSON.parse(localStorage.getItem('yb-downloads') || '[]');
+          if (!downloads.includes(orderId)) downloads.push(orderId);
+          localStorage.setItem('yb-downloads', JSON.stringify(downloads));
+
+          btn.textContent = 'הספר הורד ✓';
+          btn.classList.add('is-done');
+          const note = btn.nextElementSibling;
+          if (note) note.hidden = false;
+
         } catch {
           btn.textContent = 'שגיאה — נסה שוב';
-        } finally {
           setTimeout(() => {
             btn.textContent = original;
             btn.removeAttribute('aria-disabled');
