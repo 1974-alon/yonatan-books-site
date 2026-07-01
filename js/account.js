@@ -304,7 +304,9 @@
   const msgError = document.getElementById('msg-text-error');
   const msgSent  = document.getElementById('msg-sent');
 
-  msgForm.addEventListener('submit', e => {
+  const CONTACT_FUNCTION = 'https://europe-west1-yonatan-books.cloudfunctions.net/sendContactEmail';
+
+  msgForm.addEventListener('submit', async e => {
     e.preventDefault();
     msgError.textContent = '';
     msgText.classList.remove('is-error');
@@ -316,9 +318,28 @@
       return;
     }
 
-    msgText.value  = '';
-    msgSent.hidden = false;
-    setTimeout(() => { msgSent.hidden = true; }, 6000);
-    // Future Firebase: send message to yonatanbrennerbooks@gmail.com via Cloud Functions / Gmail API
+    const submitBtn = msgForm.querySelector('button[type="submit"]');
+    submitBtn.disabled = true;
+    submitBtn.textContent = 'שולח...';
+
+    try {
+      const res = await fetch(CONTACT_FUNCTION, {
+        method:  'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body:    JSON.stringify({ name: customer.name, email: customer.email || '', message: msgText.value.trim() })
+      });
+
+      if (!res.ok) throw new Error('send failed');
+
+      msgText.value  = '';
+      msgSent.hidden = false;
+      setTimeout(() => { msgSent.hidden = true; }, 6000);
+
+    } catch {
+      msgError.textContent = 'שגיאה בשליחה — נסה שוב או פנה ישירות למייל';
+    } finally {
+      submitBtn.disabled    = false;
+      submitBtn.textContent = 'שליחת הודעה';
+    }
   });
 }());
