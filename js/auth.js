@@ -1,8 +1,12 @@
 /* =========================================================
-   AUTH MODAL — Static demo
-   Mock customer: ישראל ישראלי | israel@test.com | 9999999999 | OTP: 1234
-   Future: replace MOCK_DB lookup with Firebase Auth + Firestore
+   AUTH MODAL
+   Phone tab  → real Vonage SMS OTP (admin + customer)
+   Email tab  → mock OTP for demo customer
+   Admin      → session flag → admin.html
+   Customer   → session → account.html
 ========================================================= */
+
+const CF_BASE = 'https://europe-west1-yonatan-books.cloudfunctions.net';
 
 const MOCK_DB = [
   {
@@ -10,7 +14,7 @@ const MOCK_DB = [
     name: 'ישראל ישראלי',
     email: 'israel@test.com',
     phone: '9999999999',
-    otp: '1234',
+    otp: '123456',
     purchases: [
       {
         id: 'ORD-001',
@@ -31,6 +35,31 @@ function findCustomer(name, contact) {
     cust.name === n &&
     (cust.email.toLowerCase() === c.toLowerCase() || cust.phone === c)
   );
+}
+
+function findAdmin(name, phone) {
+  if (typeof ADMIN_USERS === 'undefined') return null;
+  const clean = phone.replace(/[-\s]/g, '');
+  const e164  = clean.startsWith('0') ? '+972' + clean.slice(1) : clean;
+  return ADMIN_USERS.find(a => a.name === name.trim() && a.phone === e164) ? e164 : null;
+}
+
+async function sendOtp(phone) {
+  const res = await fetch(`${CF_BASE}/sendOtp`, {
+    method:  'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body:    JSON.stringify({ phone })
+  });
+  if (!res.ok) throw new Error('sms_failed');
+}
+
+async function verifyOtp(phone, code) {
+  const res = await fetch(`${CF_BASE}/verifyOtp`, {
+    method:  'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body:    JSON.stringify({ phone, code })
+  });
+  return res.ok;
 }
 
 // ── DOM refs ──────────────────────────────────────────────
@@ -65,11 +94,12 @@ const authBack           = document.getElementById('auth-back');
 
 let activeTab       = 'email';
 let pendingCustomer = null;
+let pendingPhone    = null;
+let pendingIsAdmin  = false;
 
 // ── Open / Close ──────────────────────────────────────────
 function openAuthModal() {
   authModal.hidden = false;
-  // Restart entrance animation on each open
   authModalBox.style.animation = 'none';
   void authModalBox.offsetHeight;
   authModalBox.style.animation = '';
@@ -91,6 +121,8 @@ function resetAuthModal() {
   authPhoneEl.value     = '';
   clearOtpBoxes();
   pendingCustomer       = null;
+  pendingPhone          = null;
+  pendingIsAdmin        = false;
   activeTab             = 'email';
   emailFieldWrap.hidden = false;
   phoneFieldWrap.hidden = true;
@@ -117,7 +149,7 @@ function getOtpValue() {
 }
 
 function fillBoxes(digits) {
-  digits.slice(0, 4).split('').forEach((d, i) => {
+  digits.slice(0, otpBoxes.length).split('').forEach((d, i) => {
     if (!otpBoxes[i]) return;
     otpBoxes[i].value = d;
     otpBoxes[i].classList.add('is-filled');
@@ -133,7 +165,6 @@ function fillBoxes(digits) {
 }
 
 otpBoxes.forEach((box, i) => {
-  // On focus: select so next keypress replaces the digit
   box.addEventListener('focus', () => box.select());
 
   box.addEventListener('keydown', e => {
@@ -150,19 +181,17 @@ otpBoxes.forEach((box, i) => {
       otpGroup.classList.remove('is-error');
       authOtpError.textContent = '';
     }
-    // Arrow key navigation (LTR box order)
-    if (e.key === 'ArrowLeft'  && i > 0)                  { e.preventDefault(); otpBoxes[i - 1].focus(); }
-    if (e.key === 'ArrowRight' && i < otpBoxes.length - 1){ e.preventDefault(); otpBoxes[i + 1].focus(); }
+    if (e.key === 'ArrowLeft'  && i > 0)                   { e.preventDefault(); otpBoxes[i - 1].focus(); }
+    if (e.key === 'ArrowRight' && i < otpBoxes.length - 1) { e.preventDefault(); otpBoxes[i + 1].focus(); }
   });
 
   box.addEventListener('input', () => {
     const raw = box.value.replace(/\D/g, '');
 
-    // Multi-digit (iOS SMS autofill or paste via input)
     if (raw.length > 1) {
       box.value = '';
       fillBoxes(raw);
-      if (raw.length >= 4) handleOtp();
+      if (raw.length >= otpBoxes.length) handleOtp();
       return;
     }
 
@@ -172,15 +201,13 @@ otpBoxes.forEach((box, i) => {
 
     if (raw) {
       box.classList.add('is-filled');
-      // Pop animation
       box.classList.remove('is-popping');
       void box.offsetWidth;
       box.classList.add('is-popping');
       box.addEventListener('animationend', () => box.classList.remove('is-popping'), { once: true });
-      // Advance to next box
       if (i < otpBoxes.length - 1) {
         otpBoxes[i + 1].focus();
-      } else if (getOtpValue().length === 4) {
+      } else if (getOtpValue().length === otpBoxes.length) {
         handleOtp();
       }
     } else {
@@ -194,7 +221,7 @@ otpBoxes.forEach((box, i) => {
     const digits = text.replace(/\D/g, '');
     if (!digits) return;
     fillBoxes(digits);
-    if (digits.length >= 4) handleOtp();
+    if (digits.length >= otpBoxes.length) handleOtp();
   });
 });
 
@@ -225,8 +252,18 @@ function showAuthFieldError(inputEl, errorEl, msg) {
   errorEl.textContent = msg;
 }
 
+function showOtpError(msg) {
+  authOtpError.textContent = msg;
+  otpGroup.classList.add('is-error', 'is-shaking');
+  otpGroup.addEventListener('animationend', () => {
+    otpGroup.classList.remove('is-shaking');
+    clearOtpBoxes();
+    otpBoxes[0].focus();
+  }, { once: true });
+}
+
 // ── Step 1: Identify ──────────────────────────────────────
-function handleIdentify() {
+async function handleIdentify() {
   clearAuthErrors();
   let valid = true;
 
@@ -248,9 +285,53 @@ function handleIdentify() {
 
   if (!valid) return;
 
+  // ── Phone tab: admin or customer with real OTP ────────
+  if (activeTab === 'phone') {
+    const adminPhone = findAdmin(name, contact);
+    const customer   = !adminPhone ? findCustomer(name, contact) : null;
+
+    if (!adminPhone && !customer) {
+      authLookupError.textContent = 'לא נמצאה רכישה עם הפרטים שהוזנו.';
+      authLookupError.hidden = false;
+      return;
+    }
+
+    // Mock customer (demo) — skip Vonage, use mock OTP
+    if (customer && customer.otp) {
+      pendingCustomer = customer;
+      otpHintEl.textContent = `שלחנו קוד אימות למספר שלך`;
+      showAuthStep('otp');
+      otpBoxes[0].focus();
+      return;
+    }
+
+    const phone = adminPhone || (() => {
+      const c = contact.replace(/[-\s]/g, '');
+      return c.startsWith('0') ? '+972' + c.slice(1) : c;
+    })();
+
+    authIdentifySubmit.disabled = true;
+    try {
+      await sendOtp(phone);
+      pendingPhone    = phone;
+      pendingIsAdmin  = !!adminPhone;
+      pendingCustomer = customer || null;
+      otpHintEl.textContent = 'שלחנו קוד אימות לטלפון שלך';
+      showAuthStep('otp');
+      otpBoxes[0].focus();
+    } catch {
+      authLookupError.textContent = 'שגיאה בשליחת קוד — נסה שוב';
+      authLookupError.hidden = false;
+    } finally {
+      authIdentifySubmit.disabled = false;
+    }
+    return;
+  }
+
+  // ── Email tab: mock customer only ─────────────────────
   const customer = findCustomer(name, contact);
   if (!customer) {
-    authLookupError.textContent = 'לא נמצאה רכישה עם הפרטים שהוזנו. בדוק שהשם ואמצעי ההתקשרות זהים לאלה שהוזנו בעת הרכישה.';
+    authLookupError.textContent = 'לא נמצאה רכישה עם הפרטים שהוזנו.';
     authLookupError.hidden = false;
     return;
   }
@@ -267,26 +348,40 @@ authIdentifySubmit.addEventListener('click', handleIdentify);
 );
 
 // ── Step 2: OTP ───────────────────────────────────────────
-function handleOtp() {
+async function handleOtp() {
   const otp = getOtpValue();
-
-  if (otp.length < 4) {
+  if (otp.length < otpBoxes.length) {
     otpGroup.classList.add('is-error');
-    authOtpError.textContent = 'נא להזין קוד בן 4 ספרות';
+    authOtpError.textContent = `נא להזין קוד בן ${otpBoxes.length} ספרות`;
     otpBoxes.find(b => !b.value)?.focus();
     return;
   }
 
+  // ── Real Vonage OTP (admin or phone-tab customer) ────
+  if (pendingPhone) {
+    authOtpSubmit.disabled = true;
+    try {
+      const ok = await verifyOtp(pendingPhone, otp);
+      if (!ok) { showOtpError('הקוד שגוי. נסה שוב.'); return; }
+
+      if (pendingIsAdmin) {
+        sessionStorage.setItem('yb-auth-admin', '1');
+        window.location.href = 'admin.html';
+      } else {
+        sessionStorage.setItem('yb-auth-customer', JSON.stringify(pendingCustomer));
+        window.location.href = 'account.html';
+      }
+    } catch {
+      showOtpError('שגיאת תקשורת — נסה שוב.');
+    } finally {
+      authOtpSubmit.disabled = false;
+    }
+    return;
+  }
+
+  // ── Mock OTP (email-tab customer) ────────────────────
   if (otp !== pendingCustomer.otp) {
-    authOtpError.textContent = 'הקוד שגוי. נסה שוב.';
-    otpGroup.classList.add('is-error', 'is-shaking');
-    otpGroup.addEventListener('animationend', () => {
-      otpGroup.classList.remove('is-shaking');
-      clearOtpBoxes();
-      otpGroup.classList.add('is-error');
-      authOtpError.textContent = 'הקוד שגוי. נסה שוב.';
-      otpBoxes[0].focus();
-    }, { once: true });
+    showOtpError('הקוד שגוי. נסה שוב.');
     return;
   }
 
@@ -301,6 +396,8 @@ authBack.addEventListener('click', () => {
   clearAuthErrors();
   clearOtpBoxes();
   pendingCustomer = null;
+  pendingPhone    = null;
+  pendingIsAdmin  = false;
   showAuthStep('identify');
   authNameEl.focus();
 });
@@ -313,7 +410,6 @@ if (window.location.hash === '#my-area') {
 
 // ── Triggers ──────────────────────────────────────────────
 function handleMyAreaClick() {
-  // Close mobile nav if open
   const hamburger = document.querySelector('.yb-header__hamburger');
   const mobileNav = document.getElementById('yb-mobile-nav');
   if (hamburger && mobileNav && !mobileNav.hidden) {

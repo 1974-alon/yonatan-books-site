@@ -1,0 +1,488 @@
+/* =========================================================
+   ADMIN PANEL — ניהול הזמנות
+   Future Angular: replace with admin module + Firestore
+========================================================= */
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  font-family: 'Heebo', Arial, sans-serif;
+  background: #f5f7f5;
+  color: #0f2218;
+  direction: rtl;
+}
+
+/* ── Login screen ────────────────────────────────────── */
+.adm-login {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #f5f7f5;
+  padding: 24px;
+}
+
+.adm-login__box {
+  background: #fff;
+  border: 1.5px solid #e2ebe4;
+  border-radius: 16px;
+  padding: 40px 44px;
+  width: 100%;
+  max-width: 400px;
+}
+
+.adm-login__brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 32px;
+  padding-bottom: 20px;
+  border-bottom: 1px solid #eaf1ec;
+  font-size: 0.9rem;
+  color: #0f2218;
+}
+
+.adm-login__brand strong {
+  font-weight: 800;
+}
+
+.adm-login__brand span {
+  font-size: 0.75rem;
+  color: #4a6a52;
+}
+
+.adm-login__title {
+  margin: 0 0 6px;
+  font-size: 1.2rem;
+  font-weight: 800;
+  color: #0f2218;
+}
+
+.adm-login__sub {
+  margin: 0 0 24px;
+  font-size: 0.84rem;
+  color: #4a6a52;
+  line-height: 1.5;
+}
+
+.adm-login__field {
+  margin-bottom: 16px;
+}
+
+.adm-login__label {
+  display: block;
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: #0f2218;
+  margin-bottom: 6px;
+}
+
+.adm-login__input {
+  width: 100%;
+  padding: 10px 14px;
+  border: 1.5px solid #d0ddd2;
+  border-radius: 8px;
+  font-family: 'Heebo', Arial, sans-serif;
+  font-size: 1rem;
+  color: #0f2218;
+  transition: border-color 160ms;
+  box-sizing: border-box;
+}
+
+.adm-login__input:focus {
+  outline: none;
+  border-color: #2a7a4e;
+}
+
+.adm-login__error {
+  margin: 6px 0 0;
+  font-size: 0.78rem;
+  color: #c00;
+  min-height: 18px;
+}
+
+.adm-login__btn {
+  width: 100%;
+  padding: 11px;
+  background: #0f2218;
+  color: #eaf1ec;
+  border: none;
+  border-radius: 9px;
+  font-family: 'Heebo', Arial, sans-serif;
+  font-size: 0.95rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background 160ms;
+  margin-top: 4px;
+}
+
+.adm-login__btn:hover { background: #2a7a4e; }
+.adm-login__btn:disabled { opacity: 0.6; cursor: default; }
+
+.adm-login__back {
+  display: block;
+  margin-top: 12px;
+  background: none;
+  border: none;
+  font-family: 'Heebo', Arial, sans-serif;
+  font-size: 0.82rem;
+  color: #4a6a52;
+  cursor: pointer;
+  text-align: center;
+  width: 100%;
+}
+
+/* ── Logout button ───────────────────────────────────── */
+.adm-header__logout {
+  background: none;
+  border: 1px solid rgba(255,255,255,0.3);
+  color: #eaf1ec;
+  font-family: 'Heebo', Arial, sans-serif;
+  font-size: 0.78rem;
+  padding: 5px 14px;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background 160ms;
+  width: 80px;
+}
+
+.adm-header__logout:hover { background: rgba(255,255,255,0.1); }
+
+/* ── Header ───────────────────────────────────────────── */
+.adm-header {
+  background: #0f2218;
+  color: #eaf1ec;
+  padding: 0 32px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: 60px;
+  position: relative;
+}
+
+.adm-header__center {
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.adm-header__brand {
+  font-size: 0.95rem;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+}
+
+.adm-header__label {
+  font-size: 0.75rem;
+  opacity: 0.5;
+}
+
+.adm-header__back {
+  color: #eaf1ec;
+  font-size: 0.8rem;
+  text-decoration: none;
+  opacity: 0.6;
+  transition: opacity 160ms;
+}
+
+.adm-header__back:hover {
+  opacity: 1;
+}
+
+/* ── Layout ──────────────────────────────────────────── */
+.adm-main {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 32px 24px 80px;
+}
+
+.adm-page-title {
+  margin: 0 0 6px;
+  font-size: 1.4rem;
+  font-weight: 800;
+}
+
+.adm-page-sub {
+  margin: 0 0 28px;
+  font-size: 0.84rem;
+  color: #4a6a52;
+}
+
+/* ── Summary cards ───────────────────────────────────── */
+.adm-summary {
+  display: flex;
+  gap: 14px;
+  margin-bottom: 32px;
+  flex-wrap: wrap;
+}
+
+.adm-card {
+  background: #fff;
+  border: 1.5px solid #e2ebe4;
+  border-radius: 12px;
+  padding: 18px 24px;
+  min-width: 160px;
+  flex: 1;
+}
+
+.adm-card__label {
+  font-size: 0.75rem;
+  color: #4a6a52;
+  margin-bottom: 6px;
+}
+
+.adm-card__value {
+  font-size: 1.7rem;
+  font-weight: 900;
+  color: #0f2218;
+  line-height: 1;
+}
+
+.adm-card__value--accent { color: #2a7a4e; }
+.adm-card__value--warn   { color: #c07000; }
+
+/* ── Table wrapper ───────────────────────────────────── */
+.adm-table-wrap {
+  background: #fff;
+  border: 1.5px solid #e2ebe4;
+  border-radius: 14px;
+  overflow: auto;
+}
+
+.adm-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.84rem;
+  min-width: 900px;
+}
+
+/* ── Table head ──────────────────────────────────────── */
+.adm-table thead th {
+  background: #0f2218;
+  color: #eaf1ec;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  padding: 12px 16px;
+  text-align: right;
+  white-space: nowrap;
+}
+
+.adm-table thead th:not(:last-child) {
+  border-left: 1px solid rgba(255,255,255,0.1);
+}
+
+/* ── Table body ──────────────────────────────────────── */
+.adm-table tbody tr {
+  border-bottom: 1px solid #eaf1ec;
+  transition: background 120ms;
+}
+
+.adm-table tbody tr:hover {
+  background: #f7fbf8;
+}
+
+.adm-table tbody tr:last-child {
+  border-bottom: none;
+}
+
+.adm-table td {
+  padding: 14px 16px;
+  vertical-align: middle;
+  color: #0f2218;
+  white-space: nowrap;
+}
+
+.adm-table td.wrap { white-space: normal; min-width: 160px; }
+
+/* section dividers */
+.adm-table td.sec-start,
+.adm-table thead tr:nth-child(2) th.sec-start {
+  border-right: 2px solid #e2ebe4;
+}
+
+/* ── Badges ──────────────────────────────────────────── */
+.adm-badge {
+  display: inline-block;
+  padding: 3px 10px;
+  border-radius: 20px;
+  font-size: 0.72rem;
+  font-weight: 700;
+}
+
+.adm-badge--digital  { background: #dff0ea; color: #1a5035; }
+.adm-badge--physical { background: #fef3e2; color: #7a4400; }
+
+.adm-status {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 0.78rem;
+  font-weight: 700;
+}
+
+.adm-status::before {
+  content: '';
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.adm-status--pending::before  { background: #f59e0b; }
+.adm-status--downloaded::before { background: #2a7a4e; }
+.adm-status--shipped::before  { background: #2a7a4e; }
+.adm-status--waiting::before  { background: #f59e0b; }
+
+/* ── Downloads bar ───────────────────────────────────── */
+.adm-dl {
+  font-size: 0.78rem;
+  color: #4a6a52;
+  font-weight: 700;
+}
+
+/* ── Action buttons ──────────────────────────────────── */
+.adm-btn {
+  display: inline-block;
+  padding: 6px 14px;
+  border-radius: 7px;
+  border: 1.5px solid;
+  font-family: 'Heebo', Arial, sans-serif;
+  font-size: 0.75rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background 140ms, color 140ms;
+  white-space: nowrap;
+}
+
+.adm-btn--grant {
+  border-color: #2a7a4e;
+  color: #2a7a4e;
+  background: none;
+}
+
+.adm-btn--grant:hover {
+  background: #2a7a4e;
+  color: #fff;
+}
+
+.adm-btn--ship {
+  border-color: #c07000;
+  color: #c07000;
+  background: none;
+}
+
+.adm-btn--ship:hover {
+  background: #c07000;
+  color: #fff;
+}
+
+.adm-btn--done {
+  border-color: #ccc;
+  color: #999;
+  background: none;
+  cursor: default;
+  pointer-events: none;
+}
+
+/* ── Toggle icon ─────────────────────────────────────── */
+.adm-toggle-cell {
+  text-align: center;
+  width: 40px;
+}
+
+.adm-toggle-icon {
+  display: inline-block;
+  color: #4a6a52;
+  font-size: 0.7rem;
+  transition: transform 220ms ease;
+}
+
+/* ── Clickable row ───────────────────────────────────── */
+.adm-row {
+  cursor: pointer;
+}
+
+.adm-row:hover {
+  background: #f7fbf8;
+}
+
+.adm-row.is-open {
+  background: #f0f6f2;
+}
+
+.adm-row.is-open td:last-child .adm-toggle-icon {
+  transform: rotate(180deg);
+}
+
+.adm-row.is-open > td:first-child {
+  border-right: 3px solid #2a7a4e;
+}
+
+/* ── Detail row ──────────────────────────────────────── */
+.adm-detail-td {
+  padding: 0 !important;
+  background: #f7fbf8;
+  border-bottom: 2px solid #dff0ea;
+}
+
+.adm-detail-inner {
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height 240ms ease;
+}
+
+.adm-detail {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px;
+  padding: 16px 20px;
+}
+
+.adm-detail__fields {
+  display: flex;
+  gap: 32px;
+  flex-wrap: wrap;
+}
+
+.adm-detail__field {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  font-size: 0.84rem;
+}
+
+.adm-detail__label {
+  font-size: 0.7rem;
+  font-weight: 700;
+  color: #4a6a52;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.adm-detail__actions {
+  flex-shrink: 0;
+}
+
+/* ── Order ID ────────────────────────────────────────── */
+.adm-order-id {
+  font-family: monospace;
+  font-size: 0.8rem;
+  color: #4a6a52;
+}
+
+/* ── Email link ──────────────────────────────────────── */
+.adm-email-link {
+  color: #2a7a4e;
+  text-decoration: none;
+  direction: ltr;
+  display: inline-block;
+}
+
+.adm-email-link:hover { text-decoration: underline; }

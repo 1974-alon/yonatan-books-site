@@ -441,6 +441,8 @@
               <input class="yb-otp-box" type="text" inputmode="numeric" maxlength="1" pattern="[0-9]" aria-label="ספרה 2" autocomplete="off" />
               <input class="yb-otp-box" type="text" inputmode="numeric" maxlength="1" pattern="[0-9]" aria-label="ספרה 3" autocomplete="off" />
               <input class="yb-otp-box" type="text" inputmode="numeric" maxlength="1" pattern="[0-9]" aria-label="ספרה 4" autocomplete="off" />
+              <input class="yb-otp-box" type="text" inputmode="numeric" maxlength="1" pattern="[0-9]" aria-label="ספרה 5" autocomplete="off" />
+              <input class="yb-otp-box" type="text" inputmode="numeric" maxlength="1" pattern="[0-9]" aria-label="ספרה 6" autocomplete="off" />
             </div>
             <p class="yb-field__error" id="auth-otp-error" aria-live="polite"></p>
           </div>
@@ -453,6 +455,12 @@
     </div>
   </div>
 
+  <div id="adm-recaptcha" style="display:none;"></div>
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-storage-compat.js"></script>
+  <script src="js/firebase.js"></script>
+  <script src="js/admin-config.js"></script>
   <script src="js/footer.js"></script>
   <script src="js/app.js"></script>
   <script src="js/auth.js"></script>

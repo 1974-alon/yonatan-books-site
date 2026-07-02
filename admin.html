@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ניהול הזמנות | יונתן ספרים</title>
+  <meta name="robots" content="noindex, nofollow" />
+  <link rel="icon" type="image/svg+xml" href="images/favicon.svg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Heebo:wght@400;700;800;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/admin.css">
+</head>
+<body>
+
+  <header class="adm-header">
+    <a href="index.html" class="adm-header__back">→ חזרה לאתר</a>
+    <div class="adm-header__center">
+      <strong class="adm-header__brand">יונתן | ספרים</strong>
+      <span class="adm-header__label">מערכת ניהול</span>
+    </div>
+    <button class="adm-header__logout" id="adm-logout" type="button">יציאה</button>
+  </header>
+
+  <main class="adm-main">
+
+    <h1 class="adm-page-title">ניהול הזמנות</h1>
+    <p class="adm-page-sub">כל הרכישות שהתקבלו באתר</p>
+
+    <div class="adm-summary">
+      <div class="adm-card">
+        <div class="adm-card__label">סה״כ הזמנות</div>
+        <div class="adm-card__value" id="adm-total">—</div>
+      </div>
+      <div class="adm-card">
+        <div class="adm-card__label">סה״כ הכנסות</div>
+        <div class="adm-card__value adm-card__value--accent" id="adm-revenue">—</div>
+      </div>
+      <div class="adm-card">
+        <div class="adm-card__label">ממתינות לשליחה</div>
+        <div class="adm-card__value adm-card__value--warn" id="adm-pending">—</div>
+      </div>
+    </div>
+
+    <div class="adm-table-wrap">
+      <table class="adm-table">
+        <thead>
+          <tr>
+            <th>מס׳ הזמנה</th>
+            <th>שם לקוח</th>
+            <th>תאריך</th>
+            <th>ספר</th>
+            <th>מחיר</th>
+            <th>סוג רכישה</th>
+            <th>סטטוס</th>
+            <th>הורדות</th>
+            <th style="width:40px;"></th>
+          </tr>
+        </thead>
+        <tbody id="adm-tbody"></tbody>
+      </table>
+    </div>
+
+  </main>
+
+  <script>
+    if (!sessionStorage.getItem('yb-auth-admin')) window.location.href = 'index.html';
+    document.getElementById('adm-logout').addEventListener('click', () => {
+      sessionStorage.removeItem('yb-auth-admin');
+      window.location.href = 'index.html';
+    });
+  </script>
+  <script src="js/admin.js"></script>
+</body>
+</html>
