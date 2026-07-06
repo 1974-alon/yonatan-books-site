@@ -407,6 +407,22 @@
     };
 
     const params = new URLSearchParams(window.location.search);
+
+    // ── הצגת הצלחה לאחר חזרה מ-PayMe ────────────────────
+    if (params.get('success') === '1') {
+      document.getElementById('purchase-form').innerHTML = `
+        <div style="text-align:center;padding:60px 24px;">
+          <div style="font-size:3rem;margin-bottom:16px;">✓</div>
+          <h2 style="font-size:1.6rem;margin-bottom:12px;">התשלום התקבל בהצלחה</h2>
+          <p style="color:#4a6a52;margin-bottom:24px;">כדי לגשת לספר ולהוריד אותו — כנס לאזור האישי שלך.</p>
+          <button onclick="document.getElementById('my-area-btn').click()" class="primary-button has-ripple" style="margin:0 auto;">
+            כניסה לאזור האישי
+          </button>
+        </div>
+      `;
+      history.replaceState(null, '', window.location.pathname);
+    }
+
     const bookId = params.get('book') || 'book-01';
     const book   = BOOKS[bookId] || BOOKS['book-01'];
 
@@ -769,7 +785,7 @@
        FORM SUBMIT
     ========================================================= */
 
-    document.getElementById('purchase-form').addEventListener('submit', e => {
+    document.getElementById('purchase-form').addEventListener('submit', async e => {
       e.preventDefault();
 
       let allValid = true;
@@ -802,22 +818,43 @@
 
       submitError.classList.remove('is-visible');
 
-      if (activePaymentMethod === 'bit') {
-        const mode = getDeliveryMode();
-        alert(
-          `Demo: תשלום בביט — ${book.price}\n` +
-          `מסלול: ${mode === 'physical' ? 'שליחה בדואר' : 'הורדה דיגיטלית'}\n\n` +
-          `בפיתוח אמיתי: קריאה ל-API של Tranzila / PayMe, קבלת QR / deep link, אישור ב-webhook.`
-        );
-        return;
-      }
+      const mode        = getDeliveryMode();
+      const submitBtn   = document.getElementById('submit-btn-label');
+      const buyerName   = document.getElementById('full-name').value.trim();
+      const buyerEmail  = document.getElementById('email').value.trim();
+      const buyerPhone  = document.getElementById('phone').value.trim();
+      const address     = mode === 'physical'
+        ? [
+            document.getElementById('shipping-address')?.value || document.getElementById('address').value,
+            document.getElementById('shipping-city')?.value    || document.getElementById('address-city').value,
+            document.getElementById('shipping-zip')?.value     || document.getElementById('address-zip').value
+          ].filter(Boolean).join(', ')
+        : null;
 
-      const mode = getDeliveryMode();
-      alert(
-        `Demo: רכישה של "${book.title}" — ${book.price}\n` +
-        `מסלול: ${mode === 'physical' ? 'שליחה בדואר (7 ימי עבודה)' : 'הורדה דיגיטלית'}\n\n` +
-        `בפיתוח אמיתי: יצירת הזמנה ב-Firebase, ${mode === 'physical' ? 'שליחה לכתובת המשלוח' : 'שליחת קישור הורדה'}.`
-      );
+      submitBtn.textContent = 'מעבד...';
+      document.querySelector('.yb-purchase-submit__btn').disabled = true;
+
+      try {
+        const res = await fetch('https://europe-west1-yonatan-books.cloudfunctions.net/createPayment', {
+          method:  'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ bookId, buyerName, buyerEmail, buyerPhone, deliveryType: mode, address })
+        });
+
+        const data = await res.json();
+
+        if (!res.ok || !data.saleUrl) {
+          throw new Error(data.error || 'payment_init_failed');
+        }
+
+        window.location.href = data.saleUrl;
+      } catch (err) {
+        console.error('Payment error:', err);
+        submitBtn.textContent = 'לרכישה';
+        document.querySelector('.yb-purchase-submit__btn').disabled = false;
+        submitError.textContent = 'שגיאה בתחילת התשלום — נסה שוב.';
+        submitError.classList.add('is-visible');
+      }
     });
   </script>
 
