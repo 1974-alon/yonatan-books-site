@@ -20,7 +20,11 @@ const ALLOWED_ORIGINS = [
   'http://localhost:5502'
 ];
 
-const PAYME_URL      = 'https://ng.payme.io/api/GenerateSale';
+const PAYME_SANDBOX  = true; // false בפרודקשן
+const PAYME_URL      = PAYME_SANDBOX
+  ? 'https://sandbox.payme.io/api/generate-sale'
+  : 'https://live.payme.io/api/generate-sale';
+const PAYME_DEMO_ID  = 'MPLDEMO-MPLDEMO-MPLDEMO-1234567'; // רק לסנדבוקס
 const RETURN_URL     = 'https://1974-alon.github.io/yonatan-books-site/purchase.html?success=1';
 const IPN_URL        = 'https://europe-west1-yonatan-books.cloudfunctions.net/paymeIPN';
 
@@ -84,7 +88,7 @@ exports.verifyOtp = onRequest(
 
 // ── createPayment ─────────────────────────────────────────
 exports.createPayment = onRequest(
-  { secrets: [PAYME_KEY], cors: ALLOWED_ORIGINS, region: 'europe-west1' },
+  { secrets: [PAYME_KEY], cors: true, region: 'europe-west1', invoker: 'public' },
   async (req, res) => {
     if (req.method !== 'POST') { res.status(405).end(); return; }
 
@@ -121,43 +125,45 @@ exports.createPayment = onRequest(
         method:  'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          seller_payme_id:       PAYME_KEY.value(),
-          sale_price:            price * 100,
-          sale_currency:         'ILS',
-          sale_return_url:       `${RETURN_URL}&orderId=${orderRef.id}`,
-          sale_callback_url:     `${IPN_URL}`,
-          sale_payment_method:   'credit-card,bit',
+          seller_payme_id:        PAYME_SANDBOX ? PAYME_DEMO_ID : PAYME_KEY.value(),
+          sale_price:             price * 100,
+          currency:               'ILS',
+          product_name:           bookTitle,
+          transaction_id:         orderRef.id,
           sale_send_notification: false,
-          sale_description:      `${bookTitle}`,
-          buyer_name:            buyerName,
-          buyer_email:           buyerEmail,
-          buyer_phone:           buyerPhone.replace(/[-\s]/g, '')
+          sale_return_url:        `${RETURN_URL}&orderId=${orderRef.id}`,
+          sale_callback_url:      IPN_URL,
+          buyer_name:             buyerName,
+          buyer_email:            buyerEmail,
+          buyer_phone:            buyerPhone.replace(/[-\s]/g, '')
         })
       });
 
       const data = await paymeRes.json();
+      console.log('PayMe response:', JSON.stringify(data));
 
-      if (data.status_error_code !== 0) {
+      if (!data.sale_url && !data.url) {
         await orderRef.delete();
-        res.status(500).json({ error: data.status_error_details });
+        res.status(500).json({ error: 'no_sale_url', payme_raw: data });
         return;
       }
 
-      // Save paymeId to the pending order
-      await orderRef.update({ paymeId: data.payme_sale_id });
+      const saleUrl = data.sale_url || data.url;
+      const paymeId = data.payme_sale_id || data.id || orderRef.id;
+      await orderRef.update({ paymeId });
 
-      res.json({ saleUrl: data.sale_url, orderId: orderRef.id });
+      res.json({ saleUrl, orderId: orderRef.id });
     } catch (err) {
-      console.error('PayMe createPayment error:', err);
+      console.error('PayMe createPayment error:', err, err.cause);
       await orderRef.delete();
-      res.status(500).json({ error: 'payment_init_failed' });
+      res.status(500).json({ error: 'payment_init_failed', detail: err.message, cause: String(err.cause) });
     }
   }
 );
 
 // ── paymeIPN ──────────────────────────────────────────────
 exports.paymeIPN = onRequest(
-  { secrets: [PAYME_KEY], cors: true, region: 'europe-west1' },
+  { secrets: [PAYME_KEY], cors: true, region: 'europe-west1', invoker: 'public' },
   async (req, res) => {
     const { payme_sale_id, sale_status } = req.body;
 
@@ -185,9 +191,91 @@ exports.paymeIPN = onRequest(
   }
 );
 
+// ── confirmPayment ────────────────────────────────────────
+exports.confirmPayment = onRequest(
+  { cors: true, region: 'europe-west1', invoker: 'public' },
+  async (req, res) => {
+    if (req.method !== 'POST') { res.status(405).end(); return; }
+
+    const { bookId, buyerName, buyerEmail, buyerPhone, deliveryType, address, notes, paymeToken } = req.body;
+
+    if (!bookId || !buyerName || !buyerEmail || !buyerPhone || !paymeToken) {
+      res.status(400).json({ error: 'missing_fields' }); return;
+    }
+
+    const price     = BOOK_PRICES[bookId];
+    const bookTitle = BOOK_TITLES[bookId];
+    if (!price) { res.status(400).json({ error: 'invalid_book' }); return; }
+
+    try {
+      const orderRef = await db.collection('orders').add({
+        bookId,
+        bookTitle,
+        buyerName,
+        buyerEmail,
+        buyerPhone,
+        deliveryType: deliveryType || 'digital',
+        address:      address || null,
+        notes:        notes || null,
+        price,
+        currency:     'ILS',
+        status:       'paid',
+        downloads:    0,
+        paymeId:      paymeToken,
+        createdAt:    FieldValue.serverTimestamp()
+      });
+
+      res.json({ orderId: orderRef.id });
+    } catch (err) {
+      console.error('confirmPayment error:', err);
+      res.status(500).json({ error: 'internal' });
+    }
+  }
+);
+
+// ── getAdminOrders ────────────────────────────────────────
+exports.getAdminOrders = onRequest(
+  { cors: true, region: 'europe-west1', invoker: 'public' },
+  async (req, res) => {
+    if (req.method !== 'GET') { res.status(405).end(); return; }
+
+    try {
+      const snap = await db.collection('orders')
+        .orderBy('createdAt', 'desc')
+        .limit(200)
+        .get();
+
+      const orders = snap.docs.map(doc => {
+        const d = doc.data();
+        return {
+          id:              doc.id,
+          bookId:          d.bookId,
+          bookTitle:       d.bookTitle,
+          name:            d.buyerName,
+          email:           d.buyerEmail,
+          phone:           d.buyerPhone,
+          type:            d.deliveryType || 'digital',
+          address:         d.address || null,
+          notes:           d.notes  || null,
+          price:           d.price,
+          status:          d.status,
+          downloads:       d.downloads || 0,
+          paymeId:         d.paymeId || null,
+          date:            d.createdAt?.toDate?.()?.toISOString() || new Date().toISOString()
+        };
+      });
+
+      res.json({ orders });
+    } catch (err) {
+      console.error('getAdminOrders error:', err);
+      res.status(500).json({ error: 'internal' });
+    }
+  }
+);
+
 // ── getOrder ──────────────────────────────────────────────
 exports.getOrder = onRequest(
-  { cors: ALLOWED_ORIGINS, region: 'europe-west1' },
+  { cors: true, region: 'europe-west1', invoker: 'public' },
   async (req, res) => {
     const { orderId } = req.query;
     if (!orderId) { res.status(400).json({ error: 'missing_orderId' }); return; }

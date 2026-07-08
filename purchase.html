@@ -12,6 +12,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Heebo:wght@400;700;800;900&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="css/style.css">
   <link rel="stylesheet" href="css/purchase.css">
+  <script src="https://cdn.payme.io/hf/v1/hostedfields.js"></script>
 </head>
 <body>
   <a href="#top" class="skip-link">דלג לתוכן הראשי</a>
@@ -254,14 +255,6 @@
             <div class="yb-form-grid">
 
               <div class="yb-field yb-field--full">
-                <label class="yb-field__label" for="card-name">שם בעל הכרטיס <span class="yb-field__req" aria-hidden="true">*</span></label>
-                <input class="yb-field__input" type="text" id="card-name" name="card-name"
-                  autocomplete="off" required placeholder="כפי שמופיע על הכרטיס"
-                  aria-describedby="card-name-error" />
-                <p class="yb-field__error" id="card-name-error" aria-live="polite"></p>
-              </div>
-
-              <div class="yb-field yb-field--full">
                 <label class="yb-field__label" for="id-number">תעודת זהות <span class="yb-field__req" aria-hidden="true">*</span></label>
                 <input class="yb-field__input" type="text" id="id-number" name="id-number"
                   inputmode="numeric" maxlength="9" required placeholder="000000000"
@@ -270,30 +263,24 @@
               </div>
 
               <div class="yb-field yb-field--full">
-                <label class="yb-field__label" for="card-number">מספר כרטיס <span class="yb-field__req" aria-hidden="true">*</span></label>
-                <input class="yb-field__input yb-field__input--ltr" type="text" id="card-number" name="card-number"
-                  autocomplete="off" inputmode="numeric" maxlength="19" required placeholder="0000 0000 0000 0000"
-                  aria-describedby="card-number-error" />
-                <p class="yb-field__error" id="card-number-error" aria-live="polite"></p>
+                <label class="yb-field__label">מספר כרטיס <span class="yb-field__req" aria-hidden="true">*</span></label>
+                <div class="yb-field__input yb-payme-field" id="payme-card-number"></div>
+                <p class="yb-field__error" id="payme-card-number-error" aria-live="polite"></p>
               </div>
 
               <div class="yb-field">
-                <label class="yb-field__label" for="card-expiry">תאריך תפוגה <span class="yb-field__req" aria-hidden="true">*</span></label>
-                <input class="yb-field__input yb-field__input--ltr" type="text" id="card-expiry" name="card-expiry"
-                  autocomplete="cc-exp" inputmode="numeric" maxlength="5" required placeholder="MM/YY"
-                  aria-describedby="card-expiry-error" />
-                <p class="yb-field__error" id="card-expiry-error" aria-live="polite"></p>
+                <label class="yb-field__label">תאריך תפוגה <span class="yb-field__req" aria-hidden="true">*</span></label>
+                <div class="yb-field__input yb-payme-field" id="payme-card-expiry"></div>
+                <p class="yb-field__error" id="payme-card-expiry-error" aria-live="polite"></p>
               </div>
 
               <div class="yb-field yb-field--cvv">
-                <label class="yb-field__label" for="card-cvv">
+                <label class="yb-field__label">
                   CVV <span class="yb-field__req" aria-hidden="true">*</span>
                   <span class="yb-field__label-note"> (3 ספרות בגב הכרטיס)</span>
                 </label>
-                <input class="yb-field__input yb-field__input--ltr" type="text" id="card-cvv" name="card-cvv"
-                  autocomplete="cc-csc" inputmode="numeric" maxlength="4" required placeholder="000"
-                  aria-describedby="card-cvv-error" />
-                <p class="yb-field__error" id="card-cvv-error" aria-live="polite"></p>
+                <div class="yb-field__input yb-payme-field" id="payme-card-cvv"></div>
+                <p class="yb-field__error" id="payme-card-cvv-error" aria-live="polite"></p>
               </div>
 
             </div>
@@ -378,6 +365,7 @@
   <div id="adm-recaptcha" style="display:none;"></div>
   <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-storage-compat.js"></script>
   <script src="js/firebase.js"></script>
   <script src="js/admin-config.js"></script>
   <script src="js/footer.js"></script>
@@ -392,6 +380,7 @@
         title: 'דמיון לנחמה',
         description: '<p>שמונה סיפורים קצרים ונובלה אחת: בלש משטרה מסור נקלע לסיטואציה מתעתעת; ארבעה חיילים נערכים לקרב גורלי; מפגש בחנות נעליים יוצא משליטה; חוקרת חיות יפה עומדת במרכזה של אי-הבנה; בדירה תל-אביבית מתארגנים לערב מיוחד; על שפת הבריכה בקיבוץ משתקפים החיים; סופר הספדים בודד מחפש חום אנושי בטיסה לדאלאס; ביקור בבית מרקחת הזוי בסנט-לואיס, בזמן מגפה עולמית, מניע מסע אל הרי ההימאליה, למפגש עם הדרקון.</p><p>פסיפס של דמויות אנושיות הנעות בעקבות מודעות חדשה והצורך בחמלה, בעולם היפר-ריאליסטי וכאוטי.</p>',
         price: '₪79',
+        priceValue: '79.00',
         coverBg: "url('images/books/כריכה_דמיון%20לנחמה.jpg') center/cover no-repeat",
         coverImg: 'images/books/כריכה_דמיון%20לנחמה.jpg',
         hasPhoto: true
@@ -400,6 +389,7 @@
         title: 'דרום מערב',
         description: '<p>עשרה סיפורים קצרים: שני טירונים בורחים מהבסיס; פרמדיק נאבק על פתיל חייו של גבר; צעיר ישראלי פוגש את ניו-יורק בדרך לא שגרתית; במשאית ההובלות נארזים חיים שלמים; במשמרת במסעדה מגמגמת מבין הטבח לאן פני הדברים; בחור מצליח נקלע לפי פחת; סוכן מכירות מוטרד ממה שמתחת לפני השטח; שני אנשי עסקים קרובים יוצאים למסע באסיה; ביקור אצל סוחר סמים הופך לחיפוש אחר מקלט מטילים; חבורת ילדים מגלה שהשער אל החופש אינו נעול.</p><p>על התפר שבין מציאות דוחקת למפגש חשוף עם זרם התודעה, מנסים גיבורי הספר להישאר בתנועה אל עבר מקום מוקיר ערך.</p>',
         price: '₪89',
+        priceValue: '89.00',
         coverBg: "url('images/books/כריכה_דרום%20מערב.jpg') center/cover no-repeat",
         coverImg: 'images/books/כריכה_דרום%20מערב.jpg',
         hasPhoto: true
@@ -426,12 +416,14 @@
     const bookId = params.get('book') || 'book-01';
     const book   = BOOKS[bookId] || BOOKS['book-01'];
 
+    const isSuccess = params.get('success') === '1';
+
     document.getElementById('banner-cover').style.background   = book.coverBg;
     document.getElementById('banner-cover-title').textContent  = book.title;
     document.getElementById('purchase-book-title').textContent = book.title;
     document.getElementById('banner-description').innerHTML    = book.description;
     document.getElementById('banner-price').textContent        = book.price;
-    document.getElementById('submit-price').textContent        = book.price;
+    if (!isSuccess) document.getElementById('submit-price').textContent = book.price;
     document.title = `רכישה — ${book.title} | יונתן`;
 
     if (book.hasPhoto) {
@@ -444,6 +436,8 @@
     if (book.coverImg) {
       document.getElementById('banner-backdrop').style.backgroundImage = `url('${book.coverImg}')`;
     }
+
+    if (!isSuccess) (function() {
 
     let activePaymentMethod = 'card';
 
@@ -599,13 +593,6 @@
         ]
       },
       {
-        id: 'card-name',
-        cardOnly: true,
-        rules: [
-          { test: v => v.trim().length > 0, msg: 'נא להזין שם בעל הכרטיס' },
-        ]
-      },
-      {
         id: 'id-number',
         cardOnly: true,
         rules: [
@@ -633,30 +620,6 @@
         rules: [
           { test: v => v.trim().length > 0,    msg: 'נא להזין מיקוד' },
           { test: v => RE.zip.test(v.trim()),   msg: 'מיקוד לא תקין (5 או 7 ספרות)' },
-        ]
-      },
-      {
-        id: 'card-number',
-        cardOnly: true,
-        rules: [
-          { test: v => v.trim().length > 0,                          msg: 'נא להזין מספר כרטיס' },
-          { test: v => RE.cardNum.test(v.replace(/[\s-]/g, '')),     msg: 'מספר כרטיס לא תקין' },
-        ]
-      },
-      {
-        id: 'card-expiry',
-        cardOnly: true,
-        rules: [
-          { test: v => v.trim().length > 0,       msg: 'נא להזין תאריך תפוגה' },
-          { test: v => RE.expiry.test(v.trim()),   msg: 'תאריך תפוגה לא תקין (לדוגמה: 12/28)' },
-        ]
-      },
-      {
-        id: 'card-cvv',
-        cardOnly: true,
-        rules: [
-          { test: v => v.trim().length > 0,    msg: 'נא להזין CVV' },
-          { test: v => RE.cvv.test(v.trim()),   msg: 'CVV לא תקין (3-4 ספרות)' },
         ]
       },
     ];
@@ -754,23 +717,8 @@
        INPUT MASKS
     ========================================================= */
 
-    document.getElementById('card-number').addEventListener('input', function () {
-      const digits = this.value.replace(/\D/g, '').slice(0, 16);
-      this.value = digits.replace(/(.{4})/g, '$1 ').trim();
-    });
-
-    document.getElementById('card-expiry').addEventListener('input', function () {
-      let val = this.value.replace(/\D/g, '').slice(0, 4);
-      if (val.length >= 3) val = val.slice(0, 2) + '/' + val.slice(2);
-      this.value = val;
-    });
-
     document.getElementById('id-number').addEventListener('input', function () {
       this.value = this.value.replace(/\D/g, '').slice(0, 9);
-    });
-
-    document.getElementById('card-cvv').addEventListener('input', function () {
-      this.value = this.value.replace(/\D/g, '').slice(0, 4);
     });
 
     document.getElementById('address-zip').addEventListener('input', function () {
@@ -780,6 +728,85 @@
     document.getElementById('shipping-zip').addEventListener('input', function () {
       this.value = this.value.replace(/\D/g, '').slice(0, 7);
     });
+
+    /* =========================================================
+       FORM SUBMIT
+    ========================================================= */
+
+    /* =========================================================
+       PAYME JSAPI
+    ========================================================= */
+
+    const PAYME_SELLER_ID = 'ac76cbc1-9a83-47a4-82bd-1c82c4979fdd'; // JSAPI sandbox demo key
+    const CF_CONFIRM = 'https://europe-west1-yonatan-books.cloudfunctions.net/confirmPayment';
+
+    let paymeInstance = null;
+
+    const pmStyles = {
+      base: {
+        'font-size': '16px',
+        'font-family': 'Heebo, sans-serif',
+        'color': '#0f2218',
+        '::placeholder': { color: 'rgba(122, 92, 64, 0.45)' },
+        'text-align': 'right',
+        'padding-right': '14px',
+        'padding-left':  '14px',
+        'padding-top':   '0',
+        'padding-bottom':'0',
+      },
+      invalid: { color: '#c0392b' },
+      valid:   { color: '#0f2218' },
+    };
+
+    function onPaymeField(fieldKey, result) {
+      const errorEl   = document.getElementById(`payme-${fieldKey}-error`);
+      const container = document.getElementById(`payme-${fieldKey}`);
+      if (!container) return;
+      if (result.isValid) {
+        container.classList.remove('is-error');
+        container.classList.add('is-valid');
+        if (errorEl) errorEl.textContent = '';
+      } else if (!result.isEmpty) {
+        container.classList.add('is-error');
+        container.classList.remove('is-valid');
+        if (errorEl) errorEl.textContent = result.message || '';
+      }
+    }
+
+    if (typeof PayMe !== 'undefined' && document.getElementById('payme-card-number')) {
+      PayMe.create(PAYME_SELLER_ID, { testMode: true, language: 'he' })
+        .then(instance => {
+          paymeInstance = instance;
+          const hf = instance.hostedFields();
+
+          const cardNumber = hf.create(PayMe.fields.NUMBER, {
+            styles: pmStyles,
+            placeholder: '0000 0000 0000 0000',
+            messages: { invalid: 'מספר כרטיס לא תקין', required: 'נא להזין מספר כרטיס' }
+          });
+          cardNumber.mount('#payme-card-number');
+          cardNumber.on('validity-changed', v => onPaymeField('card-number', v));
+          cardNumber.on('keyup',            v => onPaymeField('card-number', v));
+
+          const expiration = hf.create(PayMe.fields.EXPIRATION, {
+            styles: pmStyles,
+            messages: { invalid: 'תאריך תפוגה לא תקין', required: 'נא להזין תאריך תפוגה' }
+          });
+          expiration.mount('#payme-card-expiry');
+          expiration.on('validity-changed', v => onPaymeField('card-expiry', v));
+          expiration.on('keyup',            v => onPaymeField('card-expiry', v));
+
+          const cvc = hf.create(PayMe.fields.CVC, {
+            styles: pmStyles,
+            placeholder: 'CVV',
+            messages: { invalid: 'CVV לא תקין', required: 'נא להזין CVV' }
+          });
+          cvc.mount('#payme-card-cvv');
+          cvc.on('validity-changed', v => onPaymeField('card-cvv', v));
+          cvc.on('keyup',            v => onPaymeField('card-cvv', v));
+        })
+        .catch(err => console.error('PayMe init error:', err));
+    }
 
     /* =========================================================
        FORM SUBMIT
@@ -818,44 +845,97 @@
 
       submitError.classList.remove('is-visible');
 
-      const mode        = getDeliveryMode();
-      const submitBtn   = document.getElementById('submit-btn-label');
-      const buyerName   = document.getElementById('full-name').value.trim();
-      const buyerEmail  = document.getElementById('email').value.trim();
-      const buyerPhone  = document.getElementById('phone').value.trim();
-      const address     = mode === 'physical'
+      const mode      = getDeliveryMode();
+      const submitBtn = document.getElementById('submit-btn-label');
+      const buyerName = document.getElementById('full-name').value.trim();
+      const buyerEmail= document.getElementById('email').value.trim();
+      const buyerPhone= document.getElementById('phone').value.trim();
+      const billingParts = [
+        document.getElementById('address').value,
+        document.getElementById('address-city').value,
+        document.getElementById('address-zip').value
+      ].filter(v => v?.trim());
+
+      const address = mode === 'physical'
         ? [
             document.getElementById('shipping-address')?.value || document.getElementById('address').value,
             document.getElementById('shipping-city')?.value    || document.getElementById('address-city').value,
             document.getElementById('shipping-zip')?.value     || document.getElementById('address-zip').value
           ].filter(Boolean).join(', ')
-        : null;
+        : billingParts.join(', ') || null;
 
       submitBtn.textContent = 'מעבד...';
       document.querySelector('.yb-purchase-submit__btn').disabled = true;
 
       try {
-        const res = await fetch('https://europe-west1-yonatan-books.cloudfunctions.net/createPayment', {
-          method:  'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ bookId, buyerName, buyerEmail, buyerPhone, deliveryType: mode, address })
-        });
-
-        const data = await res.json();
-
-        if (!res.ok || !data.saleUrl) {
-          throw new Error(data.error || 'payment_init_failed');
+        if (activePaymentMethod === 'bit') {
+          submitBtn.textContent = 'תשלום בביט';
+          document.querySelector('.yb-purchase-submit__btn').disabled = false;
+          submitError.textContent = 'תשלום ביט יהיה זמין בקרוב — לרכישה, אנא בחר אשראי.';
+          submitError.classList.add('is-visible');
+          return;
         }
 
-        window.location.href = data.saleUrl;
+        if (!paymeInstance) throw Object.assign(new Error('payme_not_ready'), { type: 'init' });
+
+        const nameParts = buyerName.split(' ');
+        const firstName = nameParts[0];
+        const lastName  = nameParts.slice(1).join(' ') || firstName;
+        const idNum     = document.getElementById('id-number').value.trim();
+
+        const tokenData = await paymeInstance.tokenize({
+          payerFirstName: firstName,
+          payerLastName:  lastName,
+          payerEmail:     buyerEmail,
+          payerPhone:     buyerPhone.replace(/[-\s]/g, ''),
+          payerSocialId:  idNum,
+          total: {
+            label: book.title,
+            amount: { currency: 'ILS', value: book.priceValue }
+          }
+        });
+
+        const notes = document.getElementById('notes')?.value?.trim() || '';
+
+        const confirmRes = await fetch(CF_CONFIRM, {
+          method:  'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            bookId,
+            buyerName,
+            buyerEmail,
+            buyerPhone,
+            deliveryType: mode,
+            address,
+            notes,
+            paymeToken: tokenData.token
+          })
+        });
+
+        const confirmData = await confirmRes.json();
+        if (!confirmRes.ok) throw new Error(confirmData.error || 'confirm_failed');
+
+        window.location.href = `purchase.html?success=1&orderId=${confirmData.orderId}`;
+
       } catch (err) {
         console.error('Payment error:', err);
-        submitBtn.textContent = 'לרכישה';
+        submitBtn.textContent = activePaymentMethod === 'bit' ? 'תשלום בביט' : 'לרכישה';
         document.querySelector('.yb-purchase-submit__btn').disabled = false;
-        submitError.textContent = 'שגיאה בתחילת התשלום — נסה שוב.';
+
+        let errMsg = 'שגיאה בתהליך התשלום — נסה שוב.';
+        if (err.type === 'tokenize-error') {
+          const msgs = Object.values(err.errors || {});
+          errMsg = msgs[0] || 'שגיאה בפרטי כרטיס האשראי — אנא בדוק ונסה שוב.';
+        } else if (err.message === 'payme_not_ready') {
+          errMsg = 'טופס התשלום טרם נטען — המתן רגע ונסה שוב.';
+        }
+
+        submitError.textContent = errMsg;
         submitError.classList.add('is-visible');
       }
     });
+
+    })(); // end !isSuccess block
   </script>
 
   <div class="yb-auth-modal" id="auth-modal" role="dialog" aria-modal="true" aria-labelledby="auth-modal-title" hidden>

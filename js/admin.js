@@ -1,82 +1,61 @@
 /* =========================================================
    ADMIN — Orders management
-   Data source: localStorage['yb-orders'] (future: Firestore)
+   Data source: Firestore via getAdminOrders Cloud Function
 ========================================================= */
 
-const MOCK_ORDERS = [
-  {
-    id: 'ORD-2026-001',
-    date: '2026-06-14',
-    bookId: 'book-01',
-    bookTitle: 'דמיון לנחמה',
-    price: 79,
-    type: 'digital',
-    status: 'downloaded',
-    downloads: 2,
-    name: 'רחל כהן',
-    email: 'rachel.cohen@gmail.com',
-    phone: '052-111-2233',
-    address: 'רחוב הרצל 24, תל אביב, 6543210',
-    shippingAddress: null
-  },
-  {
-    id: 'ORD-2026-002',
-    date: '2026-06-19',
-    bookId: 'book-02',
-    bookTitle: 'דרום מערב',
-    price: 89,
-    type: 'physical',
-    status: 'waiting',
-    downloads: 0,
-    name: 'דוד לוי',
-    email: 'david.levi@gmail.com',
-    phone: '054-333-4455',
-    address: 'שדרות בן גוריון 8, חיפה, 3200001',
-    shippingAddress: 'שדרות בן גוריון 8, חיפה, 3200001'
-  },
-  {
-    id: 'ORD-2026-003',
-    date: '2026-06-22',
-    bookId: 'book-01',
-    bookTitle: 'דמיון לנחמה',
-    price: 79,
-    type: 'physical',
-    status: 'shipped',
-    downloads: 0,
-    name: 'מרים אברהם',
-    email: 'miriam.a@walla.co.il',
-    phone: '053-567-8899',
-    address: 'רחוב ביאליק 5, ירושלים, 9350100',
-    shippingAddress: 'רחוב ביאליק 5, ירושלים, 9350100'
-  },
-  {
-    id: 'ORD-2026-004',
-    date: '2026-06-27',
-    bookId: 'book-02',
-    bookTitle: 'דרום מערב',
-    price: 89,
-    type: 'digital',
-    status: 'pending',
-    downloads: 0,
-    name: 'יוסי גרין',
-    email: 'yossi.green@hotmail.com',
-    phone: '050-987-6543',
-    address: 'רחוב העצמאות 17, באר שבע, 8443220',
-    shippingAddress: null
-  }
-];
+const CF_ADMIN_ORDERS = 'https://europe-west1-yonatan-books.cloudfunctions.net/getAdminOrders';
+
+let _cachedOrders = [];
+let _sortField = 'num';
+let _sortDir   = 'desc'; // ברירת מחדל: האחרונה ראשונה
+let _page      = 1;
+const PAGE_SIZE = 10;
+
+async function fetchOrders() {
+  const res  = await fetch(CF_ADMIN_ORDERS);
+  const data = await res.json();
+  // API מחזיר DESC — הופכים ל-ASC כדי ש-#001 יהיה ראשון
+  _cachedOrders = (data.orders || []).reverse();
+  return _cachedOrders;
+}
 
 function getOrders() {
-  const stored = localStorage.getItem('yb-orders');
-  if (!stored) {
-    localStorage.setItem('yb-orders', JSON.stringify(MOCK_ORDERS));
-    return MOCK_ORDERS;
-  }
-  return JSON.parse(stored);
+  return _cachedOrders;
 }
 
 function saveOrders(orders) {
-  localStorage.setItem('yb-orders', JSON.stringify(orders));
+  _cachedOrders = orders;
+}
+
+function getSortedOrders() {
+  const orders = [..._cachedOrders];
+  orders.sort((a, b) => {
+    let va, vb;
+    if (_sortField === 'date') {
+      va = new Date(a.date).getTime();
+      vb = new Date(b.date).getTime();
+    } else {
+      // num — לפי סדר ה-index (כרונולוגי)
+      va = _cachedOrders.indexOf(a);
+      vb = _cachedOrders.indexOf(b);
+    }
+    return _sortDir === 'asc' ? va - vb : vb - va;
+  });
+  return orders;
+}
+
+function updateSortIcons() {
+  ['num', 'date'].forEach(field => {
+    const el = document.getElementById(`sort-icon-${field}`);
+    if (!el) return;
+    if (field === _sortField) {
+      el.textContent = _sortDir === 'asc' ? '↑' : '↓';
+      el.classList.add('is-active');
+    } else {
+      el.textContent = '↕';
+      el.classList.remove('is-active');
+    }
+  });
 }
 
 function formatDate(iso) {
@@ -85,11 +64,11 @@ function formatDate(iso) {
 
 function statusLabel(order) {
   if (order.type === 'digital') {
-    if (order.status === 'pending')    return { cls: 'adm-status--pending',    text: 'ממתין להורדה' };
-    if (order.status === 'downloaded') return { cls: 'adm-status--downloaded', text: 'הורד' };
+    if (order.status === 'paid' || order.status === 'pending') return { cls: 'adm-status--pending',    text: 'ממתין להורדה' };
+    if (order.status === 'downloaded')                         return { cls: 'adm-status--downloaded', text: 'הורד' };
   } else {
-    if (order.status === 'waiting') return { cls: 'adm-status--waiting', text: 'ממתין לשליחה' };
-    if (order.status === 'shipped') return { cls: 'adm-status--shipped', text: 'נשלח' };
+    if (order.status === 'paid' || order.status === 'waiting') return { cls: 'adm-status--waiting', text: 'ממתין לשליחה' };
+    if (order.status === 'shipped')                            return { cls: 'adm-status--shipped', text: 'נשלח' };
   }
   return { cls: '', text: order.status };
 }
@@ -100,13 +79,48 @@ function renderSummary(orders) {
   document.getElementById('adm-pending').textContent = orders.filter(o => o.type === 'physical' && o.status === 'waiting').length;
 }
 
-function renderTable(orders) {
-  const tbody = document.getElementById('adm-tbody');
+function renderPager(totalOrders) {
+  const totalPages = Math.ceil(totalOrders / PAGE_SIZE);
+  let pager = document.getElementById('adm-pager');
+  if (!pager) return;
 
-  tbody.innerHTML = orders.map(o => {
+  if (totalPages <= 1) { pager.innerHTML = ''; return; }
+
+  const pages = Array.from({ length: totalPages }, (_, i) => i + 1);
+  pager.innerHTML = `
+    <button class="adm-pager-btn" data-page="${_page - 1}" ${_page === 1 ? 'disabled' : ''}>&#x2039; הקודם</button>
+    ${pages.map(p => `<button class="adm-pager-btn ${p === _page ? 'is-active' : ''}" data-page="${p}">${p}</button>`).join('')}
+    <button class="adm-pager-btn" data-page="${_page + 1}" ${_page === totalPages ? 'disabled' : ''}>הבא &#x203a;</button>
+  `;
+
+  pager.querySelectorAll('[data-page]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const p = parseInt(btn.dataset.page);
+      if (p < 1 || p > totalPages || p === _page) return;
+      _page = p;
+      renderTable(_cachedOrders);
+    });
+  });
+}
+
+function renderTable(orders) {
+  const tbody  = document.getElementById('adm-tbody');
+  const sorted = getSortedOrders();
+  const total  = _cachedOrders.length;
+
+  updateSortIcons();
+
+  const start   = (_page - 1) * PAGE_SIZE;
+  const pageOrders = sorted.slice(start, start + PAGE_SIZE);
+
+  renderPager(total);
+
+  tbody.innerHTML = pageOrders.map((o) => {
+    const idx = _cachedOrders.indexOf(o);
+    const orderNum = String(idx + 1).padStart(3, '0');
     const st      = statusLabel(o);
     const dlText  = o.type === 'digital' ? `${o.downloads}/3` : '—';
-    const addr    = o.shippingAddress || o.address;
+    const addr    = o.address || '—';
 
     let actionBtn = '';
     if (o.type === 'digital') {
@@ -119,7 +133,7 @@ function renderTable(orders) {
 
     return `
       <tr class="adm-row" data-id="${o.id}" tabindex="0" role="button" aria-expanded="false">
-        <td><span class="adm-order-id">${o.id}</span></td>
+        <td><span class="adm-order-id">#${orderNum}</span></td>
         <td>${o.name}</td>
         <td>${formatDate(o.date)}</td>
         <td><strong>${o.bookTitle}</strong></td>
@@ -144,8 +158,12 @@ function renderTable(orders) {
                 </div>
                 <div class="adm-detail__field">
                   <span class="adm-detail__label">כתובת</span>
-                  <span>${addr}</span>
+                  <span>${addr && addr !== 'null' ? addr : '—'}</span>
                 </div>
+                ${o.notes ? `<div class="adm-detail__field adm-detail__field--full">
+                  <span class="adm-detail__label">הערות</span>
+                  <span>${o.notes}</span>
+                </div>` : ''}
               </div>
               <div class="adm-detail__actions">
                 ${actionBtn}
@@ -209,8 +227,30 @@ function toggleDetail(row) {
   }
 }
 
-(function () {
-  const orders = getOrders();
-  renderSummary(orders);
-  renderTable(orders);
+(async function () {
+  const tbody = document.getElementById('adm-tbody');
+  if (tbody) tbody.innerHTML = '<tr><td colspan="9" style="text-align:center;padding:32px;color:#4a6a52;">טוען הזמנות...</td></tr>';
+
+  try {
+    const orders = await fetchOrders();
+    renderSummary(orders);
+    renderTable(orders);
+  } catch (err) {
+    console.error('Failed to load orders:', err);
+    if (tbody) tbody.innerHTML = '<tr><td colspan="9" style="text-align:center;padding:32px;color:#c0392b;">שגיאה בטעינת ההזמנות</td></tr>';
+  }
+
+  document.querySelectorAll('.adm-th-sort').forEach(th => {
+    th.addEventListener('click', () => {
+      const field = th.dataset.sort;
+      if (_sortField === field) {
+        _sortDir = _sortDir === 'asc' ? 'desc' : 'asc';
+      } else {
+        _sortField = field;
+        _sortDir   = 'desc';
+      }
+      _page = 1;
+      renderTable(_cachedOrders);
+    });
+  });
 }());

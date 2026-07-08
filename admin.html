@@ -46,9 +46,9 @@
       <table class="adm-table">
         <thead>
           <tr>
-            <th>מס׳ הזמנה</th>
+            <th class="adm-th-sort" data-sort="num">מס׳ הזמנה <span class="adm-sort-icon" id="sort-icon-num">↕</span></th>
             <th>שם לקוח</th>
-            <th>תאריך</th>
+            <th class="adm-th-sort" data-sort="date">תאריך <span class="adm-sort-icon" id="sort-icon-date">↕</span></th>
             <th>ספר</th>
             <th>מחיר</th>
             <th>סוג רכישה</th>
@@ -59,6 +59,7 @@
         </thead>
         <tbody id="adm-tbody"></tbody>
       </table>
+      <div id="adm-pager" class="adm-pager"></div>
     </div>
 
   </main>

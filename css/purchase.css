@@ -896,6 +896,24 @@
       }
     }
 
+    /* ── PayMe Hosted Fields ─────────────────────────────── */
+
+    .yb-payme-field {
+      padding: 0 16px !important;
+      height: 50px;
+      cursor: text;
+      overflow: hidden;
+      display: flex;
+      align-items: center;
+    }
+
+    .yb-payme-field iframe {
+      display: block;
+      width: 100%;
+      height: 100%;
+      border: none;
+    }
+
     /* ── Reduced motion ──────────────────────────────────── */
 
     @media (prefers-reduced-motion: reduce) {

@@ -277,6 +277,28 @@ body {
   border-left: 1px solid rgba(255,255,255,0.1);
 }
 
+.adm-th-sort {
+  cursor: pointer;
+  user-select: none;
+}
+
+.adm-th-sort:hover {
+  background: #1a3a28;
+}
+
+.adm-sort-icon {
+  display: inline-block;
+  width: 1em;
+  text-align: center;
+  margin-right: 4px;
+  font-size: 0.8em;
+  opacity: 0.45;
+}
+
+.adm-sort-icon.is-active {
+  opacity: 1;
+}
+
 /* ── Table body ──────────────────────────────────────── */
 .adm-table tbody tr {
   border-bottom: 1px solid #eaf1ec;
@@ -486,3 +508,43 @@ body {
 }
 
 .adm-email-link:hover { text-decoration: underline; }
+
+/* ── Pager ───────────────────────────────────────────── */
+
+.adm-pager {
+  display: flex;
+  justify-content: center;
+  gap: 6px;
+  padding: 20px 0 8px;
+  flex-wrap: wrap;
+}
+
+.adm-pager-btn {
+  padding: 7px 14px;
+  border: 1.5px solid rgba(15, 34, 24, 0.18);
+  border-radius: 8px;
+  background: #fff;
+  font-family: var(--font-main, inherit);
+  font-size: 0.88rem;
+  font-weight: 700;
+  color: #0f2218;
+  cursor: pointer;
+  transition: background 150ms, border-color 150ms;
+  direction: rtl;
+}
+
+.adm-pager-btn:hover:not(:disabled) {
+  background: #eaf1ec;
+  border-color: #2a7a4e;
+}
+
+.adm-pager-btn.is-active {
+  background: #0f2218;
+  color: #fff;
+  border-color: #0f2218;
+}
+
+.adm-pager-btn:disabled {
+  opacity: 0.35;
+  cursor: default;
+}
