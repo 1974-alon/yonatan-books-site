@@ -285,37 +285,20 @@ async function handleIdentify() {
 
   if (!valid) return;
 
-  // ── Phone tab: admin or customer with real OTP ────────
+  // ── Phone tab: admin or real customer with Vonage OTP ─
   if (activeTab === 'phone') {
     const adminPhone = findAdmin(name, contact);
-    const customer   = !adminPhone ? findCustomer(name, contact) : null;
 
-    if (!adminPhone && !customer) {
-      authLookupError.textContent = 'לא נמצאה רכישה עם הפרטים שהוזנו.';
-      authLookupError.hidden = false;
-      return;
-    }
-
-    // Mock customer (demo) — skip Vonage, use mock OTP
-    if (customer && customer.otp) {
-      pendingCustomer = customer;
-      otpHintEl.textContent = `שלחנו קוד אימות למספר שלך`;
-      showAuthStep('otp');
-      otpBoxes[0].focus();
-      return;
-    }
-
-    const phone = adminPhone || (() => {
-      const c = contact.replace(/[-\s]/g, '');
-      return c.startsWith('0') ? '+972' + c.slice(1) : c;
-    })();
+    const rawPhone = contact.replace(/[-\s]/g, '');
+    const e164     = rawPhone.startsWith('0') ? '+972' + rawPhone.slice(1) : rawPhone;
+    const phone    = adminPhone || e164;
 
     authIdentifySubmit.disabled = true;
     try {
       await sendOtp(phone);
       pendingPhone    = phone;
       pendingIsAdmin  = !!adminPhone;
-      pendingCustomer = customer || null;
+      pendingCustomer = { name };
       otpHintEl.textContent = 'שלחנו קוד אימות לטלפון שלך';
       showAuthStep('otp');
       otpBoxes[0].focus();
@@ -368,7 +351,10 @@ async function handleOtp() {
         sessionStorage.setItem('yb-auth-admin', '1');
         window.location.href = 'admin.html';
       } else {
-        sessionStorage.setItem('yb-auth-customer', JSON.stringify(pendingCustomer));
+        sessionStorage.setItem('yb-auth-customer', JSON.stringify({
+          name:  pendingCustomer.name,
+          phone: pendingPhone
+        }));
         window.location.href = 'account.html';
       }
     } catch {

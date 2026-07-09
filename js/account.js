@@ -1,32 +1,46 @@
 /* =========================================================
    ACCOUNT PAGE — Personal area
-   Reads customer data from sessionStorage after auth flow.
-   Future: replace with Firebase Auth session check + Firestore.
+   Reads customer orders from Firestore via Cloud Functions.
 ========================================================= */
 
 (function () {
   const raw = sessionStorage.getItem('yb-auth-customer');
-  if (!raw) {
-    window.location.href = 'index.html';
-    return;
-  }
+  if (!raw) { window.location.href = 'index.html'; return; }
 
   const customer = JSON.parse(raw);
+  const CF_BASE  = 'https://europe-west1-yonatan-books.cloudfunctions.net';
 
-  // ── Name ─────────────────────────────────────────────────
   document.getElementById('account-name').textContent = customer.name;
 
-  // ── Purchases ─────────────────────────────────────────────
   const list = document.getElementById('purchases-list');
+  list.innerHTML = '<p class="yb-account__no-purchases" style="opacity:.6">טוען רכישות...</p>';
 
-  if (!customer.purchases || customer.purchases.length === 0) {
-    list.innerHTML = '<p class="yb-account__no-purchases">לא נמצאו רכישות בחשבון זה.</p>';
-  } else {
-    list.innerHTML = customer.purchases.map(renderPurchaseCard).join('');
-    setupReviewForms();
-    setupDownloadButtons();
-  }
+  // ── Fetch real orders from Firestore ─────────────────────
+  fetch(`${CF_BASE}/getCustomerOrders`, {
+    method:  'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body:    JSON.stringify(
+      customer.phone
+        ? { phone: customer.phone }
+        : { email: customer.email }
+    )
+  })
+    .then(r => r.json())
+    .then(data => {
+      const orders = data.orders || [];
+      if (orders.length === 0) {
+        list.innerHTML = '<p class="yb-account__no-purchases">לא נמצאו רכישות בחשבון זה.</p>';
+        return;
+      }
+      list.innerHTML = orders.map(renderPurchaseCard).join('');
+      setupReviewForms(orders);
+      setupDownloadButtons();
+    })
+    .catch(() => {
+      list.innerHTML = '<p class="yb-account__no-purchases">שגיאה בטעינת הרכישות — נסה לרענן.</p>';
+    });
 
+  // ── Render ────────────────────────────────────────────────
   function formatReviewName(fullName) {
     const parts = fullName.trim().split(/\s+/);
     if (parts.length < 2) return fullName;
@@ -34,17 +48,22 @@
   }
 
   function renderPurchaseCard(p) {
-    const isDigital      = p.type === 'digital';
-    const coverLetter    = p.bookTitle.charAt(0);
-    const formattedDate  = new Date(p.date).toLocaleDateString('he-IL', {
+    const isDigital     = p.type === 'digital';
+    const coverLetter   = p.bookTitle.charAt(0);
+    const formattedDate = new Date(p.date).toLocaleDateString('he-IL', {
       day: 'numeric', month: 'long', year: 'numeric'
     });
+
     const storedReviews  = JSON.parse(localStorage.getItem('yb-reviews') || '[]');
     const existingReview = storedReviews.find(r => r.orderId === p.id);
     const reviewed       = !!existingReview;
+    const savedName      = reviewed ? existingReview.name : formatReviewName(customer.name);
+    const savedText      = reviewed ? existingReview.text : '';
 
-    const savedName = reviewed ? existingReview.name : formatReviewName(customer.name);
-    const savedText = reviewed ? existingReview.text : '';
+    const MAX_DL    = 3;
+    const dlCount   = p.downloads || 0;
+    const remaining = MAX_DL - dlCount;
+    const exhausted = dlCount >= MAX_DL;
 
     return `
       <div class="yb-account__purchase-card">
@@ -55,37 +74,29 @@
             <span class="yb-account__purchase-badge yb-account__purchase-badge--${isDigital ? 'digital' : 'physical'}">
               ${isDigital ? 'הורדה דיגיטלית' : 'משלוח פיזי'}
             </span>
-            <span class="yb-account__purchase-detail">סטטוס: ${p.status}</span>
             <span class="yb-account__purchase-detail">${formattedDate}</span>
           </div>
-          ${isDigital ? (() => {
-              const MAX_DL   = 3;
-              const dlData   = JSON.parse(localStorage.getItem('yb-downloads') || '{}');
-              const dlCount  = !Array.isArray(dlData) ? (dlData[p.id] || 0) : 0;
-              const remaining = MAX_DL - dlCount;
-              const exhausted = dlCount >= MAX_DL;
-              return `
-                <div class="yb-account__download-area">
-                  <a class="yb-account__download-btn${exhausted ? ' is-done' : ''}" href="#"
-                     data-book-id="${p.bookId || p.id}"
-                     data-book-title="${p.bookTitle}"
-                     data-order-id="${p.id}"
-                     ${exhausted ? 'aria-disabled="true"' : ''}
-                     aria-label="הורדת ${p.bookTitle}">
-                    ${exhausted ? 'הספר הורד ✓' : 'הורדת הספר'}
-                  </a>
-                  <span class="yb-account__download-status" ${dlCount > 0 && !exhausted ? '' : 'hidden'}>
-                    הורד בהצלחה · נותרו עוד ${remaining} הורדות
-                  </span>
-                </div>
-                <p class="yb-account__download-note" ${exhausted ? '' : 'hidden'}>
-                  הספר ירד בהצלחה. נתקלת בבעיה?
-                  <a href="#message-form">פנה ליונתן מהאזור האישי</a>
-                </p>
-                <p class="yb-account__download-hint">
-                  נתקלת בבעיה? <a class="yb-account__scroll-link" href="#message-form">פנה ליונתן</a>
-                </p>`;
-            })() : ''}
+          ${isDigital ? `
+            <div class="yb-account__download-area">
+              <a class="yb-account__download-btn${exhausted ? ' is-done' : ''}" href="#"
+                 data-book-id="${p.bookId || p.id}"
+                 data-book-title="${p.bookTitle}"
+                 data-order-id="${p.id}"
+                 ${exhausted ? 'aria-disabled="true"' : ''}
+                 aria-label="הורדת ${p.bookTitle}">
+                ${exhausted ? 'הספר הורד ✓' : 'הורדת הספר'}
+              </a>
+              <span class="yb-account__download-status" ${dlCount > 0 && !exhausted ? '' : 'hidden'}>
+                הורד בהצלחה · נותרו עוד ${remaining} הורדות
+              </span>
+            </div>
+            <p class="yb-account__download-note" ${exhausted ? '' : 'hidden'}>
+              הספר ירד בהצלחה. נתקלת בבעיה?
+              <a href="#message-form">פנה ליונתן מהאזור האישי</a>
+            </p>
+            <p class="yb-account__download-hint">
+              נתקלת בבעיה? <a class="yb-account__scroll-link" href="#message-form">פנה ליונתן</a>
+            </p>` : ''}
           <div class="yb-account__review-section" id="review-section-${p.id}">
             <div class="yb-account__review-header">
               <h4 class="yb-account__review-title">חוות דעת הקורא</h4>
@@ -134,20 +145,20 @@
     `;
   }
 
-  function setupReviewForms() {
-    customer.purchases.forEach(p => {
+  // ── Review forms ──────────────────────────────────────────
+  function setupReviewForms(orders) {
+    orders.forEach(p => {
       const form      = document.getElementById(`review-form-${p.id}`);
       const toggleBtn = document.getElementById(`review-toggle-${p.id}`);
       const submitBtn = document.getElementById(`review-submit-${p.id}`);
       const statusBar = document.getElementById(`review-status-${p.id}`);
       const editBtn   = document.getElementById(`review-edit-${p.id}`);
-      const textEl    = form.querySelector('.yb-account__review-text');
-      const nameEl    = form.querySelector('.yb-account__review-name');
-      const errorEl   = form.querySelector('.yb-field__error');
-
       if (!form) return;
 
-      // Toggle (only present when not yet reviewed)
+      const textEl  = form.querySelector('.yb-account__review-text');
+      const nameEl  = form.querySelector('.yb-account__review-name');
+      const errorEl = form.querySelector('.yb-field__error');
+
       if (toggleBtn) {
         toggleBtn.addEventListener('click', () => {
           const isOpen = !form.hidden;
@@ -168,7 +179,6 @@
         });
       }
 
-      // Edit button — re-enables the form for editing
       editBtn.addEventListener('click', () => {
         [nameEl, textEl].forEach(el => { el.disabled = false; });
         submitBtn.hidden = false;
@@ -176,42 +186,30 @@
         textEl.focus();
       });
 
-      // Submit (shared: first send + re-send after edit)
       form.addEventListener('submit', e => {
         e.preventDefault();
         const text = textEl.value.trim();
-
         errorEl.textContent = '';
         textEl.classList.remove('is-error');
-
         if (!text) {
           textEl.classList.add('is-error');
           errorEl.textContent = 'נא להזין טקסט ביקורת';
           textEl.focus();
           return;
         }
-
-        // Save or update localStorage
         const reviews = JSON.parse(localStorage.getItem('yb-reviews') || '[]');
         const idx = reviews.findIndex(r => r.orderId === p.id);
         const entry = {
-          orderId:   p.id,
-          bookId:    p.bookId || p.id,
+          orderId: p.id, bookId: p.bookId || p.id,
           bookTitle: p.bookTitle,
-          name:      nameEl.value.trim() || customer.name,
-          text,
-          date:      new Date().toISOString()
+          name: nameEl.value.trim() || customer.name,
+          text, date: new Date().toISOString()
         };
-        if (idx >= 0) reviews[idx] = entry;
-        else reviews.push(entry);
+        if (idx >= 0) reviews[idx] = entry; else reviews.push(entry);
         localStorage.setItem('yb-reviews', JSON.stringify(reviews));
-
-        // Disable fields, hide submit
         [nameEl, textEl].forEach(el => { el.disabled = true; });
         submitBtn.hidden = true;
         if (toggleBtn) toggleBtn.hidden = true;
-
-        // Fade in status bar
         statusBar.style.opacity = '0';
         statusBar.hidden = false;
         void statusBar.offsetWidth;
@@ -221,9 +219,8 @@
     });
   }
 
-  // ── Download buttons ─────────────────────────────────────
+  // ── Download buttons ──────────────────────────────────────
   function setupDownloadButtons() {
-    const MAX_DL = 3;
     const STORAGE_PATHS = {
       'book-01': 'books/book02.pdf',
       'book-02': 'books/book01.pdf'
@@ -234,14 +231,31 @@
         e.preventDefault();
         if (btn.getAttribute('aria-disabled') === 'true') return;
 
-        const bookId = btn.dataset.bookId;
-        const path   = STORAGE_PATHS[bookId];
+        const bookId  = btn.dataset.bookId;
+        const orderId = btn.dataset.orderId;
+        const path    = STORAGE_PATHS[bookId];
         if (!path || !window.ybStorage) return;
 
         btn.textContent = 'מכין הורדה...';
         btn.setAttribute('aria-disabled', 'true');
 
         try {
+          // רישום הורדה ב-Firestore
+          const trackRes = await fetch(`${CF_BASE}/incrementDownload`, {
+            method:  'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body:    JSON.stringify({ orderId })
+          });
+
+          if (trackRes.status === 403) {
+            btn.textContent = 'הספר הורד ✓';
+            btn.classList.add('is-done');
+            return;
+          }
+
+          const trackData = await trackRes.json();
+
+          // הורדה מ-Firebase Storage
           const url      = await window.ybStorage.ref(path).getDownloadURL();
           const response = await fetch(url);
           const blob     = await response.blob();
@@ -254,16 +268,9 @@
           document.body.removeChild(a);
           setTimeout(() => URL.revokeObjectURL(blobUrl), 1000);
 
-          const orderId = btn.dataset.orderId;
-          const dlData  = JSON.parse(localStorage.getItem('yb-downloads') || '{}');
-          const saved   = Array.isArray(dlData) ? {} : dlData;
-          const newCount = (saved[orderId] || 0) + 1;
-          saved[orderId] = newCount;
-          localStorage.setItem('yb-downloads', JSON.stringify(saved));
-
-          const remaining = MAX_DL - newCount;
+          const remaining = trackData.remaining || 0;
           const statusEl  = btn.nextElementSibling;
-          const note      = btn.closest('.yb-account__download-area').nextElementSibling;
+          const note      = btn.closest('.yb-account__download-area')?.nextElementSibling;
 
           if (remaining > 0) {
             btn.textContent = 'הורדת הספר';
@@ -304,8 +311,6 @@
   const msgError = document.getElementById('msg-text-error');
   const msgSent  = document.getElementById('msg-sent');
 
-  const CONTACT_FUNCTION = 'https://europe-west1-yonatan-books.cloudfunctions.net/sendContactEmail';
-
   msgForm.addEventListener('submit', async e => {
     e.preventDefault();
     msgError.textContent = '';
@@ -323,18 +328,15 @@
     submitBtn.textContent = 'שולח...';
 
     try {
-      const res = await fetch(CONTACT_FUNCTION, {
+      const res = await fetch(`${CF_BASE}/sendContactEmail`, {
         method:  'POST',
         headers: { 'Content-Type': 'application/json' },
         body:    JSON.stringify({ name: customer.name, email: customer.email || '', message: msgText.value.trim() })
       });
-
       if (!res.ok) throw new Error('send failed');
-
       msgText.value  = '';
       msgSent.hidden = false;
       setTimeout(() => { msgSent.hidden = true; }, 6000);
-
     } catch {
       msgError.textContent = 'שגיאה בשליחה — נסה שוב או פנה ישירות למייל';
     } finally {

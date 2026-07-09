@@ -273,6 +273,77 @@ exports.getAdminOrders = onRequest(
   }
 );
 
+// ── getCustomerOrders ─────────────────────────────────────
+exports.getCustomerOrders = onRequest(
+  { cors: true, region: 'europe-west1', invoker: 'public' },
+  async (req, res) => {
+    if (req.method !== 'POST') { res.status(405).end(); return; }
+
+    const { phone, email } = req.body;
+    if (!phone && !email) { res.status(400).json({ error: 'missing_identifier' }); return; }
+
+    try {
+      const field = phone ? 'buyerPhone' : 'buyerEmail';
+      const value = phone
+        ? phone.replace(/[-\s]/g, '').replace(/^\+972/, '0')
+        : email.toLowerCase().trim();
+
+      const snap = await db.collection('orders')
+        .where(field, '==', value)
+        .get();
+
+      const orders = snap.docs
+        .filter(doc => doc.data().status === 'paid')
+        .sort((a, b) => (b.data().createdAt?.toMillis?.() || 0) - (a.data().createdAt?.toMillis?.() || 0))
+        .map(doc => {
+        const d = doc.data();
+        return {
+          id:        doc.id,
+          bookId:    d.bookId,
+          bookTitle: d.bookTitle,
+          type:      d.deliveryType || 'digital',
+          status:    d.status,
+          downloads: d.downloads || 0,
+          date:      d.createdAt?.toDate?.()?.toISOString() || new Date().toISOString()
+        };
+      });
+
+      res.json({ orders });
+    } catch (err) {
+      console.error('getCustomerOrders error:', err);
+      res.status(500).json({ error: 'internal' });
+    }
+  }
+);
+
+// ── incrementDownload ─────────────────────────────────────
+exports.incrementDownload = onRequest(
+  { cors: true, region: 'europe-west1', invoker: 'public' },
+  async (req, res) => {
+    if (req.method !== 'POST') { res.status(405).end(); return; }
+
+    const { orderId } = req.body;
+    if (!orderId) { res.status(400).json({ error: 'missing_orderId' }); return; }
+
+    try {
+      const ref = db.collection('orders').doc(orderId);
+      const doc = await ref.get();
+      if (!doc.exists) { res.status(404).json({ error: 'not_found' }); return; }
+
+      const current = doc.data().downloads || 0;
+      if (current >= 3) {
+        res.status(403).json({ error: 'max_downloads_reached' }); return;
+      }
+
+      await ref.update({ downloads: FieldValue.increment(1) });
+      res.json({ downloads: current + 1, remaining: 3 - (current + 1) });
+    } catch (err) {
+      console.error('incrementDownload error:', err);
+      res.status(500).json({ error: 'internal' });
+    }
+  }
+);
+
 // ── getOrder ──────────────────────────────────────────────
 exports.getOrder = onRequest(
   { cors: true, region: 'europe-west1', invoker: 'public' },
