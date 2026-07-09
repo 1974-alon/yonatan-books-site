@@ -209,11 +209,23 @@ exports.confirmPayment = onRequest(
       res.status(400).json({ error: 'missing_fields' }); return;
     }
 
+    // וידוא פורמט טוקן PayMe — חייב להתחיל ב-BUYER
+    if (!/^BUYER\d+-.+-.+$/.test(paymeToken)) {
+      res.status(400).json({ error: 'invalid_token' }); return;
+    }
+
     const price     = BOOK_PRICES[bookId];
     const bookTitle = BOOK_TITLES[bookId];
     if (!price) { res.status(400).json({ error: 'invalid_book' }); return; }
 
     try {
+      // מניעת כפילויות — אם הטוקן כבר קיים, מחזירים את ההזמנה הקיימת
+      const existing = await db.collection('orders')
+        .where('paymeId', '==', paymeToken).limit(1).get();
+      if (!existing.empty) {
+        res.json({ orderId: existing.docs[0].id }); return;
+      }
+
       const orderRef = await db.collection('orders').add({
         bookId,
         bookTitle,

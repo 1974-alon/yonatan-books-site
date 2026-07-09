@@ -398,19 +398,33 @@
 
     const params = new URLSearchParams(window.location.search);
 
-    // ── הצגת הצלחה לאחר חזרה מ-PayMe ────────────────────
+    // ── הצגת הצלחה + שמירת הזמנה ב-Firestore ────────────
     if (params.get('success') === '1') {
+      history.replaceState(null, '', window.location.pathname);
+
+      const CF_CONFIRM_URL = 'https://europe-west1-yonatan-books.cloudfunctions.net/confirmPayment';
+
       document.getElementById('purchase-form').innerHTML = `
         <div style="text-align:center;padding:60px 24px;">
           <div style="font-size:3rem;margin-bottom:16px;">✓</div>
           <h2 style="font-size:1.6rem;margin-bottom:12px;">התשלום התקבל בהצלחה</h2>
           <p style="color:#4a6a52;margin-bottom:24px;">כדי לגשת לספר ולהוריד אותו — כנס לאזור האישי שלך.</p>
-          <button onclick="document.getElementById('my-area-btn').click()" class="primary-button has-ripple" style="margin:0 auto;">
+          <button type="button" onclick="document.getElementById('my-area-btn').click()" class="primary-button has-ripple" style="margin:0 auto;">
             כניסה לאזור האישי
           </button>
         </div>
       `;
-      history.replaceState(null, '', window.location.pathname);
+
+      // רק עכשיו — אחרי שהמשתמש רואה הצלחה — שומרים ב-Firestore
+      const pending = sessionStorage.getItem('yb-pending-order');
+      if (pending) {
+        sessionStorage.removeItem('yb-pending-order');
+        fetch(CF_CONFIRM_URL, {
+          method:  'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body:    pending
+        }).catch(err => console.error('confirmPayment failed:', err));
+      }
     }
 
     const bookId = params.get('book') || 'book-01';
@@ -897,25 +911,14 @@
 
         const notes = document.getElementById('notes')?.value?.trim() || '';
 
-        const confirmRes = await fetch(CF_CONFIRM, {
-          method:  'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            bookId,
-            buyerName,
-            buyerEmail,
-            buyerPhone,
-            deliveryType: mode,
-            address,
-            notes,
-            paymeToken: tokenData.token
-          })
-        });
+        // שומר ב-sessionStorage — confirmPayment ייקרא רק אחרי דף ההצלחה
+        sessionStorage.setItem('yb-pending-order', JSON.stringify({
+          bookId, buyerName, buyerEmail, buyerPhone,
+          deliveryType: mode, address, notes,
+          paymeToken: tokenData.token
+        }));
 
-        const confirmData = await confirmRes.json();
-        if (!confirmRes.ok) throw new Error(confirmData.error || 'confirm_failed');
-
-        window.location.href = `purchase.html?success=1&orderId=${confirmData.orderId}`;
+        window.location.href = 'purchase.html?success=1';
 
       } catch (err) {
         console.error('Payment error:', err);
