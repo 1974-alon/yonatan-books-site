@@ -12,6 +12,7 @@ const db = getFirestore();
 const GMAIL_PASS    = defineSecret('GMAIL_APP_PASSWORD');
 const VONAGE_SECRET = defineSecret('VONAGE_API_SECRET');
 const PAYME_KEY     = defineSecret('PAYME_API_KEY');
+const ADMIN_PHONES  = defineSecret('ADMIN_PHONES');
 const VONAGE_KEY    = '4de40fa9';
 
 const ALLOWED_ORIGINS = [
@@ -75,14 +76,19 @@ exports.sendOtp = onRequest(
 
 // ── verifyOtp ─────────────────────────────────────────────
 exports.verifyOtp = onRequest(
-  { secrets: [VONAGE_SECRET], cors: ALLOWED_ORIGINS, region: 'europe-west1' },
+  { secrets: [VONAGE_SECRET, ADMIN_PHONES], cors: ALLOWED_ORIGINS, region: 'europe-west1' },
   async (req, res) => {
     if (req.method !== 'POST') { res.status(405).end(); return; }
     const { phone, code } = req.body;
     if (!phone || !code) { res.status(400).json({ error: 'missing_fields' }); return; }
-    checkOtp(phone, code, VONAGE_SECRET.value())
-      ? res.json({ success: true })
-      : res.status(401).json({ error: 'invalid_code' });
+
+    if (!checkOtp(phone, code, VONAGE_SECRET.value())) {
+      res.status(401).json({ error: 'invalid_code' }); return;
+    }
+
+    const adminList = (ADMIN_PHONES.value() || '').split(',').map(p => p.trim());
+    const isAdmin   = adminList.includes(phone);
+    res.json({ success: true, isAdmin });
   }
 );
 

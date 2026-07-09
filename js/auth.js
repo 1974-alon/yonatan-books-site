@@ -53,15 +53,6 @@ async function sendOtp(phone) {
   if (!res.ok) throw new Error('sms_failed');
 }
 
-async function verifyOtp(phone, code) {
-  const res = await fetch(`${CF_BASE}/verifyOtp`, {
-    method:  'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body:    JSON.stringify({ phone, code })
-  });
-  return res.ok;
-}
-
 // ── DOM refs ──────────────────────────────────────────────
 const authModal          = document.getElementById('auth-modal');
 const authModalBox       = authModal.querySelector('.yb-auth-modal__box');
@@ -344,10 +335,16 @@ async function handleOtp() {
   if (pendingPhone) {
     authOtpSubmit.disabled = true;
     try {
-      const ok = await verifyOtp(pendingPhone, otp);
-      if (!ok) { showOtpError('הקוד שגוי. נסה שוב.'); return; }
+      const res  = await fetch(`${CF_BASE}/verifyOtp`, {
+        method:  'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body:    JSON.stringify({ phone: pendingPhone, code: otp })
+      });
+      const data = await res.json();
 
-      if (pendingIsAdmin) {
+      if (!res.ok || !data.success) { showOtpError('הקוד שגוי. נסה שוב.'); return; }
+
+      if (data.isAdmin) {
         sessionStorage.setItem('yb-auth-admin', '1');
         window.location.href = 'admin.html';
       } else {
