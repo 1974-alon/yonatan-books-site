@@ -20,7 +20,7 @@ const ALLOWED_ORIGINS = [
   'http://localhost:5502'
 ];
 
-const PAYME_SANDBOX  = true; // false בפרודקשן
+const PAYME_SANDBOX  = false;
 const PAYME_URL      = PAYME_SANDBOX
   ? 'https://sandbox.payme.io/api/generate-sale'
   : 'https://live.payme.io/api/generate-sale';

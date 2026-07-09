@@ -737,7 +737,7 @@
        PAYME JSAPI
     ========================================================= */
 
-    const PAYME_SELLER_ID = 'ac76cbc1-9a83-47a4-82bd-1c82c4979fdd'; // JSAPI sandbox demo key
+    const PAYME_SELLER_ID = 'MPL17829-84285HUL-2NSYUENC-MTTGTPE2';
     const CF_CONFIRM = 'https://europe-west1-yonatan-books.cloudfunctions.net/confirmPayment';
 
     let paymeInstance = null;
@@ -774,7 +774,7 @@
     }
 
     if (typeof PayMe !== 'undefined' && document.getElementById('payme-card-number')) {
-      PayMe.create(PAYME_SELLER_ID, { testMode: true, language: 'he' })
+      PayMe.create(PAYME_SELLER_ID, { testMode: false, language: 'he' })
         .then(instance => {
           paymeInstance = instance;
           const hf = instance.hostedFields();
