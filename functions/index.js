@@ -21,7 +21,7 @@ const ALLOWED_ORIGINS = [
   'http://localhost:5502'
 ];
 
-const PAYME_SANDBOX  = true;
+const PAYME_SANDBOX  = false;
 const PAYME_URL      = PAYME_SANDBOX
   ? 'https://sandbox.payme.io/api/generate-sale'
   : 'https://live.payme.io/api/generate-sale';
@@ -29,7 +29,7 @@ const PAYME_DEMO_ID  = 'MPLDEMO-MPLDEMO-MPLDEMO-1234567'; // רק לסנדבוק
 const RETURN_URL     = 'https://1974-alon.github.io/yonatan-books-site/purchase.html?success=1';
 const IPN_URL        = 'https://europe-west1-yonatan-books.cloudfunctions.net/paymeIPN';
 
-const BOOK_PRICES = { 'book-01': 79, 'book-02': 89 };
+const BOOK_PRICES = { 'book-01': 1, 'book-02': 1 }; // TEST — להחזיר ל-79/89
 const BOOK_TITLES = { 'book-01': 'דמיון לנחמה', 'book-02': 'דרום מערב' };
 
 // ── OTP helpers ───────────────────────────────────────────
