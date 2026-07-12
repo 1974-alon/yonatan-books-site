@@ -199,7 +199,7 @@ exports.paymeIPN = onRequest(
 
 // ── confirmPayment ────────────────────────────────────────
 exports.confirmPayment = onRequest(
-  { cors: true, region: 'europe-west1', invoker: 'public' },
+  { secrets: [PAYME_KEY], cors: true, region: 'europe-west1', invoker: 'public' },
   async (req, res) => {
     if (req.method !== 'POST') { res.status(405).end(); return; }
 
@@ -219,13 +219,42 @@ exports.confirmPayment = onRequest(
     if (!price) { res.status(400).json({ error: 'invalid_book' }); return; }
 
     try {
-      // מניעת כפילויות — אם הטוקן כבר קיים, מחזירים את ההזמנה הקיימת
+      // מניעת כפילויות — אם הטוקן כבר שימש לחיוב, מחזירים את ההזמנה הקיימת
       const existing = await db.collection('orders')
-        .where('paymeId', '==', paymeToken).limit(1).get();
+        .where('buyerToken', '==', paymeToken).limit(1).get();
       if (!existing.empty) {
         res.json({ orderId: existing.docs[0].id }); return;
       }
 
+      // חיוב בפועל דרך PayMe API
+      const chargeRes = await fetch(PAYME_URL, {
+        method:  'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          seller_payme_id:     PAYME_KEY.value(),
+          sale_price:          price * 100,
+          currency:            'ILS',
+          product_name:        bookTitle,
+          transaction_id:      crypto.randomUUID(),
+          sale_payment_method: 'credit-card',
+          installments:        1,
+          buyer_key:           paymeToken
+        })
+      });
+
+      const chargeData = await chargeRes.json();
+      console.log('PayMe charge response:', JSON.stringify(chargeData));
+
+      if (!chargeData.payme_sale_id) {
+        console.error('PayMe charge failed:', chargeData);
+        res.status(402).json({
+          error:  'payment_declined',
+          detail: chargeData.status_additional_info || chargeData.status_error_details || chargeData.status
+        });
+        return;
+      }
+
+      // שמירה ב-Firestore רק אחרי חיוב מוצלח
       const orderRef = await db.collection('orders').add({
         bookId,
         bookTitle,
@@ -234,12 +263,13 @@ exports.confirmPayment = onRequest(
         buyerPhone,
         deliveryType: deliveryType || 'digital',
         address:      address || null,
-        notes:        notes || null,
+        notes:        notes   || null,
         price,
         currency:     'ILS',
         status:       'paid',
         downloads:    0,
-        paymeId:      paymeToken,
+        paymeId:      chargeData.payme_sale_id,
+        buyerToken:   paymeToken,
         createdAt:    FieldValue.serverTimestamp()
       });
 

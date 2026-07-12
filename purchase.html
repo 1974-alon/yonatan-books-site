@@ -398,46 +398,15 @@
 
     const params = new URLSearchParams(window.location.search);
 
-    // ── הצגת הצלחה + שמירת הזמנה ב-Firestore ────────────
-    if (params.get('success') === '1') {
-      history.replaceState(null, '', window.location.pathname);
-
-      const CF_CONFIRM_URL = 'https://europe-west1-yonatan-books.cloudfunctions.net/confirmPayment';
-
-      document.getElementById('purchase-form').innerHTML = `
-        <div style="text-align:center;padding:60px 24px;">
-          <div style="font-size:3rem;margin-bottom:16px;">✓</div>
-          <h2 style="font-size:1.6rem;margin-bottom:12px;">התשלום התקבל בהצלחה</h2>
-          <p style="color:#4a6a52;margin-bottom:24px;">כדי לגשת לספר ולהוריד אותו — כנס לאזור האישי שלך.</p>
-          <button type="button" onclick="document.getElementById('my-area-btn').click()" class="primary-button has-ripple" style="margin:0 auto;">
-            כניסה לאזור האישי
-          </button>
-        </div>
-      `;
-
-      // רק עכשיו — אחרי שהמשתמש רואה הצלחה — שומרים ב-Firestore
-      const pending = sessionStorage.getItem('yb-pending-order');
-      if (pending) {
-        sessionStorage.removeItem('yb-pending-order');
-        fetch(CF_CONFIRM_URL, {
-          method:  'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body:    pending
-        }).catch(err => console.error('confirmPayment failed:', err));
-      }
-    }
-
     const bookId = params.get('book') || 'book-01';
     const book   = BOOKS[bookId] || BOOKS['book-01'];
-
-    const isSuccess = params.get('success') === '1';
 
     document.getElementById('banner-cover').style.background   = book.coverBg;
     document.getElementById('banner-cover-title').textContent  = book.title;
     document.getElementById('purchase-book-title').textContent = book.title;
     document.getElementById('banner-description').innerHTML    = book.description;
     document.getElementById('banner-price').textContent        = book.price;
-    if (!isSuccess) document.getElementById('submit-price').textContent = book.price;
+    document.getElementById('submit-price').textContent        = book.price;
     document.title = `רכישה — ${book.title} | יונתן`;
 
     if (book.hasPhoto) {
@@ -451,7 +420,7 @@
       document.getElementById('banner-backdrop').style.backgroundImage = `url('${book.coverImg}')`;
     }
 
-    if (!isSuccess) (function() {
+    (function() {
 
     let activePaymentMethod = 'card';
 
@@ -911,14 +880,37 @@
 
         const notes = document.getElementById('notes')?.value?.trim() || '';
 
-        // שומר ב-sessionStorage — confirmPayment ייקרא רק אחרי דף ההצלחה
-        sessionStorage.setItem('yb-pending-order', JSON.stringify({
-          bookId, buyerName, buyerEmail, buyerPhone,
-          deliveryType: mode, address, notes,
-          paymeToken: tokenData.token
-        }));
+        // חיוב ושמירה ב-Firestore — ממתינים לאישור לפני הצגת הצלחה
+        submitBtn.textContent = 'מאשר תשלום...';
+        const confirmRes = await fetch(CF_CONFIRM, {
+          method:  'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            bookId, buyerName, buyerEmail, buyerPhone,
+            deliveryType: mode, address, notes,
+            paymeToken: tokenData.token
+          })
+        });
 
-        window.location.href = 'purchase.html?success=1';
+        if (!confirmRes.ok) {
+          const errData = await confirmRes.json().catch(() => ({}));
+          throw Object.assign(new Error('confirm_failed'), {
+            type:   confirmRes.status === 402 ? 'payment_declined' : 'server_error',
+            detail: errData.detail
+          });
+        }
+
+        // הצגת הצלחה רק לאחר חיוב מוצלח
+        document.getElementById('purchase-form').innerHTML = `
+          <div style="text-align:center;padding:60px 24px;">
+            <div style="font-size:3rem;margin-bottom:16px;">✓</div>
+            <h2 style="font-size:1.6rem;margin-bottom:12px;">התשלום התקבל בהצלחה</h2>
+            <p style="color:#4a6a52;margin-bottom:24px;">כדי לגשת לספר ולהוריד אותו — כנס לאזור האישי שלך.</p>
+            <button type="button" onclick="document.getElementById('my-area-btn').click()" class="primary-button has-ripple" style="margin:0 auto;">
+              כניסה לאזור האישי
+            </button>
+          </div>
+        `;
 
       } catch (err) {
         console.error('Payment error:', err);
@@ -929,6 +921,10 @@
         if (err.type === 'tokenize-error') {
           const msgs = Object.values(err.errors || {});
           errMsg = msgs[0] || 'שגיאה בפרטי כרטיס האשראי — אנא בדוק ונסה שוב.';
+        } else if (err.type === 'payment_declined') {
+          errMsg = err.detail ? `התשלום נדחה: ${err.detail}` : 'התשלום נדחה — אנא בדוק את פרטי הכרטיס ונסה שוב.';
+        } else if (err.type === 'server_error') {
+          errMsg = 'שגיאה טכנית בעיבוד התשלום — נסה שוב בעוד מספר שניות.';
         } else if (err.message === 'payme_not_ready') {
           errMsg = 'טופס התשלום טרם נטען — המתן רגע ונסה שוב.';
         }
