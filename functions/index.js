@@ -279,12 +279,9 @@ exports.confirmPayment = onRequest(
     if (!price) { res.status(400).json({ error: 'invalid_book' }); return; }
 
     try {
-      // מניעת כפילויות — אם הטוקן כבר שימש לחיוב, מחזירים את ההזמנה הקיימת
-      const existing = await db.collection('orders')
-        .where('buyerToken', '==', paymeToken).limit(1).get();
-      if (!existing.empty) {
-        res.json({ orderId: existing.docs[0].id }); return;
-      }
+      // הערה: אין כאן דה-דופ לפי buyerToken בכוונה — ה-buyer_key של PayMe צמוד לכרטיס האשראי
+      // ולא ייחודי לכל ניסיון תשלום, אז כרטיס ששימש בעבר עלול לקבל אותו טוקן שוב בעסקה חדשה ולגמרי תקינה.
+      // הגנה מפני לחיצה כפולה בטעות כבר קיימת בצד הלקוח (הכפתור ננעל בזמן עיבוד).
 
       // חיוב בפועל דרך PayMe API
       const txId = crypto.randomUUID();
@@ -482,7 +479,7 @@ exports.getCustomerOrders = onRequest(
         .get();
 
       const orders = snap.docs
-        .filter(doc => doc.data().status === 'paid')
+        .filter(doc => ['paid', 'preparing', 'shipped'].includes(doc.data().status))
         .sort((a, b) => (b.data().createdAt?.toMillis?.() || 0) - (a.data().createdAt?.toMillis?.() || 0))
         .map(doc => {
         const d = doc.data();
@@ -572,7 +569,7 @@ exports.getOrder = onRequest(
     if (!doc.exists) { res.status(404).json({ error: 'not_found' }); return; }
 
     const data = doc.data();
-    if (data.status !== 'paid') { res.status(402).json({ error: 'not_paid' }); return; }
+    if (!['paid', 'preparing', 'shipped'].includes(data.status)) { res.status(402).json({ error: 'not_paid' }); return; }
 
     res.json({ orderId: doc.id, ...data });
   }
