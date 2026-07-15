@@ -6,7 +6,7 @@
   <title>רכישה — יונתן | ספרים דיגיטליים</title>
   <meta name="robots" content="noindex" />
 
-  <link rel="icon" type="image/svg+xml" href="images/favicon.svg">
+  <link rel="icon" type="image/png" href="images/book-logo-icon.png">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Heebo:wght@400;700;800;900&display=swap" rel="stylesheet">
@@ -24,8 +24,10 @@
     <header class="yb-header" aria-label="ניווט ראשי">
       <div class="site-container yb-header__inner">
         <a class="yb-header__brand" href="index.html" aria-label="יונתן ספרים דיגיטליים">
-          <span class="yb-header__mark" aria-hidden="true">י</span>
-          <span>יונתן | ספרים</span>
+          <span class="yb-header__mark" aria-hidden="true">
+            <img src="images/book-logo-icon.png" alt="" width="36" height="26" />
+          </span>
+          <span>הספרים של יונתן ברנר</span>
         </a>
         <nav class="yb-header__nav" aria-label="קישורי עמוד">
           <a href="index.html#books">הספרים</a>
@@ -1011,6 +1013,11 @@
               <input class="yb-otp-box" type="text" inputmode="numeric" maxlength="1" pattern="[0-9]" aria-label="ספרה 6" autocomplete="off" />
             </div>
             <p class="yb-field__error" id="auth-otp-error" aria-live="polite"></p>
+            <p class="yb-auth-resend">
+              לא קיבלת קוד?
+              <button type="button" class="yb-auth-resend__btn" id="auth-otp-resend">שליחה חוזרת</button>
+              <span class="yb-auth-resend__status" id="auth-otp-resend-status" hidden></span>
+            </p>
           </div>
           <button class="primary-button has-ripple yb-auth-submit" type="button" id="auth-otp-submit">
             אישור וכניסה

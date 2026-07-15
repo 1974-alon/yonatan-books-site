@@ -157,6 +157,38 @@
       border-color: var(--color-line);
     }
 
+    /* ── Skeleton loading placeholders ─────────────────────── */
+
+    @keyframes yb-shimmer {
+      0%   { background-position: -400px 0; }
+      100% { background-position: 400px 0; }
+    }
+
+    .yb-skeleton {
+      background: linear-gradient(90deg, var(--color-soft) 25%, var(--color-soft-2) 37%, var(--color-soft) 63%);
+      background-size: 800px 100%;
+      animation: yb-shimmer 1.4s ease-in-out infinite;
+      border-radius: 8px;
+      display: block;
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      .yb-skeleton { animation: none; }
+    }
+
+    @keyframes yb-fade-in {
+      from { opacity: 0; transform: translateY(4px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    .yb-fade-in {
+      animation: yb-fade-in 320ms ease both;
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      .yb-fade-in { animation: none; }
+    }
+
     /* ── Ripple host + unified hover ──────────────────────── */
 
     .has-ripple {
@@ -285,14 +317,15 @@
     }
 
     .yb-header__mark {
-      width: 42px;
-      height: 42px;
-      border-radius: 8px;
       display: grid;
       place-items: center;
-      color: #fff;
-      background: linear-gradient(135deg, var(--color-ink), var(--color-accent));
-      box-shadow: var(--shadow-small);
+    }
+
+    .yb-header__mark img {
+      width: 36px;
+      height: 26px;
+      object-fit: contain;
+      display: block;
     }
 
     .yb-header__nav {
@@ -447,20 +480,11 @@
     }
 
     .yb-intro__panel {
-      display: grid;
-      grid-template-columns: 0.55fr 1.45fr;
-      gap: 36px;
+      display: block;
       padding: 52px 56px 64px;
       border: none;
       border-radius: 0;
-    }
-
-    .yb-intro__title {
-      margin: 0;
-      font-size: clamp(1.3rem, 2.2vw, 1.9rem);
-      line-height: 1.15;
-      letter-spacing: -0.04em;
-      color: #2a1c0c;
+      text-align: center;
     }
 
     .yb-intro__quote {
@@ -471,14 +495,15 @@
 
     .yb-intro__text {
       margin: 0;
-      font-size: 1.08rem;
-      line-height: 1.75;
+      font-size: 1.16rem;
+      line-height: 1.8;
       color: #5a3e22;
     }
 
     .yb-intro__cite {
       display: block;
       margin-top: 20px;
+      text-align: center;
       font-size: 0.88rem;
       font-style: normal;
       color: #8a6a40;

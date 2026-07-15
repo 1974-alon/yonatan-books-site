@@ -258,6 +258,13 @@ body {
   border-collapse: collapse;
   font-size: 0.84rem;
   min-width: 900px;
+  table-layout: fixed;
+}
+
+.adm-table td,
+.adm-table th {
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 /* ── Table head ──────────────────────────────────────── */

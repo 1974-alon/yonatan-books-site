@@ -11,8 +11,24 @@ let _sortDir   = 'desc'; // ברירת מחדל: האחרונה ראשונה
 let _page      = 1;
 const PAGE_SIZE = 10;
 
+function adminAuthHeaders() {
+  const token = sessionStorage.getItem('yb-admin-token') || '';
+  return { 'Authorization': `Bearer ${token}` };
+}
+
+function handleAdminAuthFailure(res) {
+  if (res.status === 401) {
+    sessionStorage.removeItem('yb-auth-admin');
+    sessionStorage.removeItem('yb-admin-token');
+    window.location.href = 'index.html';
+    return true;
+  }
+  return false;
+}
+
 async function fetchOrders() {
-  const res  = await fetch(CF_ADMIN_ORDERS);
+  const res = await fetch(CF_ADMIN_ORDERS, { headers: adminAuthHeaders() });
+  if (handleAdminAuthFailure(res)) return [];
   const data = await res.json();
   // API מחזיר DESC — הופכים ל-ASC כדי ש-#001 יהיה ראשון
   _cachedOrders = (data.orders || []).reverse();
@@ -206,9 +222,10 @@ function renderTable(orders) {
         try {
           const res = await fetch(`${CF_ADMIN_ORDERS.replace('getAdminOrders', 'updateOrderStatus')}`, {
             method:  'POST',
-            headers: { 'Content-Type': 'application/json' },
+            headers: { 'Content-Type': 'application/json', ...adminAuthHeaders() },
             body:    JSON.stringify({ orderId: order.id, status: newStatus })
           });
+          if (handleAdminAuthFailure(res)) return;
           if (!res.ok) throw new Error('update_failed');
           order.status = newStatus;
           saveOrders(orders);
@@ -244,14 +261,21 @@ function toggleDetail(row) {
   }
 }
 
+function renderTableSkeleton(rows) {
+  const cell = '<td><span class="yb-skeleton" style="width:70%;height:14px;"></span></td>';
+  const row  = `<tr>${cell.repeat(9)}</tr>`;
+  return row.repeat(rows);
+}
+
 (async function () {
   const tbody = document.getElementById('adm-tbody');
-  if (tbody) tbody.innerHTML = '<tr><td colspan="9" style="text-align:center;padding:32px;color:#4a6a52;">טוען הזמנות...</td></tr>';
+  if (tbody) tbody.innerHTML = renderTableSkeleton(6);
 
   try {
     const orders = await fetchOrders();
     renderSummary(orders);
     renderTable(orders);
+    if (tbody) tbody.classList.add('yb-fade-in');
   } catch (err) {
     console.error('Failed to load orders:', err);
     if (tbody) tbody.innerHTML = '<tr><td colspan="9" style="text-align:center;padding:32px;color:#c0392b;">שגיאה בטעינת ההזמנות</td></tr>';

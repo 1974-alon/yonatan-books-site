@@ -13,7 +13,7 @@
   document.getElementById('account-name').textContent = customer.name;
 
   const list = document.getElementById('purchases-list');
-  list.innerHTML = '<p class="yb-account__no-purchases" style="opacity:.6">טוען רכישות...</p>';
+  list.innerHTML = renderPurchaseSkeleton(2);
 
   // ── Fetch real orders from Firestore ─────────────────────
   fetch(`${CF_BASE}/getCustomerOrders`, {
@@ -29,7 +29,7 @@
     .then(data => {
       const orders = data.orders || [];
       if (orders.length === 0) {
-        list.innerHTML = '<p class="yb-account__no-purchases">לא נמצאו רכישות בחשבון זה.</p>';
+        list.innerHTML = '<p class="yb-account__no-purchases yb-fade-in">לא נמצאו רכישות בחשבון זה.</p>';
         return;
       }
       list.innerHTML = orders.map(renderPurchaseCard).join('');
@@ -37,10 +37,23 @@
       setupDownloadButtons();
     })
     .catch(() => {
-      list.innerHTML = '<p class="yb-account__no-purchases">שגיאה בטעינת הרכישות — נסה לרענן.</p>';
+      list.innerHTML = '<p class="yb-account__no-purchases yb-fade-in">שגיאה בטעינת הרכישות — נסה לרענן.</p>';
     });
 
   // ── Render ────────────────────────────────────────────────
+  function renderPurchaseSkeleton(count) {
+    const card = `
+      <div class="yb-account__purchase-card">
+        <span class="yb-skeleton" style="width:56px;height:76px;flex-shrink:0;"></span>
+        <div style="flex:1;display:flex;flex-direction:column;gap:10px;">
+          <span class="yb-skeleton" style="width:55%;height:20px;"></span>
+          <span class="yb-skeleton" style="width:35%;height:14px;"></span>
+          <span class="yb-skeleton" style="width:100%;max-width:220px;height:38px;margin-top:8px;"></span>
+        </div>
+      </div>`;
+    return card.repeat(count);
+  }
+
   function physicalStatusLabel(status) {
     if (status === 'preparing') return { cls: 'preparing', text: 'מתכונן לשליחה' };
     if (status === 'shipped')   return { cls: 'shipped',   text: 'נשלח' };
@@ -53,7 +66,7 @@
     return `${parts[0]}.${parts[1].charAt(0)}`;
   }
 
-  function renderPurchaseCard(p) {
+  function renderPurchaseCard(p, i) {
     const isDigital     = p.type === 'digital';
     const coverLetter   = p.bookTitle.charAt(0);
     const formattedDate = new Date(p.date).toLocaleDateString('he-IL', {
@@ -74,7 +87,7 @@
     const physicalStatus = physicalStatusLabel(p.status);
 
     return `
-      <div class="yb-account__purchase-card">
+      <div class="yb-account__purchase-card yb-fade-in" style="animation-delay:${i * 70}ms">
         <div class="yb-account__purchase-cover" aria-hidden="true">${coverLetter}</div>
         <div class="yb-account__purchase-info">
           <h3 class="yb-account__purchase-title">${p.bookTitle}</h3>

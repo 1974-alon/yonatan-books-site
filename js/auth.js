@@ -116,6 +116,7 @@ function resetAuthModal() {
   clearOtpBoxes();
   pendingCustomer       = null;
   pendingPhone          = null;
+  pendingEmail          = null;
   pendingIsAdmin        = false;
   activeTab             = 'email';
   emailFieldWrap.hidden = false;
@@ -129,11 +130,15 @@ function showAuthStep(step) {
 }
 
 // ── OTP boxes ─────────────────────────────────────────────
-function clearOtpBoxes() {
+function clearOtpValues() {
   otpBoxes.forEach(b => {
     b.value = '';
     b.classList.remove('is-filled', 'is-popping');
   });
+}
+
+function clearOtpBoxes() {
+  clearOtpValues();
   otpGroup.classList.remove('is-error', 'is-shaking');
   authOtpError.textContent = '';
 }
@@ -251,7 +256,9 @@ function showOtpError(msg) {
   otpGroup.classList.add('is-error', 'is-shaking');
   otpGroup.addEventListener('animationend', () => {
     otpGroup.classList.remove('is-shaking');
-    clearOtpBoxes();
+    // רק מנקים את הספרות להקלדה חוזרת — ההודעה והמסגרת האדומה נשארות
+    // עד שהמשתמש מתחיל להקליד קוד חדש (ר' מאזין ה-input למטה)
+    clearOtpValues();
     otpBoxes[0].focus();
   }, { once: true });
 }
@@ -361,6 +368,7 @@ async function handleOtp() {
 
       if (data.isAdmin) {
         sessionStorage.setItem('yb-auth-admin', '1');
+        sessionStorage.setItem('yb-admin-token', data.adminToken || '');
         window.location.href = 'admin.html';
       } else {
         sessionStorage.setItem('yb-auth-customer', JSON.stringify({

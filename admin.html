@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>ניהול הזמנות | יונתן ספרים</title>
   <meta name="robots" content="noindex, nofollow" />
-  <link rel="icon" type="image/svg+xml" href="images/favicon.svg">
+  <link rel="icon" type="image/png" href="images/book-logo-icon.png">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Heebo:wght@400;700;800;900&display=swap" rel="stylesheet">
@@ -16,7 +16,7 @@
   <header class="adm-header">
     <a href="index.html" class="adm-header__back">→ חזרה לאתר</a>
     <div class="adm-header__center">
-      <strong class="adm-header__brand">יונתן | ספרים</strong>
+      <strong class="adm-header__brand">הספרים של יונתן ברנר</strong>
       <span class="adm-header__label">מערכת ניהול</span>
     </div>
     <button class="adm-header__logout" id="adm-logout" type="button">יציאה</button>
@@ -46,14 +46,14 @@
       <table class="adm-table">
         <thead>
           <tr>
-            <th class="adm-th-sort" data-sort="num">מס׳ הזמנה <span class="adm-sort-icon" id="sort-icon-num">↕</span></th>
-            <th>שם לקוח</th>
-            <th class="adm-th-sort" data-sort="date">תאריך <span class="adm-sort-icon" id="sort-icon-date">↕</span></th>
-            <th>ספר</th>
-            <th>מחיר</th>
-            <th>סוג רכישה</th>
-            <th>סטטוס</th>
-            <th>הורדות</th>
+            <th class="adm-th-sort" data-sort="num" style="width:8%;">מס׳ הזמנה <span class="adm-sort-icon" id="sort-icon-num">↕</span></th>
+            <th style="width:15%;">שם לקוח</th>
+            <th class="adm-th-sort" data-sort="date" style="width:10%;">תאריך <span class="adm-sort-icon" id="sort-icon-date">↕</span></th>
+            <th style="width:18%;">ספר</th>
+            <th style="width:8%;">מחיר</th>
+            <th style="width:11%;">סוג רכישה</th>
+            <th style="width:12%;">סטטוס</th>
+            <th style="width:8%;">הורדות</th>
             <th style="width:40px;"></th>
           </tr>
         </thead>
@@ -65,9 +65,12 @@
   </main>
 
   <script>
-    if (!sessionStorage.getItem('yb-auth-admin')) window.location.href = 'index.html';
+    if (!sessionStorage.getItem('yb-auth-admin') || !sessionStorage.getItem('yb-admin-token')) {
+      window.location.href = 'index.html';
+    }
     document.getElementById('adm-logout').addEventListener('click', () => {
       sessionStorage.removeItem('yb-auth-admin');
+      sessionStorage.removeItem('yb-admin-token');
       window.location.href = 'index.html';
     });
   </script>

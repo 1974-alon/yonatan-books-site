@@ -2,6 +2,7 @@ const { onRequest } = require('firebase-functions/v2/https');
 const { defineSecret } = require('firebase-functions/params');
 const { initializeApp }  = require('firebase-admin/app');
 const { getFirestore, FieldValue } = require('firebase-admin/firestore');
+const { getStorage } = require('firebase-admin/storage');
 const nodemailer = require('nodemailer');
 const crypto     = require('crypto');
 const { Vonage } = require('@vonage/server-sdk');
@@ -28,9 +29,13 @@ const PAYME_URL      = PAYME_SANDBOX
 const PAYME_DEMO_ID  = 'MPLDEMO-MPLDEMO-MPLDEMO-1234567'; // רק לסנדבוקס
 const RETURN_URL     = 'https://1974-alon.github.io/yonatan-books-site/purchase.html?success=1';
 const IPN_URL        = 'https://europe-west1-yonatan-books.cloudfunctions.net/paymeIPN';
+const CF_BASE_URL    = 'https://europe-west1-yonatan-books.cloudfunctions.net';
 
 const BOOK_PRICES = { 'book-01': 10, 'book-02': 10 };
 const BOOK_TITLES = { 'book-01': 'דמיון לנחמה', 'book-02': 'דרום מערב' };
+// שמות הקבצים הפוכים בכוונה — תואם למיפוי הקיים ב-js/account.js
+const STORAGE_PATHS = { 'book-01': 'books/book02.pdf', 'book-02': 'books/book01.pdf' };
+const SITE_URL = 'https://1974-alon.github.io/yonatan-books-site';
 
 // ── OTP helpers ───────────────────────────────────────────
 function makeOtp(phone, secret) {
@@ -47,6 +52,33 @@ function checkOtp(phone, code, secret) {
     if (code === expected) return true;
   }
   return false;
+}
+
+// ── Admin session token ───────────────────────────────────
+// מונפק פעם אחת אחרי אימות OTP מוצלח של אדמין, ונדרש בכל בקשה למידע רגיש
+function makeAdminToken(secret) {
+  const expires = Date.now() + 12 * 60 * 60 * 1000; // 12 שעות
+  const hmac    = crypto.createHmac('sha256', secret).update(`admin:${expires}`).digest('hex');
+  return `${expires}.${hmac}`;
+}
+
+function verifyAdminToken(token, secret) {
+  if (!token || typeof token !== 'string' || !token.includes('.')) return false;
+  const [expiresStr, hmac] = token.split('.');
+  const expires = Number(expiresStr);
+  if (!expires || Date.now() > expires) return false;
+  const expected = crypto.createHmac('sha256', secret).update(`admin:${expires}`).digest('hex');
+  return hmac === expected;
+}
+
+function requireAdmin(req, res, secret) {
+  const authHeader = req.get('Authorization') || '';
+  const token = authHeader.startsWith('Bearer ') ? authHeader.slice(7) : null;
+  if (!verifyAdminToken(token, secret)) {
+    res.status(401).json({ error: 'unauthorized' });
+    return false;
+  }
+  return true;
 }
 
 // ── sendOtp ───────────────────────────────────────────────
@@ -113,9 +145,10 @@ exports.verifyOtp = onRequest(
       res.status(401).json({ error: 'invalid_code' }); return;
     }
 
-    const adminList = (ADMIN_PHONES.value() || '').split(',').map(p => p.trim());
-    const isAdmin   = phone ? adminList.includes(phone) : false;
-    res.json({ success: true, isAdmin });
+    const adminList  = (ADMIN_PHONES.value() || '').split(',').map(p => p.trim());
+    const isAdmin    = phone ? adminList.includes(phone) : false;
+    const adminToken = isAdmin ? makeAdminToken(VONAGE_SECRET.value()) : null;
+    res.json({ success: true, isAdmin, adminToken });
   }
 );
 
@@ -226,7 +259,7 @@ exports.paymeIPN = onRequest(
 
 // ── confirmPayment ────────────────────────────────────────
 exports.confirmPayment = onRequest(
-  { secrets: [PAYME_KEY], cors: true, region: 'europe-west1', invoker: 'public' },
+  { secrets: [PAYME_KEY, GMAIL_PASS], cors: true, region: 'europe-west1', invoker: 'public' },
   async (req, res) => {
     if (req.method !== 'POST') { res.status(405).end(); return; }
 
@@ -290,6 +323,9 @@ exports.confirmPayment = onRequest(
       }
 
       // שמירה ב-Firestore רק אחרי חיוב מוצלח
+      const isDigital    = (deliveryType || 'digital') === 'digital';
+      const downloadToken = isDigital ? crypto.randomBytes(24).toString('hex') : null;
+
       const orderRef = await db.collection('orders').add({
         bookId,
         bookTitle,
@@ -305,8 +341,37 @@ exports.confirmPayment = onRequest(
         downloads:    0,
         paymeId:      chargeData.payme_sale_id,
         buyerToken:   paymeToken,
+        downloadToken,
+        downloadTokenUsed: false,
         createdAt:    FieldValue.serverTimestamp()
       });
+
+      // מייל אישור רכישה — לא חוסם את התגובה אם השליחה נכשלת
+      try {
+        const transporter = nodemailer.createTransport({
+          service: 'gmail',
+          auth: { user: 'yonatanbrennerbooks@gmail.com', pass: GMAIL_PASS.value() }
+        });
+
+        const downloadLinkHtml = isDigital
+          ? `<p>ניתן להוריד את הספר בלינק המצורף (קישור חד-פעמי):<br>
+               <a href="${CF_BASE_URL}/downloadBook?token=${downloadToken}">להורדת הספר</a></p>
+             <p>ניתן גם להוריד את הספר מהאזור האישי באתר (עד 3 הורדות) —
+               נכנסים עם השם והטלפון/אימייל שאיתם ביצעת את הרכישה, ומאמתים עם קוד חד-פעמי שיישלח אליכם.</p>`
+          : '';
+
+        await transporter.sendMail({
+          from:    '"יונתן ספרים" <yonatanbrennerbooks@gmail.com>',
+          to:      buyerEmail,
+          subject: `תודה שרכשת את "${bookTitle}" — יונתן ספרים`,
+          html: `<div dir="rtl" style="font-family:Arial,sans-serif;font-size:15px;color:#222;line-height:1.8;">
+                   <p>תודה שרכשת ספר של יונתן!</p>
+                   ${downloadLinkHtml}
+                 </div>`
+        });
+      } catch (mailErr) {
+        console.error('confirmPayment email error:', mailErr);
+      }
 
       res.json({ orderId: orderRef.id });
     } catch (err) {
@@ -316,11 +381,52 @@ exports.confirmPayment = onRequest(
   }
 );
 
+// ── downloadBook ──────────────────────────────────────────
+// קישור חד-פעמי שנשלח במייל האישור — נועל את עצמו אחרי הורדה ראשונה
+exports.downloadBook = onRequest(
+  { region: 'europe-west1', invoker: 'public' },
+  async (req, res) => {
+    const token = req.query.token;
+    if (!token) { res.status(400).send('קישור לא תקין.'); return; }
+
+    try {
+      const snap = await db.collection('orders').where('downloadToken', '==', token).limit(1).get();
+      if (snap.empty) {
+        res.status(404).send('הקישור אינו תקין.');
+        return;
+      }
+
+      const doc   = snap.docs[0];
+      const order = doc.data();
+
+      if (order.downloadTokenUsed) {
+        res.status(410).send('הקישור החד-פעמי כבר נוצל. ניתן להוריד את הספר עד 3 פעמים נוספות מהאזור האישי באתר.');
+        return;
+      }
+
+      const path = STORAGE_PATHS[order.bookId];
+      if (!path) { res.status(500).send('שגיאה באיתור הקובץ.'); return; }
+
+      const [buffer] = await getStorage().bucket().file(path).download();
+      await doc.ref.update({ downloadTokenUsed: true });
+
+      const filename = encodeURIComponent(`${order.bookTitle}.pdf`);
+      res.set('Content-Type', 'application/pdf');
+      res.set('Content-Disposition', `attachment; filename="book.pdf"; filename*=UTF-8''${filename}`);
+      res.send(buffer);
+    } catch (err) {
+      console.error('downloadBook error:', err);
+      res.status(500).send('שגיאה בהורדת הקובץ — נסה שוב או פנה אלינו.');
+    }
+  }
+);
+
 // ── getAdminOrders ────────────────────────────────────────
 exports.getAdminOrders = onRequest(
-  { cors: true, region: 'europe-west1', invoker: 'public' },
+  { secrets: [VONAGE_SECRET], cors: true, region: 'europe-west1', invoker: 'public' },
   async (req, res) => {
     if (req.method !== 'GET') { res.status(405).end(); return; }
+    if (!requireAdmin(req, res, VONAGE_SECRET.value())) return;
 
     try {
       const snap = await db.collection('orders')
@@ -431,9 +537,10 @@ exports.incrementDownload = onRequest(
 const ALLOWED_STATUSES = ['preparing', 'shipped'];
 
 exports.updateOrderStatus = onRequest(
-  { cors: true, region: 'europe-west1', invoker: 'public' },
+  { secrets: [VONAGE_SECRET], cors: true, region: 'europe-west1', invoker: 'public' },
   async (req, res) => {
     if (req.method !== 'POST') { res.status(405).end(); return; }
+    if (!requireAdmin(req, res, VONAGE_SECRET.value())) return;
 
     const { orderId, status } = req.body;
     if (!orderId || !ALLOWED_STATUSES.includes(status)) {
