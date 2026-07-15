@@ -29,7 +29,7 @@ const PAYME_DEMO_ID  = 'MPLDEMO-MPLDEMO-MPLDEMO-1234567'; // רק לסנדבוק
 const RETURN_URL     = 'https://1974-alon.github.io/yonatan-books-site/purchase.html?success=1';
 const IPN_URL        = 'https://europe-west1-yonatan-books.cloudfunctions.net/paymeIPN';
 
-const BOOK_PRICES = { 'book-01': 1, 'book-02': 1 };
+const BOOK_PRICES = { 'book-01': 10, 'book-02': 10 };
 const BOOK_TITLES = { 'book-01': 'דמיון לנחמה', 'book-02': 'דרום מערב' };
 
 // ── OTP helpers ───────────────────────────────────────────
@@ -227,23 +227,31 @@ exports.confirmPayment = onRequest(
       }
 
       // חיוב בפועל דרך PayMe API
+      const txId = crypto.randomUUID();
+      const chargeBody = {
+        seller_payme_id: PAYME_KEY.value(),
+        sale_price:      price * 100,
+        currency:        'ILS',
+        product_name:    bookTitle,
+        transaction_id:  txId,
+        buyer_key:       paymeToken
+      };
+      console.log('PayMe charge request:', JSON.stringify({ ...chargeBody, seller_payme_id: '[REDACTED]' }));
+
       const chargeRes = await fetch(PAYME_URL, {
         method:  'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          seller_payme_id:     PAYME_KEY.value(),
-          sale_price:          price * 100,
-          currency:            'ILS',
-          product_name:        bookTitle,
-          transaction_id:      crypto.randomUUID(),
-          sale_payment_method: 'credit-card',
-          installments:        1,
-          buyer_key:           paymeToken
-        })
+        body:    JSON.stringify(chargeBody)
       });
 
-      const chargeData = await chargeRes.json();
-      console.log('PayMe charge response:', JSON.stringify(chargeData));
+      const chargeRaw  = await chargeRes.text();
+      console.log('PayMe charge response (raw):', chargeRaw);
+      const chargeData = JSON.parse(chargeRaw);
+
+      // שמירת תגובת PayMe ל-debug בFirestore
+      await db.collection('debug_payme').add({
+        txId, chargeData, buyerToken: paymeToken, createdAt: FieldValue.serverTimestamp()
+      });
 
       if (!chargeData.payme_sale_id) {
         console.error('PayMe charge failed:', chargeData);

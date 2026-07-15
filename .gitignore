@@ -1,2 +1,4 @@
 .DS_Store
-.vscode/js/admin-config.js
+.vscode/
+js/admin-config.js
+functions/node_modules/
