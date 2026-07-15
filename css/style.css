@@ -1832,3 +1832,38 @@
     .yb-auth-back:hover {
       color: var(--color-ink);
     }
+
+    /* Resend OTP */
+    .yb-auth-resend {
+      margin: 8px 0 0;
+      font-size: 0.85rem;
+      color: var(--color-muted);
+      text-align: center;
+    }
+
+    .yb-auth-resend__btn {
+      background: none;
+      border: none;
+      font-family: var(--font-main);
+      font-size: 0.85rem;
+      color: var(--color-accent);
+      cursor: pointer;
+      text-decoration: underline;
+      padding: 0;
+      margin-inline-start: 4px;
+    }
+
+    .yb-auth-resend__btn:hover {
+      color: var(--color-accent-dark);
+    }
+
+    .yb-auth-resend__btn:disabled {
+      color: var(--color-muted);
+      cursor: default;
+      text-decoration: none;
+    }
+
+    .yb-auth-resend__status {
+      margin-inline-start: 6px;
+      color: var(--color-accent);
+    }

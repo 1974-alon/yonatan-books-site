@@ -142,6 +142,28 @@
   color: #3a5a20;
 }
 
+.yb-account__status-badge {
+  font-size: 0.76rem;
+  font-weight: 700;
+  padding: 3px 12px;
+  border-radius: 20px;
+}
+
+.yb-account__status-badge--received {
+  background: #fdf0da;
+  color: #a15c00;
+}
+
+.yb-account__status-badge--preparing {
+  background: #dde9f4;
+  color: #2f6fa8;
+}
+
+.yb-account__status-badge--shipped {
+  background: #dff0ea;
+  color: #1a5035;
+}
+
 .yb-account__purchase-detail {
   font-size: 0.84rem;
   color: var(--color-muted);

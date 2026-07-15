@@ -67,8 +67,9 @@ function statusLabel(order) {
     if (order.status === 'paid' || order.status === 'pending') return { cls: 'adm-status--pending',    text: 'ממתין להורדה' };
     if (order.status === 'downloaded')                         return { cls: 'adm-status--downloaded', text: 'הורד' };
   } else {
-    if (order.status === 'paid' || order.status === 'waiting') return { cls: 'adm-status--waiting', text: 'ממתין לשליחה' };
-    if (order.status === 'shipped')                            return { cls: 'adm-status--shipped', text: 'נשלח' };
+    if (order.status === 'paid' || order.status === 'waiting')  return { cls: 'adm-status--waiting',    text: 'התקבל' };
+    if (order.status === 'preparing')                           return { cls: 'adm-status--preparing',  text: 'מתכונן לשליחה' };
+    if (order.status === 'shipped')                             return { cls: 'adm-status--shipped',    text: 'נשלח' };
   }
   return { cls: '', text: order.status };
 }
@@ -125,10 +126,12 @@ function renderTable(orders) {
     let actionBtn = '';
     if (o.type === 'digital') {
       actionBtn = `<button class="adm-btn adm-btn--grant" data-id="${o.id}" data-action="grant">הענק 3 הורדות</button>`;
+    } else if (o.status === 'shipped') {
+      actionBtn = `<button class="adm-btn adm-btn--done" disabled>נשלח ✓</button>`;
+    } else if (o.status === 'preparing') {
+      actionBtn = `<button class="adm-btn adm-btn--ship" data-id="${o.id}" data-action="ship">סמן כנשלח</button>`;
     } else {
-      actionBtn = o.status === 'shipped'
-        ? `<button class="adm-btn adm-btn--done" disabled>נשלח ✓</button>`
-        : `<button class="adm-btn adm-btn--ship" data-id="${o.id}" data-action="ship">סמן כנשלח</button>`;
+      actionBtn = `<button class="adm-btn adm-btn--prepare" data-id="${o.id}" data-action="prepare">התחל הכנה למשלוח</button>`;
     }
 
     return `
@@ -180,7 +183,7 @@ function renderTable(orders) {
   });
 
   tbody.querySelectorAll('[data-action]').forEach(btn => {
-    btn.addEventListener('click', e => {
+    btn.addEventListener('click', async e => {
       e.stopPropagation();
       const orders = getOrders();
       const order  = orders.find(o => o.id === btn.dataset.id);
@@ -197,11 +200,25 @@ function renderTable(orders) {
         renderSummary(orders);
       }
 
-      if (btn.dataset.action === 'ship') {
-        order.status = 'shipped';
-        saveOrders(orders);
-        renderTable(orders);
-        renderSummary(orders);
+      if (btn.dataset.action === 'prepare' || btn.dataset.action === 'ship') {
+        const newStatus = btn.dataset.action === 'prepare' ? 'preparing' : 'shipped';
+        btn.disabled = true;
+        try {
+          const res = await fetch(`${CF_ADMIN_ORDERS.replace('getAdminOrders', 'updateOrderStatus')}`, {
+            method:  'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body:    JSON.stringify({ orderId: order.id, status: newStatus })
+          });
+          if (!res.ok) throw new Error('update_failed');
+          order.status = newStatus;
+          saveOrders(orders);
+          renderTable(orders);
+          renderSummary(orders);
+        } catch (err) {
+          console.error('updateOrderStatus failed:', err);
+          btn.disabled = false;
+          alert('עדכון הסטטוס נכשל — נסה שוב');
+        }
       }
     });
   });

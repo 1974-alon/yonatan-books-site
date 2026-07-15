@@ -360,6 +360,7 @@ body {
 .adm-status--downloaded::before { background: #2a7a4e; }
 .adm-status--shipped::before  { background: #2a7a4e; }
 .adm-status--waiting::before  { background: #f59e0b; }
+.adm-status--preparing::before { background: #2f6fa8; }
 
 /* ── Downloads bar ───────────────────────────────────── */
 .adm-dl {
@@ -401,6 +402,17 @@ body {
 
 .adm-btn--ship:hover {
   background: #c07000;
+  color: #fff;
+}
+
+.adm-btn--prepare {
+  border-color: #2f6fa8;
+  color: #2f6fa8;
+  background: none;
+}
+
+.adm-btn--prepare:hover {
+  background: #2f6fa8;
   color: #fff;
 }
 
@@ -517,6 +529,7 @@ body {
   gap: 6px;
   padding: 20px 0 8px;
   flex-wrap: wrap;
+  direction: ltr; /* מספרי עמודים עולים משמאל לימין, כמקובל במספרים */
 }
 
 .adm-pager-btn {

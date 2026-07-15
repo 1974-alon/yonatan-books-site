@@ -51,11 +51,37 @@ function checkOtp(phone, code, secret) {
 
 // ── sendOtp ───────────────────────────────────────────────
 exports.sendOtp = onRequest(
-  { secrets: [VONAGE_SECRET], cors: ALLOWED_ORIGINS, region: 'europe-west1' },
+  { secrets: [VONAGE_SECRET, GMAIL_PASS], cors: ALLOWED_ORIGINS, region: 'europe-west1' },
   async (req, res) => {
     if (req.method !== 'POST') { res.status(405).end(); return; }
-    const { phone } = req.body;
-    if (!phone) { res.status(400).json({ error: 'missing_phone' }); return; }
+    const { phone, email } = req.body;
+    if (!phone && !email) { res.status(400).json({ error: 'missing_identifier' }); return; }
+
+    if (email) {
+      const to  = email.toLowerCase().trim();
+      const otp = makeOtp(to, VONAGE_SECRET.value());
+      const transporter = nodemailer.createTransport({
+        service: 'gmail',
+        auth: { user: 'yonatanbrennerbooks@gmail.com', pass: GMAIL_PASS.value() }
+      });
+      try {
+        await transporter.sendMail({
+          from:    '"יונתן ספרים" <yonatanbrennerbooks@gmail.com>',
+          to,
+          subject: 'קוד האימות שלך — יונתן ספרים',
+          html: `<div dir="rtl" style="font-family:Arial,sans-serif;font-size:16px;color:#222;">
+                   <p>קוד האימות שלך לאזור האישי:</p>
+                   <p style="font-size:28px;font-weight:bold;letter-spacing:4px;">${otp}</p>
+                   <p style="color:#777;font-size:13px;">הקוד בתוקף ל-5 דקות.</p>
+                 </div>`
+        });
+        res.json({ success: true });
+      } catch (err) {
+        console.error('sendOtp email error:', err);
+        res.status(500).json({ error: 'email_failed' });
+      }
+      return;
+    }
 
     const otp    = makeOtp(phone, VONAGE_SECRET.value());
     const vonage = new Vonage({ apiKey: VONAGE_KEY, apiSecret: VONAGE_SECRET.value() });
@@ -79,15 +105,16 @@ exports.verifyOtp = onRequest(
   { secrets: [VONAGE_SECRET, ADMIN_PHONES], cors: ALLOWED_ORIGINS, region: 'europe-west1' },
   async (req, res) => {
     if (req.method !== 'POST') { res.status(405).end(); return; }
-    const { phone, code } = req.body;
-    if (!phone || !code) { res.status(400).json({ error: 'missing_fields' }); return; }
+    const { phone, email, code } = req.body;
+    const identifier = phone || (email ? email.toLowerCase().trim() : null);
+    if (!identifier || !code) { res.status(400).json({ error: 'missing_fields' }); return; }
 
-    if (!checkOtp(phone, code, VONAGE_SECRET.value())) {
+    if (!checkOtp(identifier, code, VONAGE_SECRET.value())) {
       res.status(401).json({ error: 'invalid_code' }); return;
     }
 
     const adminList = (ADMIN_PHONES.value() || '').split(',').map(p => p.trim());
-    const isAdmin   = adminList.includes(phone);
+    const isAdmin   = phone ? adminList.includes(phone) : false;
     res.json({ success: true, isAdmin });
   }
 );
@@ -395,6 +422,33 @@ exports.incrementDownload = onRequest(
       res.json({ downloads: current + 1, remaining: 3 - (current + 1) });
     } catch (err) {
       console.error('incrementDownload error:', err);
+      res.status(500).json({ error: 'internal' });
+    }
+  }
+);
+
+// ── updateOrderStatus ─────────────────────────────────────
+const ALLOWED_STATUSES = ['preparing', 'shipped'];
+
+exports.updateOrderStatus = onRequest(
+  { cors: true, region: 'europe-west1', invoker: 'public' },
+  async (req, res) => {
+    if (req.method !== 'POST') { res.status(405).end(); return; }
+
+    const { orderId, status } = req.body;
+    if (!orderId || !ALLOWED_STATUSES.includes(status)) {
+      res.status(400).json({ error: 'invalid_request' }); return;
+    }
+
+    try {
+      const ref = db.collection('orders').doc(orderId);
+      const doc = await ref.get();
+      if (!doc.exists) { res.status(404).json({ error: 'not_found' }); return; }
+
+      await ref.update({ status });
+      res.json({ success: true });
+    } catch (err) {
+      console.error('updateOrderStatus error:', err);
       res.status(500).json({ error: 'internal' });
     }
   }

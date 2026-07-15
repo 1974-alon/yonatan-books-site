@@ -44,13 +44,13 @@ function findAdmin(name, phone) {
   return ADMIN_USERS.find(a => a.name === name.trim() && a.phone === e164) ? e164 : null;
 }
 
-async function sendOtp(phone) {
+async function sendOtp(phone, email) {
   const res = await fetch(`${CF_BASE}/sendOtp`, {
     method:  'POST',
     headers: { 'Content-Type': 'application/json' },
-    body:    JSON.stringify({ phone })
+    body:    JSON.stringify(phone ? { phone } : { email })
   });
-  if (!res.ok) throw new Error('sms_failed');
+  if (!res.ok) throw new Error('otp_send_failed');
 }
 
 // ── DOM refs ──────────────────────────────────────────────
@@ -82,10 +82,13 @@ const otpBoxes           = [...otpGroup.querySelectorAll('.yb-otp-box')];
 const authOtpError       = document.getElementById('auth-otp-error');
 const authOtpSubmit      = document.getElementById('auth-otp-submit');
 const authBack           = document.getElementById('auth-back');
+const authOtpResend      = document.getElementById('auth-otp-resend');
+const authOtpResendStatus = document.getElementById('auth-otp-resend-status');
 
 let activeTab       = 'email';
 let pendingCustomer = null;
 let pendingPhone    = null;
+let pendingEmail    = null;
 let pendingIsAdmin  = false;
 
 // ── Open / Close ──────────────────────────────────────────
@@ -302,18 +305,30 @@ async function handleIdentify() {
     return;
   }
 
-  // ── Email tab: mock customer only ─────────────────────
-  const customer = findCustomer(name, contact);
-  if (!customer) {
-    authLookupError.textContent = 'לא נמצאה רכישה עם הפרטים שהוזנו.';
-    authLookupError.hidden = false;
+  // ── Email tab: demo mock customer, or real customer via email OTP ──
+  const demoCustomer = findCustomer(name, contact);
+  if (demoCustomer) {
+    pendingCustomer = demoCustomer;
+    otpHintEl.textContent = `שלחנו קוד אימות ל${contactEl.value.trim()}`;
+    showAuthStep('otp');
+    otpBoxes[0].focus();
     return;
   }
 
-  pendingCustomer = customer;
-  otpHintEl.textContent = `שלחנו קוד אימות ל${contactEl.value.trim()}`;
-  showAuthStep('otp');
-  otpBoxes[0].focus();
+  authIdentifySubmit.disabled = true;
+  try {
+    await sendOtp(null, contact);
+    pendingEmail    = contact.toLowerCase();
+    pendingCustomer = { name };
+    otpHintEl.textContent = `שלחנו קוד אימות ל${contactEl.value.trim()}`;
+    showAuthStep('otp');
+    otpBoxes[0].focus();
+  } catch {
+    authLookupError.textContent = 'שגיאה בשליחת קוד — נסה שוב';
+    authLookupError.hidden = false;
+  } finally {
+    authIdentifySubmit.disabled = false;
+  }
 }
 
 authIdentifySubmit.addEventListener('click', handleIdentify);
@@ -362,7 +377,33 @@ async function handleOtp() {
     return;
   }
 
-  // ── Mock OTP (email-tab customer) ────────────────────
+  // ── Real email OTP (email-tab customer, not demo) ────
+  if (pendingEmail) {
+    authOtpSubmit.disabled = true;
+    try {
+      const res  = await fetch(`${CF_BASE}/verifyOtp`, {
+        method:  'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body:    JSON.stringify({ email: pendingEmail, code: otp })
+      });
+      const data = await res.json();
+
+      if (!res.ok || !data.success) { showOtpError('הקוד שגוי. נסה שוב.'); return; }
+
+      sessionStorage.setItem('yb-auth-customer', JSON.stringify({
+        name:  pendingCustomer.name,
+        email: pendingEmail
+      }));
+      window.location.href = 'account.html';
+    } catch {
+      showOtpError('שגיאת תקשורת — נסה שוב.');
+    } finally {
+      authOtpSubmit.disabled = false;
+    }
+    return;
+  }
+
+  // ── Mock OTP (demo customer only) ─────────────────────
   if (otp !== pendingCustomer.otp) {
     showOtpError('הקוד שגוי. נסה שוב.');
     return;
@@ -374,13 +415,53 @@ async function handleOtp() {
 
 authOtpSubmit.addEventListener('click', handleOtp);
 
+// ── Resend OTP ────────────────────────────────────────────
+let resendCooldown = null;
+
+function startResendCooldown(seconds) {
+  let remaining = seconds;
+  authOtpResend.disabled = true;
+  authOtpResend.textContent = `שליחה חוזרת (${remaining})`;
+  resendCooldown = setInterval(() => {
+    remaining -= 1;
+    if (remaining <= 0) {
+      clearInterval(resendCooldown);
+      authOtpResend.disabled = false;
+      authOtpResend.textContent = 'שליחה חוזרת';
+      return;
+    }
+    authOtpResend.textContent = `שליחה חוזרת (${remaining})`;
+  }, 1000);
+}
+
+authOtpResend.addEventListener('click', async () => {
+  if (!pendingPhone && !pendingEmail) return; // demo customer — no real resend
+  authOtpResendStatus.hidden = true;
+  authOtpResend.disabled = true;
+  try {
+    await sendOtp(pendingPhone, pendingEmail);
+    authOtpResendStatus.textContent = 'קוד נשלח שוב';
+    authOtpResendStatus.hidden = false;
+    startResendCooldown(30);
+  } catch {
+    authOtpResendStatus.textContent = 'שליחה נכשלה — נסה שוב';
+    authOtpResendStatus.hidden = false;
+    authOtpResend.disabled = false;
+  }
+});
+
 // ── Back ──────────────────────────────────────────────────
 authBack.addEventListener('click', () => {
   clearAuthErrors();
   clearOtpBoxes();
   pendingCustomer = null;
   pendingPhone    = null;
+  pendingEmail    = null;
   pendingIsAdmin  = false;
+  clearInterval(resendCooldown);
+  authOtpResend.disabled = false;
+  authOtpResend.textContent = 'שליחה חוזרת';
+  authOtpResendStatus.hidden = true;
   showAuthStep('identify');
   authNameEl.focus();
 });

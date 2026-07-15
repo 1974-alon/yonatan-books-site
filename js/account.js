@@ -41,6 +41,12 @@
     });
 
   // ── Render ────────────────────────────────────────────────
+  function physicalStatusLabel(status) {
+    if (status === 'preparing') return { cls: 'preparing', text: 'מתכונן לשליחה' };
+    if (status === 'shipped')   return { cls: 'shipped',   text: 'נשלח' };
+    return { cls: 'received', text: 'התקבל' };
+  }
+
   function formatReviewName(fullName) {
     const parts = fullName.trim().split(/\s+/);
     if (parts.length < 2) return fullName;
@@ -65,6 +71,8 @@
     const remaining = MAX_DL - dlCount;
     const exhausted = dlCount >= MAX_DL;
 
+    const physicalStatus = physicalStatusLabel(p.status);
+
     return `
       <div class="yb-account__purchase-card">
         <div class="yb-account__purchase-cover" aria-hidden="true">${coverLetter}</div>
@@ -74,6 +82,7 @@
             <span class="yb-account__purchase-badge yb-account__purchase-badge--${isDigital ? 'digital' : 'physical'}">
               ${isDigital ? 'הורדה דיגיטלית' : 'משלוח פיזי'}
             </span>
+            ${!isDigital ? `<span class="yb-account__status-badge yb-account__status-badge--${physicalStatus.cls}">${physicalStatus.text}</span>` : ''}
             <span class="yb-account__purchase-detail">${formattedDate}</span>
           </div>
           ${isDigital ? `
