@@ -554,6 +554,19 @@
       zip:     /^\d{5}(\d{2})?$/,
     };
 
+    // ביקורת ספרת ביקורת לתעודת זהות ישראלית — מונע שליחת ת"ז עם 9 ספרות אבל לא תקינה ל-PayMe
+    function isValidIsraeliId(id) {
+      const digits = String(id).trim();
+      if (!/^\d{9}$/.test(digits)) return false;
+      let sum = 0;
+      for (let i = 0; i < 9; i++) {
+        let d = Number(digits[i]) * ((i % 2) + 1);
+        if (d > 9) d -= 9;
+        sum += d;
+      }
+      return sum % 10 === 0;
+    }
+
     const FIELD_RULES = [
       {
         id: 'full-name',
@@ -581,6 +594,7 @@
         rules: [
           { test: v => v.trim().length > 0,       msg: 'נא להזין תעודת זהות' },
           { test: v => RE.idNum.test(v.trim()),    msg: 'תעודת זהות חייבת להכיל 9 ספרות' },
+          { test: v => isValidIsraeliId(v.trim()), msg: 'מספר תעודת הזהות אינו תקין — בדוק שוב את הספרות' },
         ]
       },
       {
