@@ -133,11 +133,21 @@ exports.sendOtp = onRequest(
 );
 
 // ── verifyOtp ─────────────────────────────────────────────
+// רשימת האדמינים בפורמט "שם:טלפון,שם:טלפון" — חייבים להצליב שם ומספר טלפון יחד,
+// אחרת מי שמקליד את הטלפון של אדמין (עם כל שם) היה מתחזה ומקבל הרשאות אדמין.
+function parseAdminList(raw) {
+  return (raw || '').split(',').map(entry => {
+    const idx = entry.indexOf(':');
+    if (idx === -1) return null;
+    return { name: entry.slice(0, idx).trim(), phone: entry.slice(idx + 1).trim() };
+  }).filter(Boolean);
+}
+
 exports.verifyOtp = onRequest(
   { secrets: [VONAGE_SECRET, ADMIN_PHONES], cors: ALLOWED_ORIGINS, region: 'europe-west1' },
   async (req, res) => {
     if (req.method !== 'POST') { res.status(405).end(); return; }
-    const { phone, email, code } = req.body;
+    const { phone, email, code, name } = req.body;
     const identifier = phone || (email ? email.toLowerCase().trim() : null);
     if (!identifier || !code) { res.status(400).json({ error: 'missing_fields' }); return; }
 
@@ -145,8 +155,8 @@ exports.verifyOtp = onRequest(
       res.status(401).json({ error: 'invalid_code' }); return;
     }
 
-    const adminList  = (ADMIN_PHONES.value() || '').split(',').map(p => p.trim());
-    const isAdmin    = phone ? adminList.includes(phone) : false;
+    const adminList  = parseAdminList(ADMIN_PHONES.value());
+    const isAdmin    = !!(phone && name && adminList.some(a => a.phone === phone && a.name === name.trim()));
     const adminToken = isAdmin ? makeAdminToken(VONAGE_SECRET.value()) : null;
     res.json({ success: true, isAdmin, adminToken });
   }

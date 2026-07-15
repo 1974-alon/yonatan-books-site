@@ -360,7 +360,7 @@ async function handleOtp() {
       const res  = await fetch(`${CF_BASE}/verifyOtp`, {
         method:  'POST',
         headers: { 'Content-Type': 'application/json' },
-        body:    JSON.stringify({ phone: pendingPhone, code: otp })
+        body:    JSON.stringify({ phone: pendingPhone, code: otp, name: pendingCustomer.name })
       });
       const data = await res.json();
 
