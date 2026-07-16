@@ -360,20 +360,26 @@ exports.confirmPayment = onRequest(
           auth: { user: 'yonatanbrennerbooks@gmail.com', pass: GMAIL_PASS.value() }
         });
 
-        const downloadLinkHtml = isDigital
-          ? `<p>ניתן להוריד את הספר בלינק המצורף (קישור חד-פעמי):<br>
-               <a href="${CF_BASE_URL}/downloadBook?token=${downloadToken}">להורדת הספר</a></p>
-             <p>ניתן גם להוריד את הספר מהאזור האישי באתר (עד 3 הורדות) —
-               נכנסים עם השם והטלפון/אימייל שאיתם ביצעת את הרכישה, ומאמתים עם קוד חד-פעמי שיישלח אליכם.</p>`
-          : '';
+        const accountUrl = `${SITE_URL}/index.html#my-area`;
+
+        const bodyHtml = isDigital
+          ? `<p>ניתן להוריד את הספר עכשיו בקישור החד־פעמי המצורף:</p>
+             <p><a href="${CF_BASE_URL}/downloadBook?token=${downloadToken}" style="color:#3c6020;font-weight:bold;">להורדת הספר</a></p>
+             <p>אפשר גם להוריד את הספר בכל עת מהאזור האישי באתר, עד שלוש הורדות.
+                נכנסים עם השם והטלפון או האימייל שאיתם בוצעה הרכישה, ומאמתים עם קוד חד־פעמי שיישלח אליכם.</p>
+             <p><a href="${accountUrl}" style="color:#3c6020;font-weight:bold;">כניסה לאזור האישי</a></p>`
+          : `<p>הספר יארז ויישלח בדואר תוך עד שבעה ימי עבודה מרגע אישור ההזמנה.</p>
+             <p>אפשר לעקוב בכל שלב אחרי סטטוס המשלוח, החל מ״התקבל״ ועד ״נשלח״, ישירות מהאזור האישי באתר.
+                נכנסים עם השם והטלפון או האימייל שאיתם בוצעה הרכישה, ומאמתים עם קוד חד־פעמי שיישלח אליכם.</p>
+             <p><a href="${accountUrl}" style="color:#3c6020;font-weight:bold;">כניסה לאזור האישי</a></p>`;
 
         await transporter.sendMail({
           from:    '"יונתן ספרים" <yonatanbrennerbooks@gmail.com>',
           to:      buyerEmail,
-          subject: `תודה שרכשת את "${bookTitle}" — יונתן ספרים`,
+          subject: `תודה שרכשת את "${bookTitle}", יונתן ספרים`,
           html: `<div dir="rtl" style="font-family:Arial,sans-serif;font-size:15px;color:#222;line-height:1.8;">
-                   <p>תודה שרכשת ספר של יונתן!</p>
-                   ${downloadLinkHtml}
+                   <p>תודה שרכשת את "${bookTitle}"!</p>
+                   ${bodyHtml}
                  </div>`
         });
       } catch (mailErr) {
