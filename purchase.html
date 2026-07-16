@@ -230,6 +230,8 @@
 
               </div>
 
+              <p class="yb-field-note" id="contact-exists-note" hidden></p>
+
             </div>
           </section>
 
@@ -729,6 +731,42 @@
     });
 
     /* =========================================================
+       CONTACT ALREADY EXISTS — חיווי בלבד, לא חוסם
+    ========================================================= */
+
+    const CF_CHECK_EXISTS = 'https://europe-west1-yonatan-books.cloudfunctions.net/checkCustomerExists';
+    const contactExistsNote = document.getElementById('contact-exists-note');
+
+    async function checkContactExists() {
+      const name  = document.getElementById('full-name').value.trim();
+      const phone = document.getElementById('phone').value.trim();
+      const email = document.getElementById('email').value.trim();
+
+      contactExistsNote.hidden = true;
+      if (!name || (!RE.phone.test(phone.replace(/[-\s]/g, '')) && !RE.email.test(email))) return;
+
+      try {
+        const body = RE.email.test(email) ? { email, name } : { phone, name };
+        const res  = await fetch(CF_CHECK_EXISTS, {
+          method:  'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body:    JSON.stringify(body)
+        });
+        const data = await res.json();
+        if (data.exists && !data.matches) {
+          contactExistsNote.textContent = `שימו לב, פרטי הקשר האלה כבר קיימים במערכת תחת השם "${data.existingName}". אם זה אתם, אין צורך לשנות דבר, ההזמנה תירשם כרגיל.`;
+          contactExistsNote.hidden = false;
+        }
+      } catch {
+        /* חיווי בלבד — כשל בבדיקה לא אמור לעצור את הרוכש */
+      }
+    }
+
+    ['full-name', 'phone', 'email'].forEach(id => {
+      document.getElementById(id).addEventListener('blur', checkContactExists);
+    });
+
+    /* =========================================================
        FORM SUBMIT
     ========================================================= */
 
@@ -849,6 +887,25 @@
       const buyerName = document.getElementById('full-name').value.trim();
       const buyerEmail= document.getElementById('email').value.trim();
       const buyerPhone= document.getElementById('phone').value.trim();
+
+      // אם יש session פעיל של לקוח אחר באזור האישי, לא ממשיכים בשקט
+      const activeSession = JSON.parse(sessionStorage.getItem('yb-auth-customer') || 'null');
+      if (activeSession) {
+        const sessionPhone = (activeSession.phone || '').replace(/[-\s]/g, '').replace(/^\+972/, '0');
+        const sessionEmail = (activeSession.email || '').trim().toLowerCase();
+        const formPhone    = buyerPhone.replace(/[-\s]/g, '').replace(/^\+972/, '0');
+        const formEmail    = buyerEmail.trim().toLowerCase();
+        const samePerson   = (sessionPhone && sessionPhone === formPhone) || (sessionEmail && sessionEmail === formEmail);
+
+        if (!samePerson) {
+          const proceed = confirm(
+            `הנך מחובר/ת כרגע לאזור האישי בתור ${activeSession.name}.\nלהתנתק ולהמשיך ברכישה עם הפרטים החדשים?`
+          );
+          if (!proceed) return;
+          sessionStorage.removeItem('yb-auth-customer');
+        }
+      }
+
       const billingParts = [
         document.getElementById('address').value,
         document.getElementById('address-city').value,

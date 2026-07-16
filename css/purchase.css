@@ -267,6 +267,18 @@
       font-weight: 600;
     }
 
+    .yb-field-note {
+      grid-column: 1 / -1;
+      margin: -4px 0 0;
+      font-size: 0.85rem;
+      color: var(--color-accent-dark);
+      font-weight: 600;
+    }
+
+    .yb-field-note[hidden] {
+      display: none;
+    }
+
     @media (max-width: 640px) {
       .yb-delivery-selector__options {
         grid-template-columns: 1fr;

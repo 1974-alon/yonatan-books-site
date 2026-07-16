@@ -518,6 +518,40 @@ exports.getCustomerOrders = onRequest(
   }
 );
 
+// ── checkCustomerExists ───────────────────────────────────
+// חיווי בלבד (לא חוסם) — בודק אם טלפון/מייל כבר שימשו לרכישה קודמת תחת שם אחר,
+// כדי להציג הודעה ידידותית בטופס הרכישה. לא מחזיר היסטוריית רכישות, רק את השם הקודם.
+exports.checkCustomerExists = onRequest(
+  { cors: true, region: 'europe-west1', invoker: 'public' },
+  async (req, res) => {
+    if (req.method !== 'POST') { res.status(405).end(); return; }
+
+    const { phone, email, name } = req.body;
+    if (!phone && !email) { res.status(400).json({ error: 'missing_identifier' }); return; }
+
+    try {
+      const field = phone ? 'buyerPhone' : 'buyerEmail';
+      const value = phone
+        ? phone.replace(/[-\s]/g, '').replace(/^\+972/, '0')
+        : email.toLowerCase().trim();
+
+      const snap = await db.collection('orders')
+        .where(field, '==', value)
+        .limit(1)
+        .get();
+
+      if (snap.empty) { res.json({ exists: false }); return; }
+
+      const existingName = snap.docs[0].data().buyerName || '';
+      const matches = !!(name && existingName.trim() === name.trim());
+      res.json({ exists: true, matches, existingName: matches ? null : existingName });
+    } catch (err) {
+      console.error('checkCustomerExists error:', err);
+      res.status(500).json({ error: 'internal' });
+    }
+  }
+);
+
 // ── incrementDownload ─────────────────────────────────────
 exports.incrementDownload = onRequest(
   { cors: true, region: 'europe-west1', invoker: 'public' },
