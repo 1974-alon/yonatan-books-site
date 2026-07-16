@@ -754,7 +754,7 @@
         });
         const data = await res.json();
         if (data.exists && !data.matches) {
-          contactExistsNote.textContent = `שימו לב, פרטי הקשר האלה כבר קיימים במערכת תחת השם "${data.existingName}". אם זה אתם, אין צורך לשנות דבר, ההזמנה תירשם כרגיל.`;
+          contactExistsNote.textContent = `שימו לב, פרטי הקשר האלה כבר קיימים במערכת תחת השם "${data.existingName}". אם זה אתם, אין צורך לשנות דבר, ההזמנה תירשם יחד עם שאר הרכישות שבוצעו עם פרטי הקשר האלה.`;
           contactExistsNote.hidden = false;
         }
       } catch {
