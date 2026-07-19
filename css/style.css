@@ -301,6 +301,7 @@
     }
 
     .yb-header__inner {
+      position: relative;
       min-height: 74px;
       display: flex;
       align-items: center;
@@ -312,6 +313,7 @@
       display: flex;
       align-items: center;
       gap: 12px;
+      font-size: 20px;
       font-weight: 900;
       letter-spacing: -0.02em;
     }
@@ -329,11 +331,16 @@
     }
 
     .yb-header__nav {
+      position: absolute;
+      left: 50%;
+      top: 50%;
+      transform: translate(-50%, -50%);
       display: flex;
       align-items: center;
       gap: 24px;
       color: var(--color-muted);
       font-size: 0.95rem;
+      white-space: nowrap;
     }
 
     .yb-header__nav a {
