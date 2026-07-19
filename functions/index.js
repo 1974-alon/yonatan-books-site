@@ -538,6 +538,7 @@ exports.getAdminOrders = onRequest(
           type:            d.deliveryType || 'digital',
           address:         d.address || null,
           notes:           d.notes  || null,
+          adminNotes:      d.adminNotes || '',
           price:           d.price,
           status:          d.status,
           downloads:       d.downloads || 0,
@@ -682,6 +683,33 @@ exports.updateOrderStatus = onRequest(
       res.json({ success: true });
     } catch (err) {
       console.error('updateOrderStatus error:', err);
+      res.status(500).json({ error: 'internal' });
+    }
+  }
+);
+
+// ── updateOrderNotes ──────────────────────────────────────
+// הערת אדמין חופשית ליד כל הזמנה (לתיעוד ידני — ריפונד שבוצע בפיימי, הערות שירות וכו')
+exports.updateOrderNotes = onRequest(
+  { secrets: [VONAGE_SECRET], cors: true, region: 'europe-west1', invoker: 'public' },
+  async (req, res) => {
+    if (req.method !== 'POST') { res.status(405).end(); return; }
+    if (!requireAdmin(req, res, VONAGE_SECRET.value())) return;
+
+    const { orderId, adminNotes } = req.body;
+    if (!orderId || typeof adminNotes !== 'string') {
+      res.status(400).json({ error: 'invalid_request' }); return;
+    }
+
+    try {
+      const ref = db.collection('orders').doc(orderId);
+      const doc = await ref.get();
+      if (!doc.exists) { res.status(404).json({ error: 'not_found' }); return; }
+
+      await ref.update({ adminNotes: adminNotes.trim() });
+      res.json({ success: true });
+    } catch (err) {
+      console.error('updateOrderNotes error:', err);
       res.status(500).json({ error: 'internal' });
     }
   }

@@ -152,7 +152,7 @@ function renderTable(orders) {
 
     return `
       <tr class="adm-row" data-id="${o.id}" tabindex="0" role="button" aria-expanded="false">
-        <td><span class="adm-order-id">#${orderNum}</span></td>
+        <td>${o.adminNotes ? '<span class="adm-note-flag" title="קיימת הערת אדמין להזמנה זו">★</span>' : ''}<span class="adm-order-id">#${orderNum}</span></td>
         <td>${o.name}</td>
         <td>${formatDate(o.date)}</td>
         <td><strong>${o.bookTitle}</strong></td>
@@ -188,6 +188,15 @@ function renderTable(orders) {
                 ${actionBtn}
               </div>
             </div>
+            <div class="adm-notes">
+              <span class="adm-detail__label">הערות אדמין</span>
+              <input type="text" class="adm-notes__textarea" data-id="${o.id}" placeholder="הערה פנימית — לא מוצגת ללקוח" value="${(o.adminNotes || '').replace(/"/g, '&quot;')}">
+
+              <div class="adm-notes__row">
+                <span class="adm-notes__saved" data-for="${o.id}"></span>
+                <button class="adm-btn adm-btn--notes" data-id="${o.id}" data-action="save-notes">שמור הערה</button>
+              </div>
+            </div>
           </div>
         </td>
       </tr>`;
@@ -214,6 +223,42 @@ function renderTable(orders) {
         saveOrders(orders);
         renderTable(orders);
         renderSummary(orders);
+      }
+
+      if (btn.dataset.action === 'save-notes') {
+        const textarea = document.querySelector(`.adm-notes__textarea[data-id="${order.id}"]`);
+        const savedEl  = document.querySelector(`.adm-notes__saved[data-for="${order.id}"]`);
+        const adminNotes = textarea.value;
+        btn.disabled = true;
+        try {
+          const res = await fetch(`${CF_ADMIN_ORDERS.replace('getAdminOrders', 'updateOrderNotes')}`, {
+            method:  'POST',
+            headers: { 'Content-Type': 'application/json', ...adminAuthHeaders() },
+            body:    JSON.stringify({ orderId: order.id, adminNotes })
+          });
+          if (handleAdminAuthFailure(res)) return;
+          if (!res.ok) throw new Error('update_failed');
+          order.adminNotes = adminNotes;
+          saveOrders(orders);
+          const orderIdCell = document.querySelector(`.adm-row[data-id="${order.id}"] td:first-child`);
+          if (orderIdCell) {
+            const hasFlag = !!orderIdCell.querySelector('.adm-note-flag');
+            if (adminNotes && !hasFlag) {
+              orderIdCell.insertAdjacentHTML('afterbegin', '<span class="adm-note-flag" title="קיימת הערת אדמין להזמנה זו">★</span>');
+            } else if (!adminNotes && hasFlag) {
+              orderIdCell.querySelector('.adm-note-flag').remove();
+            }
+          }
+          if (savedEl) {
+            savedEl.textContent = 'נשמר ✓';
+            setTimeout(() => { savedEl.textContent = ''; }, 2000);
+          }
+        } catch (err) {
+          console.error('updateOrderNotes failed:', err);
+          alert('שמירת ההערה נכשלה — נסה שוב');
+        } finally {
+          btn.disabled = false;
+        }
       }
 
       if (btn.dataset.action === 'prepare' || btn.dataset.action === 'ship') {

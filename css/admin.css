@@ -511,11 +511,72 @@ body {
   flex-shrink: 0;
 }
 
+/* ── Admin notes ─────────────────────────────────────── */
+.adm-notes {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 0 20px 16px;
+}
+
+.adm-notes__textarea {
+  width: 100%;
+  padding: 8px 12px;
+  border: 1.5px solid #d0ddd2;
+  border-radius: 8px;
+  font-family: 'Heebo', Arial, sans-serif;
+  font-size: 0.84rem;
+  color: #0f2218;
+  background: #fff;
+  box-sizing: border-box;
+}
+
+.adm-notes__textarea:focus {
+  outline: none;
+  border-color: #2a7a4e;
+}
+
+.adm-notes__row {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 10px;
+  margin: 7px 0 0 0;
+}
+
+.adm-btn--notes {
+  padding: 4px 12px;
+  border-width: 1px;
+  border-color: #d0ddd2;
+  color: #4a6a52;
+  font-size: 0.72rem;
+  font-weight: 600;
+  background: none;
+}
+
+.adm-btn--notes:hover {
+  background: #eaf1ec;
+  border-color: #4a6a52;
+  color: #0f2218;
+}
+
+.adm-notes__saved {
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: #2a7a4e;
+}
+
 /* ── Order ID ────────────────────────────────────────── */
 .adm-order-id {
   font-family: monospace;
   font-size: 0.8rem;
   color: #4a6a52;
+}
+
+.adm-note-flag {
+  color: #c07000;
+  font-size: 0.85rem;
+  margin-left: 5px;
 }
 
 /* ── Email link ──────────────────────────────────────── */
