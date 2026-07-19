@@ -363,6 +363,26 @@
       transition: background 150ms ease, border-color 150ms ease, opacity 160ms ease;
     }
 
+    .yb-header__logout-link {
+      background: none;
+      border: none;
+      font-family: var(--font-main);
+      font-size: 0.8rem;
+      color: var(--color-muted);
+      cursor: pointer;
+      text-decoration: underline;
+      padding: 0 2px;
+      transition: color 160ms;
+    }
+
+    .yb-header__logout-link:hover {
+      color: var(--color-ink);
+    }
+
+    .yb-header__logout-link[hidden] {
+      display: none;
+    }
+
     .yb-header__hamburger {
       display: none;
       width: 42px;

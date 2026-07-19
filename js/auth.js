@@ -53,6 +53,22 @@ async function sendOtp(phone, email) {
   if (!res.ok) throw new Error('otp_send_failed');
 }
 
+// בדיקה לפני שליחת קוד אימות (SMS/מייל עולים בפועל בכסף) —
+// אם הטלפון/מייל כבר קיימים במערכת תחת שם אחר, לא שולחים קוד בכלל
+async function nameMismatchExists(body) {
+  try {
+    const res  = await fetch(`${CF_BASE}/checkCustomerExists`, {
+      method:  'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body:    JSON.stringify(body)
+    });
+    const data = await res.json();
+    return !!(data.exists && !data.matches);
+  } catch {
+    return false; // כשל בבדיקה לא אמור לחסום כניסה לגיטימית
+  }
+}
+
 // ── DOM refs ──────────────────────────────────────────────
 const authModal          = document.getElementById('auth-modal');
 const authModalBox       = authModal.querySelector('.yb-auth-modal__box');
@@ -294,6 +310,12 @@ async function handleIdentify() {
     const e164     = rawPhone.startsWith('0') ? '+972' + rawPhone.slice(1) : rawPhone;
     const phone    = adminPhone || e164;
 
+    if (!adminPhone && await nameMismatchExists({ phone: rawPhone, name })) {
+      authLookupError.textContent = 'פרטי הקשר שהוזנו אינם תואמים לפרטים שקיימים אצלנו במערכת.';
+      authLookupError.hidden = false;
+      return;
+    }
+
     authIdentifySubmit.disabled = true;
     try {
       await sendOtp(phone);
@@ -319,6 +341,12 @@ async function handleIdentify() {
     otpHintEl.textContent = `שלחנו קוד אימות ל${contactEl.value.trim()}`;
     showAuthStep('otp');
     otpBoxes[0].focus();
+    return;
+  }
+
+  if (await nameMismatchExists({ email: contact, name })) {
+    authLookupError.textContent = 'פרטי הקשר שהוזנו אינם תואמים לפרטים שקיימים אצלנו במערכת.';
+    authLookupError.hidden = false;
     return;
   }
 
@@ -364,7 +392,14 @@ async function handleOtp() {
       });
       const data = await res.json();
 
-      if (!res.ok || !data.success) { showOtpError('הקוד שגוי. נסה שוב.'); return; }
+      if (!res.ok || !data.success) {
+        if (data.error === 'name_mismatch') {
+          showOtpError('פרטי הקשר שהוזנו אינם תואמים לפרטים שקיימים אצלנו במערכת. חזרו אחורה ותקנו את השם.');
+        } else {
+          showOtpError('הקוד שגוי. נסה שוב.');
+        }
+        return;
+      }
 
       if (data.isAdmin) {
         sessionStorage.setItem('yb-auth-admin', '1');
@@ -392,11 +427,18 @@ async function handleOtp() {
       const res  = await fetch(`${CF_BASE}/verifyOtp`, {
         method:  'POST',
         headers: { 'Content-Type': 'application/json' },
-        body:    JSON.stringify({ email: pendingEmail, code: otp })
+        body:    JSON.stringify({ email: pendingEmail, code: otp, name: pendingCustomer.name })
       });
       const data = await res.json();
 
-      if (!res.ok || !data.success) { showOtpError('הקוד שגוי. נסה שוב.'); return; }
+      if (!res.ok || !data.success) {
+        if (data.error === 'name_mismatch') {
+          showOtpError('פרטי הקשר שהוזנו אינם תואמים לפרטים שקיימים אצלנו במערכת. חזרו אחורה ותקנו את השם.');
+        } else {
+          showOtpError('הקוד שגוי. נסה שוב.');
+        }
+        return;
+      }
 
       sessionStorage.setItem('yb-auth-customer', JSON.stringify({
         name:  pendingCustomer.name,
@@ -509,3 +551,18 @@ if (faqAccountLink) faqAccountLink.addEventListener('click', e => { e.preventDef
 authClose.addEventListener('click', closeAuthModal);
 authOverlay.addEventListener('click', closeAuthModal);
 authModal.addEventListener('keydown', e => { if (e.key === 'Escape') closeAuthModal(); });
+
+// ── לינק "התנתקות" בהדר — מוצג רק כשיש session פעיל של לקוח ──
+// כדי שמשתמש שיצא מהאזור האישי ושכח להתנתק לא יצטרך להיכנס אליו שוב רק בשביל זה
+const headerLogoutLinks = document.querySelectorAll('.js-header-logout');
+if (headerLogoutLinks.length) {
+  if (sessionStorage.getItem('yb-auth-customer')) {
+    headerLogoutLinks.forEach(link => { link.hidden = false; });
+  }
+  headerLogoutLinks.forEach(link => {
+    link.addEventListener('click', () => {
+      sessionStorage.removeItem('yb-auth-customer');
+      headerLogoutLinks.forEach(l => { l.hidden = true; });
+    });
+  });
+}

@@ -37,6 +37,7 @@
         </nav>
         <div class="yb-header__actions">
           <button class="yb-header__mini-button has-ripple" type="button" id="my-area-btn">האזור שלי</button>
+          <button class="yb-header__logout-link js-header-logout" type="button" hidden>התנתקות</button>
           <a class="yb-header__mini-button has-ripple" href="index.html#books">הספרים</a>
           <button class="yb-header__hamburger has-ripple" type="button" aria-label="פתח תפריט ניווט" aria-expanded="false" aria-controls="yb-mobile-nav">
             <span aria-hidden="true"></span>
@@ -53,6 +54,7 @@
             <a href="index.html#author" class="yb-mobile-nav__link has-ripple">על המחבר</a>
             <a href="index.html#faq" class="yb-mobile-nav__link has-ripple">שאלות</a>
             <button type="button" class="yb-mobile-nav__action has-ripple" id="my-area-mobile-btn">האזור שלי</button>
+            <button type="button" class="yb-header__logout-link js-header-logout" hidden>התנתקות</button>
           </nav>
         </div>
       </div>
@@ -731,6 +733,43 @@
     });
 
     /* =========================================================
+       SESSION CONFLICT MODAL
+       שלוש תוצאות אפשריות: continue (התנתקות + המשך רכישה),
+       logout-only (התנתקות בלבד, נשארים בטופס), cancel (לא קורה כלום)
+    ========================================================= */
+
+    const sessionConflictModal      = document.getElementById('session-conflict-modal');
+    const sessionConflictOverlay    = document.getElementById('session-conflict-overlay');
+    const sessionConflictText       = document.getElementById('session-conflict-text');
+    const sessionConflictContinue   = document.getElementById('session-conflict-continue');
+    const sessionConflictLogoutOnly = document.getElementById('session-conflict-logout-only');
+    const sessionConflictClose      = document.getElementById('session-conflict-close');
+
+    function askSessionConflict(name) {
+      return new Promise(resolve => {
+        sessionConflictText.textContent = `הנך מחובר/ת כרגע לאזור האישי בתור ${name}.`;
+        sessionConflictModal.hidden = false;
+
+        function cleanup(result) {
+          sessionConflictModal.hidden = true;
+          sessionConflictContinue.removeEventListener('click', onContinue);
+          sessionConflictLogoutOnly.removeEventListener('click', onLogoutOnly);
+          sessionConflictClose.removeEventListener('click', onCancel);
+          sessionConflictOverlay.removeEventListener('click', onCancel);
+          resolve(result);
+        }
+        function onContinue()   { cleanup('continue'); }
+        function onLogoutOnly() { cleanup('logout-only'); }
+        function onCancel()     { cleanup('cancel'); }
+
+        sessionConflictContinue.addEventListener('click', onContinue);
+        sessionConflictLogoutOnly.addEventListener('click', onLogoutOnly);
+        sessionConflictClose.addEventListener('click', onCancel);
+        sessionConflictOverlay.addEventListener('click', onCancel);
+      });
+    }
+
+    /* =========================================================
        CONTACT ALREADY EXISTS — חיווי בלבד, לא חוסם
     ========================================================= */
 
@@ -754,7 +793,7 @@
         });
         const data = await res.json();
         if (data.exists && !data.matches) {
-          contactExistsNote.textContent = `שימו לב, פרטי הקשר האלו כבר קיימים במערכת תחת השם "${data.existingName}". אם זה אתם, אין צורך לשנות דבר, ההזמנה תירשם יחד עם שאר הרכישות שבוצעו עם פרטי הקשר האלו.`;
+          contactExistsNote.textContent = `שימו לב, פרטי הקשר האלו כבר קיימים במערכת. אם זה אתם, יש להשתמש באותו שם שבו נעשה שימוש בעבר, אחרת הרכישה תיחסם.`;
           contactExistsNote.hidden = false;
         }
       } catch {
@@ -898,11 +937,11 @@
         const samePerson   = (sessionPhone && sessionPhone === formPhone) || (sessionEmail && sessionEmail === formEmail);
 
         if (!samePerson) {
-          const proceed = confirm(
-            `הנך מחובר/ת כרגע לאזור האישי בתור ${activeSession.name}.\nלהתנתק ולהמשיך ברכישה עם הפרטים החדשים?`
-          );
-          if (!proceed) return;
+          const outcome = await askSessionConflict(activeSession.name);
+          if (outcome === 'cancel') return;
           sessionStorage.removeItem('yb-auth-customer');
+          if (outcome === 'logout-only') return;
+          // outcome === 'continue' — ממשיכים ישר לרכישה עם הפרטים החדשים
         }
       }
 
@@ -967,10 +1006,10 @@
 
         if (!confirmRes.ok) {
           const errData = await confirmRes.json().catch(() => ({}));
-          throw Object.assign(new Error('confirm_failed'), {
-            type:   confirmRes.status === 402 ? 'payment_declined' : 'server_error',
-            detail: errData.detail
-          });
+          const type = confirmRes.status === 402 ? 'payment_declined'
+            : errData.error === 'name_mismatch' ? 'name_mismatch'
+            : 'server_error';
+          throw Object.assign(new Error('confirm_failed'), { type, detail: errData.detail });
         }
 
         // הצגת הצלחה רק לאחר חיוב מוצלח
@@ -996,6 +1035,8 @@
           errMsg = msgs[0] || 'שגיאה בפרטי כרטיס האשראי — אנא בדוק ונסה שוב.';
         } else if (err.type === 'payment_declined') {
           errMsg = err.detail ? `התשלום נדחה: ${err.detail}` : 'התשלום נדחה — אנא בדוק את פרטי הכרטיס ונסה שוב.';
+        } else if (err.type === 'name_mismatch') {
+          errMsg = 'פרטי הקשר שהוזנו אינם תואמים לפרטים שקיימים אצלנו במערכת. נא לוודא שהשם זהה לזה ששימש ברכישה קודמת.';
         } else if (err.type === 'server_error') {
           errMsg = 'שגיאה טכנית בעיבוד התשלום — נסה שוב בעוד מספר שניות.';
         } else if (err.message === 'payme_not_ready') {
@@ -1081,6 +1122,19 @@
           </button>
           <button class="yb-auth-back" type="button" id="auth-back">חזרה</button>
         </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="yb-auth-modal" id="session-conflict-modal" role="dialog" aria-modal="true" aria-labelledby="session-conflict-title" hidden>
+    <div class="yb-auth-modal__overlay" id="session-conflict-overlay"></div>
+    <div class="yb-auth-modal__box">
+      <button class="yb-auth-modal__close" id="session-conflict-close" type="button" aria-label="סגור חלון">×</button>
+      <h2 class="yb-auth-modal__title" id="session-conflict-title">שימו לב</h2>
+      <p class="yb-auth-modal__sub" id="session-conflict-text"></p>
+      <div style="display:flex;flex-direction:column;gap:14px;">
+        <button type="button" class="primary-button has-ripple" id="session-conflict-continue">התנתק והמשך ברכישה</button>
+        <button type="button" class="yb-auth-back" id="session-conflict-logout-only">רק התנתקות, ללא המשך רכישה</button>
       </div>
     </div>
   </div>

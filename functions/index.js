@@ -143,6 +143,16 @@ function parseAdminList(raw) {
   }).filter(Boolean);
 }
 
+// בודקים אם השם כבר שימש בעבר עבור אותו טלפון/מייל — לא רק מול הזמנה אחת אקראית,
+// אלא מול כל השמות שאי-פעם נרשמו לאותם פרטי קשר (ייתכנו כמה, בעיקר מבדיקות).
+// מחזיר true = אי-התאמה (חוסמים), false = תקין (לקוח חדש, או שם שכבר שימש בעבר)
+async function nameMismatchesHistory(field, value, name) {
+  const snap = await db.collection('orders').where(field, '==', value).limit(20).get();
+  if (snap.empty) return false;
+  const usedNames = new Set(snap.docs.map(d => (d.data().buyerName || '').trim()));
+  return !usedNames.has((name || '').trim());
+}
+
 exports.verifyOtp = onRequest(
   { secrets: [VONAGE_SECRET, ADMIN_PHONES], cors: ALLOWED_ORIGINS, region: 'europe-west1' },
   async (req, res) => {
@@ -157,6 +167,20 @@ exports.verifyOtp = onRequest(
 
     const adminList  = parseAdminList(ADMIN_PHONES.value());
     const isAdmin    = !!(phone && name && adminList.some(a => a.phone === phone && a.name === name.trim()));
+
+    // חסימת כניסה עם שם שלא תואם ללקוח שכבר קיים תחת הטלפון/מייל הזה
+    // (רק אם יש כבר הזמנה קודמת עם פרטי הקשר האלו — לקוח חדש לגמרי תמיד עובר)
+    if (!isAdmin && name) {
+      const field = phone ? 'buyerPhone' : 'buyerEmail';
+      const value = phone
+        ? phone.replace(/[-\s]/g, '').replace(/^\+972/, '0')
+        : identifier;
+      if (await nameMismatchesHistory(field, value, name)) {
+        res.status(409).json({ error: 'name_mismatch' });
+        return;
+      }
+    }
+
     const adminToken = isAdmin ? makeAdminToken(VONAGE_SECRET.value()) : null;
     res.json({ success: true, isAdmin, adminToken });
   }
@@ -292,6 +316,19 @@ exports.confirmPayment = onRequest(
       // הערה: אין כאן דה-דופ לפי buyerToken בכוונה — ה-buyer_key של PayMe צמוד לכרטיס האשראי
       // ולא ייחודי לכל ניסיון תשלום, אז כרטיס ששימש בעבר עלול לקבל אותו טוקן שוב בעסקה חדשה ולגמרי תקינה.
       // הגנה מפני לחיצה כפולה בטעות כבר קיימת בצד הלקוח (הכפתור ננעל בזמן עיבוד).
+
+      // חסימת רכישה חדשה עם נייד/מייל שכבר קיימים במערכת תחת שם אחר —
+      // נבדק לפני החיוב, כדי שלא לחייב כרטיס על רכישה חסומה
+      const phoneValue = buyerPhone.replace(/[-\s]/g, '').replace(/^\+972/, '0');
+      const emailValue = buyerEmail.toLowerCase().trim();
+      const [phoneMismatch, emailMismatch] = await Promise.all([
+        nameMismatchesHistory('buyerPhone', phoneValue, buyerName),
+        nameMismatchesHistory('buyerEmail', emailValue, buyerName)
+      ]);
+      if (phoneMismatch || emailMismatch) {
+        res.status(409).json({ error: 'name_mismatch' });
+        return;
+      }
 
       // חיוב בפועל דרך PayMe API
       const txId = crypto.randomUUID();
@@ -520,7 +557,7 @@ exports.getCustomerOrders = onRequest(
 
 // ── checkCustomerExists ───────────────────────────────────
 // חיווי בלבד (לא חוסם) — בודק אם טלפון/מייל כבר שימשו לרכישה קודמת תחת שם אחר,
-// כדי להציג הודעה ידידותית בטופס הרכישה. לא מחזיר היסטוריית רכישות, רק את השם הקודם.
+// כדי להציג הודעה ידידותית בטופס הרכישה. לא חושף שם או היסטוריית רכישות, רק true/false.
 exports.checkCustomerExists = onRequest(
   { cors: true, region: 'europe-west1', invoker: 'public' },
   async (req, res) => {
@@ -537,14 +574,14 @@ exports.checkCustomerExists = onRequest(
 
       const snap = await db.collection('orders')
         .where(field, '==', value)
-        .limit(1)
+        .limit(20)
         .get();
 
       if (snap.empty) { res.json({ exists: false }); return; }
 
-      const existingName = snap.docs[0].data().buyerName || '';
-      const matches = !!(name && existingName.trim() === name.trim());
-      res.json({ exists: true, matches, existingName: matches ? null : existingName });
+      const usedNames = new Set(snap.docs.map(d => (d.data().buyerName || '').trim()));
+      const matches = !!(name && usedNames.has(name.trim()));
+      res.json({ exists: true, matches });
     } catch (err) {
       console.error('checkCustomerExists error:', err);
       res.status(500).json({ error: 'internal' });
