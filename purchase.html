@@ -293,23 +293,10 @@
             </div><!-- /card-fields-panel -->
 
             <div id="bit-panel" class="yb-bit-panel" hidden>
-              <div class="yb-bit-panel__main">
-                <div class="yb-bit-qr-box" aria-label="קוד QR לתשלום בביט">
-                  <div class="yb-bit-qr-grid" aria-hidden="true"></div>
-                  <p class="yb-bit-qr-hint">קוד QR יופיע כאן<br>לאחר לחיצה על ״תשלום בביט״</p>
-                </div>
-                <div class="yb-bit-panel__info">
-                  <p class="yb-bit-panel__step"><span aria-hidden="true">1</span> סרקו את קוד ה-QR עם אפליקציית ביט</p>
-                  <p class="yb-bit-panel__step"><span aria-hidden="true">2</span> אשרו את הרכישה בביומטריקה</p>
-                  <p class="yb-bit-panel__step"><span aria-hidden="true">3</span> קבלו אישור רכישה וקישור הורדה</p>
-                </div>
-              </div>
-              <div class="yb-bit-panel__mobile">
-                <button type="button" class="yb-bit-open-btn" id="bit-open-app">
-                  <span class="yb-bit-badge" aria-hidden="true">bit</span>
-                  פתח אפליקציית ביט לתשלום
-                </button>
-                <p class="yb-bit-panel__mobile-note">לאחר אישור התשלום בביט, תחזרו לאתר לאישור הרכישה</p>
+              <div class="yb-bit-panel__info">
+                <p class="yb-bit-panel__step"><span aria-hidden="true">1</span> בלחיצה על כפתור הרכישה תועברו לדף תשלום מאובטח של ביט</p>
+                <p class="yb-bit-panel__step"><span aria-hidden="true">2</span> בנייד תיפתח אפליקציית ביט ישירות, במחשב יוצג קוד QR לסריקה</p>
+                <p class="yb-bit-panel__step"><span aria-hidden="true">3</span> לאחר אישור התשלום תחזרו אוטומטית לאתר לקבלת אישור הרכישה</p>
               </div>
             </div>
 
@@ -431,6 +418,63 @@
     let activePaymentMethod = 'card';
 
     /* =========================================================
+       BIT RETURN — חוזרים מדף התשלום של PayMe אחרי ניסיון תשלום בביט
+    ========================================================= */
+
+    const bitReturnParams = new URLSearchParams(window.location.search);
+    const isBitReturn      = bitReturnParams.get('success') === '1' && !!bitReturnParams.get('orderId');
+
+    function renderSuccessScreen() {
+      document.getElementById('purchase-form').innerHTML = `
+        <div style="text-align:center;padding:60px 24px;">
+          <div style="font-size:3rem;margin-bottom:16px;">✓</div>
+          <h2 style="font-size:1.6rem;margin-bottom:12px;">התשלום התקבל בהצלחה</h2>
+          <p style="color:#4a6a52;margin-bottom:24px;">כדי לגשת לספר ולהוריד אותו — כנס לאזור האישי שלך.</p>
+          <button type="button" onclick="document.getElementById('my-area-btn').click()" class="primary-button has-ripple" style="margin:0 auto;">
+            כניסה לאזור האישי
+          </button>
+        </div>
+      `;
+    }
+
+    function renderVerifyingScreen() {
+      document.getElementById('purchase-form').innerHTML = `
+        <div style="text-align:center;padding:60px 24px;">
+          <h2 style="font-size:1.4rem;margin-bottom:12px;">מוודאים שהתשלום התקבל...</h2>
+          <p style="color:#7a5c40;">רק רגע, זה יכול לקחת כמה שניות.</p>
+        </div>
+      `;
+    }
+
+    function renderPendingScreen() {
+      document.getElementById('purchase-form').innerHTML = `
+        <div style="text-align:center;padding:60px 24px;">
+          <h2 style="font-size:1.4rem;margin-bottom:12px;">התשלום עדיין בעיבוד</h2>
+          <p style="color:#7a5c40;margin-bottom:8px;">זה לוקח קצת יותר זמן מהרגיל.</p>
+          <p style="color:#7a5c40;">ברגע שהתשלום יאושר, יישלח מייל אישור עם כל הפרטים. אפשר גם לבדוק שוב מאוחר יותר באזור האישי.</p>
+        </div>
+      `;
+    }
+
+    async function handleBitReturn() {
+      if (!isBitReturn) return;
+
+      const orderId = bitReturnParams.get('orderId');
+      history.replaceState(null, '', `${window.location.pathname}?book=${bookId}`);
+      renderVerifyingScreen();
+
+      const CF_GET_ORDER = 'https://europe-west1-yonatan-books.cloudfunctions.net/getOrder';
+      for (let attempt = 0; attempt < 15; attempt++) {
+        try {
+          const res = await fetch(`${CF_GET_ORDER}?orderId=${encodeURIComponent(orderId)}`);
+          if (res.ok) { renderSuccessScreen(); return; }
+        } catch { /* ננסה שוב */ }
+        await new Promise(r => setTimeout(r, 2000));
+      }
+      renderPendingScreen();
+    }
+
+    /* =========================================================
        DELIVERY MODE
     ========================================================= */
 
@@ -540,10 +584,6 @@
 
     document.querySelectorAll('.yb-payment-tab').forEach(tab => {
       tab.addEventListener('click', () => applyPaymentMethod(tab.dataset.method));
-    });
-
-    document.getElementById('bit-open-app').addEventListener('click', () => {
-      alert('Demo: פתיחת אפליקציית ביט\n\nבפיתוח אמיתי: deep link לאפליקציית ביט עם פרטי העסקה.');
     });
 
     /* =========================================================
@@ -815,6 +855,7 @@
 
     const PAYME_SELLER_ID = 'MPL17829-84285HUL-2NSYUENC-MTTGTPE2';
     const CF_CONFIRM = 'https://europe-west1-yonatan-books.cloudfunctions.net/confirmPayment';
+    const CF_CREATE_BIT = 'https://europe-west1-yonatan-books.cloudfunctions.net/createBitPayment';
 
     let paymeInstance = null;
 
@@ -849,7 +890,7 @@
       }
     }
 
-    if (typeof PayMe !== 'undefined' && document.getElementById('payme-card-number')) {
+    if (!isBitReturn && typeof PayMe !== 'undefined' && document.getElementById('payme-card-number')) {
       PayMe.create(PAYME_SELLER_ID, { testMode: false, language: 'he' })
         .then(instance => {
           paymeInstance = instance;
@@ -959,16 +1000,29 @@
           ].filter(Boolean).join(', ')
         : billingParts.join(', ') || null;
 
+      const notes = document.getElementById('notes')?.value?.trim() || '';
+
       submitBtn.textContent = 'מעבד...';
       document.querySelector('.yb-purchase-submit__btn').disabled = true;
 
       try {
         if (activePaymentMethod === 'bit') {
-          submitBtn.textContent = 'תשלום בביט';
-          document.querySelector('.yb-purchase-submit__btn').disabled = false;
-          submitError.textContent = 'תשלום ביט יהיה זמין בקרוב — לרכישה, אנא בחר אשראי.';
-          submitError.classList.add('is-visible');
-          return;
+          submitBtn.textContent = 'מעביר לתשלום בביט...';
+          const bitRes = await fetch(CF_CREATE_BIT, {
+            method:  'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ bookId, buyerName, buyerEmail, buyerPhone, deliveryType: mode, address, notes })
+          });
+
+          if (!bitRes.ok) {
+            const errData = await bitRes.json().catch(() => ({}));
+            const type = errData.error === 'name_mismatch' ? 'name_mismatch' : 'server_error';
+            throw Object.assign(new Error('bit_init_failed'), { type });
+          }
+
+          const bitData = await bitRes.json();
+          window.location.href = bitData.saleUrl;
+          return; // עוזבים את הדף לטובת דף התשלום של PayMe
         }
 
         if (!paymeInstance) throw Object.assign(new Error('payme_not_ready'), { type: 'init' });
@@ -989,8 +1043,6 @@
             amount: { currency: 'ILS', value: book.priceValue }
           }
         });
-
-        const notes = document.getElementById('notes')?.value?.trim() || '';
 
         // חיוב ושמירה ב-Firestore — ממתינים לאישור לפני הצגת הצלחה
         submitBtn.textContent = 'מאשר תשלום...';
@@ -1013,16 +1065,7 @@
         }
 
         // הצגת הצלחה רק לאחר חיוב מוצלח
-        document.getElementById('purchase-form').innerHTML = `
-          <div style="text-align:center;padding:60px 24px;">
-            <div style="font-size:3rem;margin-bottom:16px;">✓</div>
-            <h2 style="font-size:1.6rem;margin-bottom:12px;">התשלום התקבל בהצלחה</h2>
-            <p style="color:#4a6a52;margin-bottom:24px;">כדי לגשת לספר ולהוריד אותו — כנס לאזור האישי שלך.</p>
-            <button type="button" onclick="document.getElementById('my-area-btn').click()" class="primary-button has-ripple" style="margin:0 auto;">
-              כניסה לאזור האישי
-            </button>
-          </div>
-        `;
+        renderSuccessScreen();
 
       } catch (err) {
         console.error('Payment error:', err);
@@ -1047,6 +1090,8 @@
         submitError.classList.add('is-visible');
       }
     });
+
+    handleBitReturn();
 
     })(); // end !isSuccess block
   </script>

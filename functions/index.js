@@ -153,6 +153,42 @@ async function nameMismatchesHistory(field, value, name) {
   return !usedNames.has((name || '').trim());
 }
 
+// מייל אישור רכישה — משותף לתשלום בכרטיס (מיידי) ולתשלום בביט (אחרי אישור ה-IPN).
+// לא זורק — כשל בשליחת מייל לא אמור להפיל את התהליך שקרא לפונקציה.
+async function sendPurchaseEmail({ buyerEmail, bookTitle, isDigital, downloadToken }) {
+  try {
+    const transporter = nodemailer.createTransport({
+      service: 'gmail',
+      auth: { user: 'yonatanbrennerbooks@gmail.com', pass: GMAIL_PASS.value() }
+    });
+
+    const accountUrl = `${SITE_URL}/index.html#my-area`;
+
+    const bodyHtml = isDigital
+      ? `<p>ניתן להוריד את הספר עכשיו בקישור החד־פעמי המצורף:</p>
+         <p><a href="${CF_BASE_URL}/downloadBook?token=${downloadToken}" style="color:#3c6020;font-weight:bold;">להורדת הספר</a></p>
+         <p>אפשר גם להוריד את הספר בכל עת מהאזור האישי באתר, עד שלוש הורדות.
+            נכנסים עם השם והטלפון או האימייל שאיתם בוצעה הרכישה, ומאמתים עם קוד חד־פעמי שיישלח אליכם.</p>
+         <p><a href="${accountUrl}" style="color:#3c6020;font-weight:bold;">כניסה לאזור האישי</a></p>`
+      : `<p>הספר יארז ויישלח בדואר תוך עד שבעה ימי עבודה מרגע אישור ההזמנה.</p>
+         <p>אפשר לעקוב בכל שלב אחרי סטטוס המשלוח, החל מ״התקבל״ ועד ״נשלח״, ישירות מהאזור האישי באתר.
+            נכנסים עם השם והטלפון או האימייל שאיתם בוצעה הרכישה, ומאמתים עם קוד חד־פעמי שיישלח אליכם.</p>
+         <p><a href="${accountUrl}" style="color:#3c6020;font-weight:bold;">כניסה לאזור האישי</a></p>`;
+
+    await transporter.sendMail({
+      from:    '"יונתן ספרים" <yonatanbrennerbooks@gmail.com>',
+      to:      buyerEmail,
+      subject: `תודה שרכשת את "${bookTitle}", יונתן ספרים`,
+      html: `<div dir="rtl" style="font-family:Arial,sans-serif;font-size:15px;color:#222;line-height:1.8;">
+               <p>תודה שרכשת את "${bookTitle}"!</p>
+               ${bodyHtml}
+             </div>`
+    });
+  } catch (mailErr) {
+    console.error('sendPurchaseEmail error:', mailErr);
+  }
+}
+
 exports.verifyOtp = onRequest(
   { secrets: [VONAGE_SECRET, ADMIN_PHONES], cors: ALLOWED_ORIGINS, region: 'europe-west1' },
   async (req, res) => {
@@ -187,12 +223,17 @@ exports.verifyOtp = onRequest(
 );
 
 // ── createPayment ─────────────────────────────────────────
-exports.createPayment = onRequest(
+// ── createBitPayment ───────────────────────────────────────
+// תשלום בביט לא נתמך ב-hosted fields (זה כרטיסים בלבד) — במקום זה מפנים
+// את הקונה לדף התשלום המאורח של PayMe עצמה (QR/פתיחת אפליקציה), והיא חוזרת
+// אלינו עם sale_return_url. ה-IPN (paymeIPN) הוא זה שבאמת מסמן "שולם" ושולח מייל,
+// ה-return רק בודק מול getOrder אם זה כבר קרה — כמו בכרטיס, אין הודעת הצלחה לפני אישור אמיתי.
+exports.createBitPayment = onRequest(
   { secrets: [PAYME_KEY], cors: true, region: 'europe-west1', invoker: 'public' },
   async (req, res) => {
     if (req.method !== 'POST') { res.status(405).end(); return; }
 
-    const { bookId, buyerName, buyerEmail, buyerPhone, deliveryType, address } = req.body;
+    const { bookId, buyerName, buyerEmail, buyerPhone, deliveryType, address, notes } = req.body;
 
     if (!bookId || !buyerName || !buyerEmail || !buyerPhone) {
       res.status(400).json({ error: 'missing_fields' }); return;
@@ -202,7 +243,20 @@ exports.createPayment = onRequest(
     const bookTitle = BOOK_TITLES[bookId];
     if (!price) { res.status(400).json({ error: 'invalid_book' }); return; }
 
-    // Create pending order in Firestore
+    // אותה חסימה כמו בתשלום בכרטיס — לא יוצרים הזמנה בכלל אם הנייד/מייל
+    // כבר קיימים במערכת תחת שם אחר
+    const phoneValue = buyerPhone.replace(/[-\s]/g, '').replace(/^\+972/, '0');
+    const emailValue = buyerEmail.toLowerCase().trim();
+    const [phoneMismatch, emailMismatch] = await Promise.all([
+      nameMismatchesHistory('buyerPhone', phoneValue, buyerName),
+      nameMismatchesHistory('buyerEmail', emailValue, buyerName)
+    ]);
+    if (phoneMismatch || emailMismatch) {
+      res.status(409).json({ error: 'name_mismatch' });
+      return;
+    }
+
+    // הזמנה ב"ממתין" — עוד לא שולם, ה-IPN יעדכן ל-paid כשהתשלום באמת יאושר
     const orderRef = await db.collection('orders').add({
       bookId,
       bookTitle,
@@ -211,15 +265,17 @@ exports.createPayment = onRequest(
       buyerPhone,
       deliveryType: deliveryType || 'digital',
       address:      address || null,
+      notes:        notes   || null,
       price,
       currency:     'ILS',
       status:       'pending',
       downloads:    0,
       paymeId:      null,
+      downloadToken: null,
+      downloadTokenUsed: false,
       createdAt:    FieldValue.serverTimestamp()
     });
 
-    // Create PayMe payment session
     try {
       const paymeRes = await fetch(PAYME_URL, {
         method:  'POST',
@@ -230,8 +286,9 @@ exports.createPayment = onRequest(
           currency:               'ILS',
           product_name:           bookTitle,
           transaction_id:         orderRef.id,
+          sale_payment_method:    'bit',
           sale_send_notification: false,
-          sale_return_url:        `${RETURN_URL}&orderId=${orderRef.id}`,
+          sale_return_url:        `${RETURN_URL}&orderId=${orderRef.id}&book=${bookId}`,
           sale_callback_url:      IPN_URL,
           buyer_name:             buyerName,
           buyer_email:            buyerEmail,
@@ -240,30 +297,28 @@ exports.createPayment = onRequest(
       });
 
       const data = await paymeRes.json();
-      console.log('PayMe response:', JSON.stringify(data));
+      console.log('PayMe createBitPayment response:', JSON.stringify(data));
 
-      if (!data.sale_url && !data.url) {
+      if (!data.sale_url) {
         await orderRef.delete();
         res.status(500).json({ error: 'no_sale_url', payme_raw: data });
         return;
       }
 
-      const saleUrl = data.sale_url || data.url;
-      const paymeId = data.payme_sale_id || data.id || orderRef.id;
-      await orderRef.update({ paymeId });
+      await orderRef.update({ paymeId: data.payme_sale_id });
 
-      res.json({ saleUrl, orderId: orderRef.id });
+      res.json({ saleUrl: data.sale_url, orderId: orderRef.id });
     } catch (err) {
-      console.error('PayMe createPayment error:', err, err.cause);
+      console.error('PayMe createBitPayment error:', err, err.cause);
       await orderRef.delete();
-      res.status(500).json({ error: 'payment_init_failed', detail: err.message, cause: String(err.cause) });
+      res.status(500).json({ error: 'payment_init_failed', detail: err.message });
     }
   }
 );
 
 // ── paymeIPN ──────────────────────────────────────────────
 exports.paymeIPN = onRequest(
-  { secrets: [PAYME_KEY], cors: true, region: 'europe-west1', invoker: 'public' },
+  { secrets: [PAYME_KEY, GMAIL_PASS], cors: true, region: 'europe-west1', invoker: 'public' },
   async (req, res) => {
     const { payme_sale_id, sale_status } = req.body;
 
@@ -282,7 +337,25 @@ exports.paymeIPN = onRequest(
         res.status(404).json({ error: 'order_not_found' }); return;
       }
 
-      await snap.docs[0].ref.update({ status: 'paid' });
+      const doc  = snap.docs[0];
+      const data = doc.data();
+
+      // אידמפוטנטיות — אם ה-IPN כבר טופל בעבר (יכול להגיע יותר מפעם אחת), לא שולחים מייל שוב
+      if (data.status === 'paid' || data.status === 'preparing' || data.status === 'shipped') {
+        res.json({ status: 'ok' }); return;
+      }
+
+      const isDigital     = (data.deliveryType || 'digital') === 'digital';
+      const downloadToken = isDigital ? crypto.randomBytes(24).toString('hex') : null;
+
+      await doc.ref.update({ status: 'paid', downloadToken, downloadTokenUsed: false });
+      await sendPurchaseEmail({
+        buyerEmail: data.buyerEmail,
+        bookTitle:  data.bookTitle,
+        isDigital,
+        downloadToken
+      });
+
       res.json({ status: 'ok' });
     } catch (err) {
       console.error('paymeIPN error:', err);
@@ -390,38 +463,7 @@ exports.confirmPayment = onRequest(
         createdAt:    FieldValue.serverTimestamp()
       });
 
-      // מייל אישור רכישה — לא חוסם את התגובה אם השליחה נכשלת
-      try {
-        const transporter = nodemailer.createTransport({
-          service: 'gmail',
-          auth: { user: 'yonatanbrennerbooks@gmail.com', pass: GMAIL_PASS.value() }
-        });
-
-        const accountUrl = `${SITE_URL}/index.html#my-area`;
-
-        const bodyHtml = isDigital
-          ? `<p>ניתן להוריד את הספר עכשיו בקישור החד־פעמי המצורף:</p>
-             <p><a href="${CF_BASE_URL}/downloadBook?token=${downloadToken}" style="color:#3c6020;font-weight:bold;">להורדת הספר</a></p>
-             <p>אפשר גם להוריד את הספר בכל עת מהאזור האישי באתר, עד שלוש הורדות.
-                נכנסים עם השם והטלפון או האימייל שאיתם בוצעה הרכישה, ומאמתים עם קוד חד־פעמי שיישלח אליכם.</p>
-             <p><a href="${accountUrl}" style="color:#3c6020;font-weight:bold;">כניסה לאזור האישי</a></p>`
-          : `<p>הספר יארז ויישלח בדואר תוך עד שבעה ימי עבודה מרגע אישור ההזמנה.</p>
-             <p>אפשר לעקוב בכל שלב אחרי סטטוס המשלוח, החל מ״התקבל״ ועד ״נשלח״, ישירות מהאזור האישי באתר.
-                נכנסים עם השם והטלפון או האימייל שאיתם בוצעה הרכישה, ומאמתים עם קוד חד־פעמי שיישלח אליכם.</p>
-             <p><a href="${accountUrl}" style="color:#3c6020;font-weight:bold;">כניסה לאזור האישי</a></p>`;
-
-        await transporter.sendMail({
-          from:    '"יונתן ספרים" <yonatanbrennerbooks@gmail.com>',
-          to:      buyerEmail,
-          subject: `תודה שרכשת את "${bookTitle}", יונתן ספרים`,
-          html: `<div dir="rtl" style="font-family:Arial,sans-serif;font-size:15px;color:#222;line-height:1.8;">
-                   <p>תודה שרכשת את "${bookTitle}"!</p>
-                   ${bodyHtml}
-                 </div>`
-        });
-      } catch (mailErr) {
-        console.error('confirmPayment email error:', mailErr);
-      }
+      await sendPurchaseEmail({ buyerEmail, bookTitle, isDigital, downloadToken });
 
       res.json({ orderId: orderRef.id });
     } catch (err) {
