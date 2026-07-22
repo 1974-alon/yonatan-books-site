@@ -1380,8 +1380,19 @@
       max-width: 600px;
       max-height: 80vh;
       overflow-y: auto;
-      padding: 40px 44px;
+      overflow-x: hidden;
+      padding: 0 44px 40px;
       box-shadow: 0 20px 60px rgba(15, 34, 24, 0.2);
+    }
+
+    .yb-legal-modal__sticky-bar {
+      position: sticky;
+      top: 0;
+      height: 48px;
+      margin: 0 -44px 8px;
+      padding: 0 44px;
+      background: #fff;
+      z-index: 5;
     }
 
     .yb-legal-modal__close {

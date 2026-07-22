@@ -39,7 +39,9 @@
     <div class="yb-legal-modal" id="legal-modal" hidden role="dialog" aria-modal="true" aria-labelledby="legal-modal-title">
       <div class="yb-legal-modal__overlay" id="legal-modal-overlay"></div>
       <div class="yb-legal-modal__box">
-        <button class="yb-legal-modal__close" id="legal-modal-close" aria-label="סגור">✕</button>
+        <div class="yb-legal-modal__sticky-bar">
+          <button class="yb-legal-modal__close" id="legal-modal-close" aria-label="סגור">✕</button>
+        </div>
         <h2 id="legal-modal-title" class="yb-legal-modal__title"></h2>
         <div id="legal-modal-body" class="yb-legal-modal__body"><p>תוכן זה יעודכן בקרוב.</p></div>
       </div>
