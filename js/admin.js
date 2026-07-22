@@ -147,9 +147,9 @@ function renderPager(totalOrders) {
 
   const pages = Array.from({ length: totalPages }, (_, i) => i + 1);
   pager.innerHTML = `
-    <button class="adm-pager-btn" data-page="${_page - 1}" ${_page === 1 ? 'disabled' : ''}>&#x2039; הקודם</button>
+    <button class="adm-pager-btn" data-page="${_page - 1}" ${_page === 1 ? 'disabled' : ''}>הקודם <span dir="ltr">&#x2039;</span></button>
     ${pages.map(p => `<button class="adm-pager-btn ${p === _page ? 'is-active' : ''}" data-page="${p}">${p}</button>`).join('')}
-    <button class="adm-pager-btn" data-page="${_page + 1}" ${_page === totalPages ? 'disabled' : ''}>הבא &#x203a;</button>
+    <button class="adm-pager-btn" data-page="${_page + 1}" ${_page === totalPages ? 'disabled' : ''}><span dir="ltr">&#x203a;</span> הבא</button>
   `;
 
   pager.querySelectorAll('[data-page]').forEach(btn => {
@@ -435,5 +435,103 @@ function renderTableSkeleton(rows) {
       _page = 1;
       renderTable(_cachedOrders);
     });
+  });
+}());
+
+// ── Content management modal ─────────────────────────────────
+(function () {
+  const btn      = document.getElementById('adm-content-btn');
+  const modal    = document.getElementById('adm-content-modal');
+  const overlay  = document.getElementById('adm-content-overlay');
+  const closeBtn = document.getElementById('adm-content-close');
+  const saveBtn  = document.getElementById('adm-content-save');
+  const savedEl  = document.getElementById('adm-content-saved');
+  if (!btn || !modal) return;
+
+  const FIELD_MAP = {
+    introText:        'adm-content-intro',
+    introSubText:     'adm-content-intro-subtext',
+    book1Title:       'adm-content-book1-title',
+    book1Description: 'adm-content-book1-desc',
+    book2Title:       'adm-content-book2-title',
+    book2Description: 'adm-content-book2-desc',
+    authorBio:        'adm-content-author'
+  };
+
+  // מזהי האלמנטים המקבילים באתר החי — לשליפת התוכן הנוכחי בפועל,
+  // כדי שהטופס יציג תמיד את מה שבאמת מוצג באתר ולא יישאר ריק אם עוד לא נשמרה החלפה
+  const LIVE_ID_MAP = {
+    introText:        'site-intro-text',
+    introSubText:     'site-intro-subtext',
+    book1Title:       'site-book1-title',
+    book1Description: 'site-book1-desc',
+    book2Title:       'site-book2-title',
+    book2Description: 'site-book2-desc',
+    authorBio:        'site-author-bio'
+  };
+
+  async function openContentModal() {
+    modal.hidden = false;
+
+    let saved = {};
+    try {
+      const res  = await fetch(CF_ADMIN_ORDERS.replace('getAdminOrders', 'getSiteContent'));
+      const data = await res.json();
+      saved = data.content || {};
+    } catch (err) {
+      console.error('getSiteContent failed:', err);
+    }
+
+    let live = {};
+    try {
+      const htmlRes  = await fetch('index.html');
+      const htmlText = await htmlRes.text();
+      const liveDoc  = new DOMParser().parseFromString(htmlText, 'text/html');
+      Object.entries(LIVE_ID_MAP).forEach(([key, liveId]) => {
+        const el = liveDoc.getElementById(liveId);
+        if (el) live[key] = el.textContent.trim();
+      });
+    } catch (err) {
+      console.error('Failed to load live site content:', err);
+    }
+
+    Object.entries(FIELD_MAP).forEach(([key, id]) => {
+      const el = document.getElementById(id);
+      if (el) el.value = saved[key] || live[key] || '';
+    });
+  }
+
+  function closeContentModal() {
+    modal.hidden = true;
+  }
+
+  btn.addEventListener('click', openContentModal);
+  closeBtn.addEventListener('click', closeContentModal);
+  overlay.addEventListener('click', closeContentModal);
+
+  saveBtn.addEventListener('click', async () => {
+    const body = {};
+    Object.entries(FIELD_MAP).forEach(([key, id]) => {
+      const el = document.getElementById(id);
+      if (el) body[key] = el.value;
+    });
+
+    saveBtn.disabled = true;
+    try {
+      const res = await fetch(`${CF_ADMIN_ORDERS.replace('getAdminOrders', 'updateSiteContent')}`, {
+        method:  'POST',
+        headers: { 'Content-Type': 'application/json', ...adminAuthHeaders() },
+        body:    JSON.stringify(body)
+      });
+      if (handleAdminAuthFailure(res)) return;
+      if (!res.ok) throw new Error('update_failed');
+      savedEl.textContent = 'נשמר ✓';
+      setTimeout(() => { savedEl.textContent = ''; }, 2500);
+    } catch (err) {
+      console.error('updateSiteContent failed:', err);
+      alert('שמירת התוכן נכשלה — נסה שוב');
+    } finally {
+      saveBtn.disabled = false;
+    }
   });
 }());

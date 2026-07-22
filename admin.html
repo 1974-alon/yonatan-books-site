@@ -19,7 +19,10 @@
       <strong class="adm-header__brand">הספרים של יונתן ברנר</strong>
       <span class="adm-header__label">מערכת ניהול</span>
     </div>
-    <button class="adm-header__logout" id="adm-logout" type="button">יציאה</button>
+    <div class="adm-header__right-group">
+      <button class="adm-header__content-btn" id="adm-content-btn" type="button">ניהול תוכן</button>
+      <button class="adm-header__logout" id="adm-logout" type="button">יציאה</button>
+    </div>
   </header>
 
   <main class="adm-main">
@@ -81,6 +84,66 @@
       <div class="adm-modal__actions">
         <button type="button" class="adm-login__btn adm-modal__btn--danger" id="adm-confirm-ok">אישור מחיקה</button>
         <button type="button" class="adm-login__back" id="adm-confirm-cancel">ביטול</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="adm-modal" id="adm-content-modal" role="dialog" aria-modal="true" aria-labelledby="adm-content-title" hidden>
+    <div class="adm-modal__overlay" id="adm-content-overlay"></div>
+    <div class="adm-modal__box adm-modal__box--large">
+      <div class="adm-modal__sticky-bar">
+        <button class="adm-modal__close" id="adm-content-close" type="button" aria-label="סגור חלון">×</button>
+      </div>
+      <h2 class="adm-modal__title" id="adm-content-title">ניהול תוכן האתר</h2>
+      <p class="adm-modal__text">השדות מוצגים עם התוכן שמופיע כרגע באתר. אפשר לערוך ולשמור, או להשאיר כמות שהוא.</p>
+
+      <div class="adm-content-section">
+        <h3 class="adm-content-section__title">אינטרו</h3>
+        <div class="adm-content-field">
+          <label class="adm-content-field__label" for="adm-content-intro">טקסט ראשי (הציטוט המלא מתחת לתמונת הגיבור)</label>
+          <textarea class="adm-content-field__input" id="adm-content-intro" rows="6"></textarea>
+        </div>
+        <div class="adm-content-field">
+          <label class="adm-content-field__label" for="adm-content-intro-subtext">טקסט משני (שורה אחת קצרה, למשל: מתוך הסיפור...)</label>
+          <input class="adm-content-field__input" type="text" id="adm-content-intro-subtext" maxlength="60">
+        </div>
+      </div>
+
+      <div class="adm-content-section">
+        <h3 class="adm-content-section__title">ספרים</h3>
+
+        <span class="adm-content-section__subtitle">ספר 1</span>
+        <div class="adm-content-field">
+          <label class="adm-content-field__label" for="adm-content-book1-title">כותרת</label>
+          <input class="adm-content-field__input" type="text" id="adm-content-book1-title">
+        </div>
+        <div class="adm-content-field">
+          <label class="adm-content-field__label" for="adm-content-book1-desc">טקסט תיאור</label>
+          <textarea class="adm-content-field__input" id="adm-content-book1-desc" rows="4"></textarea>
+        </div>
+
+        <span class="adm-content-section__subtitle">ספר 2</span>
+        <div class="adm-content-field">
+          <label class="adm-content-field__label" for="adm-content-book2-title">כותרת</label>
+          <input class="adm-content-field__input" type="text" id="adm-content-book2-title">
+        </div>
+        <div class="adm-content-field">
+          <label class="adm-content-field__label" for="adm-content-book2-desc">טקסט תיאור</label>
+          <textarea class="adm-content-field__input" id="adm-content-book2-desc" rows="4"></textarea>
+        </div>
+      </div>
+
+      <div class="adm-content-section">
+        <h3 class="adm-content-section__title">על יונתן</h3>
+        <div class="adm-content-field">
+          <label class="adm-content-field__label" for="adm-content-author">טקסט</label>
+          <textarea class="adm-content-field__input" id="adm-content-author" rows="4"></textarea>
+        </div>
+      </div>
+
+      <div class="adm-modal__actions adm-modal__actions--row">
+        <span class="adm-notes__saved" id="adm-content-saved"></span>
+        <button type="button" class="adm-login__btn" id="adm-content-save">שמור שינויים</button>
       </div>
     </div>
   </div>

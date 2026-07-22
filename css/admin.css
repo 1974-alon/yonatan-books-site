@@ -158,7 +158,9 @@ body {
   align-items: center;
   justify-content: space-between;
   height: 60px;
-  position: relative;
+  position: sticky;
+  top: 0;
+  z-index: 100;
 }
 
 .adm-header__center {
@@ -181,6 +183,12 @@ body {
   opacity: 0.5;
 }
 
+.adm-header__right-group {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
 .adm-header__back {
   color: #eaf1ec;
   font-size: 0.8rem;
@@ -191,6 +199,23 @@ body {
 
 .adm-header__back:hover {
   opacity: 1;
+}
+
+.adm-header__content-btn {
+  background: #eaf1ec;
+  border: 1px solid #eaf1ec;
+  color: #0f2218;
+  font-family: 'Heebo', Arial, sans-serif;
+  font-size: 0.78rem;
+  font-weight: 700;
+  padding: 5px 14px;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: opacity 160ms;
+}
+
+.adm-header__content-btn:hover {
+  opacity: 0.4;
 }
 
 /* ── Layout ──────────────────────────────────────────── */
@@ -269,7 +294,7 @@ body {
 
 /* ── Table head ──────────────────────────────────────── */
 .adm-table thead th {
-  background: #0f2218;
+  background: #2a7a4e;
   color: #eaf1ec;
   font-size: 0.72rem;
   font-weight: 700;
@@ -290,7 +315,7 @@ body {
 }
 
 .adm-th-sort:hover {
-  background: #1a3a28;
+  background: #236443;
 }
 
 .adm-sort-icon {
@@ -716,6 +741,45 @@ body {
   box-shadow: 0 20px 50px rgba(0,0,0,0.25);
 }
 
+.adm-modal__box--large {
+  max-width: 760px;
+  max-height: 88vh;
+  overflow-y: auto;
+  overflow-x: hidden;
+  text-align: right;
+  padding-top: 0;
+}
+
+.adm-modal__sticky-bar {
+  position: sticky;
+  top: 0;
+  height: 40px;
+  margin: 0 -30px 4px;
+  padding: 0 30px;
+  background: #fff;
+  z-index: 5;
+}
+
+.adm-modal__close {
+  position: absolute;
+  top: 8px;
+  inset-inline-start: 14px;
+  background: none;
+  border: none;
+  font-size: 1.3rem;
+  line-height: 1;
+  cursor: pointer;
+  color: #4a6a52;
+  padding: 6px 10px;
+  border-radius: 6px;
+  transition: background 160ms, color 160ms;
+}
+
+.adm-modal__close:hover {
+  background: #eaf1ec;
+  color: #0f2218;
+}
+
 .adm-modal__title {
   margin: 0 0 10px;
   font-size: 1.15rem;
@@ -742,6 +806,77 @@ body {
 
 .adm-modal__btn--danger:hover {
   background: #96281c;
+}
+
+.adm-modal__actions--row {
+  flex-direction: row;
+  align-items: center;
+  justify-content: flex-end;
+  margin-top: 18px;
+}
+
+.adm-modal__actions--row .adm-login__btn {
+  width: auto;
+}
+
+/* ── Content management sections ────────────────────────── */
+.adm-content-section {
+  margin-bottom: 26px;
+  padding-bottom: 22px;
+  border-bottom: 1px solid #eaf1ec;
+}
+
+.adm-content-section:last-of-type {
+  border-bottom: none;
+  padding-bottom: 0;
+  margin-bottom: 0;
+}
+
+.adm-content-section__title {
+  margin: 0 0 16px;
+  font-size: 1.02rem;
+  font-weight: 800;
+  color: #0f2218;
+}
+
+.adm-content-section__subtitle {
+  display: block;
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: #2a7a4e;
+  margin: 4px 0 10px;
+}
+
+/* ── Content management fields ──────────────────────────── */
+.adm-content-field {
+  margin-bottom: 16px;
+  text-align: right;
+}
+
+.adm-content-field__label {
+  display: block;
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: #0f2218;
+  margin-bottom: 6px;
+}
+
+.adm-content-field__input {
+  width: 100%;
+  padding: 10px 12px;
+  border: 1.5px solid #d0ddd2;
+  border-radius: 8px;
+  font-family: 'Heebo', Arial, sans-serif;
+  font-size: 0.86rem;
+  color: #0f2218;
+  resize: vertical;
+  background: #fff;
+  box-sizing: border-box;
+}
+
+.adm-content-field__input:focus {
+  outline: none;
+  border-color: #2a7a4e;
 }
 
 /* ── Pager ───────────────────────────────────────────── */

@@ -5,6 +5,32 @@
        Replace this with component state and services.
     ========================================================= */
 
+    // ── Editable site content (overrides hardcoded defaults) ──
+    (async function () {
+      try {
+        const res  = await fetch('https://europe-west1-yonatan-books.cloudfunctions.net/getSiteContent');
+        const data = await res.json();
+        const c = data.content || {};
+
+        const map = {
+          'site-intro-text':    c.introText,
+          'site-intro-subtext': c.introSubText,
+          'site-book1-title': c.book1Title,
+          'site-book1-desc':  c.book1Description,
+          'site-book2-title': c.book2Title,
+          'site-book2-desc':  c.book2Description,
+          'site-author-bio':  c.authorBio
+        };
+        Object.entries(map).forEach(([id, value]) => {
+          if (!value) return;
+          const el = document.getElementById(id);
+          if (el) el.textContent = value;
+        });
+      } catch (err) {
+        console.error('Failed to load site content:', err);
+      }
+    }());
+
     // ── Parallax Hero ─────────────────────────────────────
     const heroParallaxImg = document.querySelector('.yb-hero__parallax-img');
     if (heroParallaxImg && !window.matchMedia('(prefers-reduced-motion: reduce)').matches) {

@@ -770,6 +770,53 @@ exports.getApprovedReviews = onRequest(
   }
 );
 
+// ── getSiteContent ────────────────────────────────────────
+// תוכן עריך שיונתן משנה ממערכת הניהול (טקסט אינטרו, ספרים, על יונתן).
+// מסמך יחיד — אם שדה ריק/לא קיים, האתר משתמש בטקסט הקבוע שבקוד כברירת מחדל.
+exports.getSiteContent = onRequest(
+  { cors: true, region: 'europe-west1', invoker: 'public' },
+  async (req, res) => {
+    if (req.method !== 'GET') { res.status(405).end(); return; }
+
+    try {
+      const doc = await db.collection('site-content').doc('main').get();
+      res.json({ content: doc.exists ? doc.data() : {} });
+    } catch (err) {
+      console.error('getSiteContent error:', err);
+      res.status(500).json({ error: 'internal' });
+    }
+  }
+);
+
+// ── updateSiteContent ─────────────────────────────────────
+const SITE_CONTENT_FIELDS = [
+  'introText', 'introSubText',
+  'book1Title', 'book1Description',
+  'book2Title', 'book2Description',
+  'authorBio'
+];
+
+exports.updateSiteContent = onRequest(
+  { secrets: [VONAGE_SECRET], cors: true, region: 'europe-west1', invoker: 'public' },
+  async (req, res) => {
+    if (req.method !== 'POST') { res.status(405).end(); return; }
+    if (!requireAdmin(req, res, VONAGE_SECRET.value())) return;
+
+    const update = {};
+    for (const field of SITE_CONTENT_FIELDS) {
+      if (typeof req.body[field] === 'string') update[field] = req.body[field].trim();
+    }
+
+    try {
+      await db.collection('site-content').doc('main').set(update, { merge: true });
+      res.json({ success: true });
+    } catch (err) {
+      console.error('updateSiteContent error:', err);
+      res.status(500).json({ error: 'internal' });
+    }
+  }
+);
+
 // ── updateOrderStatus ─────────────────────────────────────
 const ALLOWED_STATUSES = ['preparing', 'shipped'];
 
