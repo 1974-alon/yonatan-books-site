@@ -526,8 +526,14 @@ exports.getAdminOrders = onRequest(
         .limit(200)
         .get();
 
+      const reviewDocs = snap.docs.length
+        ? await db.getAll(...snap.docs.map(doc => db.collection('reviews').doc(doc.id)))
+        : [];
+      const reviewById = new Map(reviewDocs.filter(d => d.exists).map(d => [d.id, d.data()]));
+
       const orders = snap.docs.map(doc => {
         const d = doc.data();
+        const review = reviewById.get(doc.id);
         return {
           id:              doc.id,
           bookId:          d.bookId,
@@ -543,6 +549,7 @@ exports.getAdminOrders = onRequest(
           status:          d.status,
           downloads:       d.downloads || 0,
           paymeId:         d.paymeId || null,
+          review:          review ? { name: review.name, text: review.text, status: review.status } : null,
           date:            d.createdAt?.toDate?.()?.toISOString() || new Date().toISOString()
         };
       });
@@ -660,6 +667,109 @@ exports.incrementDownload = onRequest(
   }
 );
 
+// ── submitReview ──────────────────────────────────────────
+// ביקורת אחת לכל הזמנה (orderId כמזהה המסמך) — שליחה ראשונה או עריכה חוזרת.
+// כל שמירה (גם עריכה) מאפסת לסטטוס pending — ביקורת שנערכה צריכה אישור מחדש לפני שהיא מתפרסמת שוב.
+exports.submitReview = onRequest(
+  { cors: true, region: 'europe-west1', invoker: 'public' },
+  async (req, res) => {
+    if (req.method !== 'POST') { res.status(405).end(); return; }
+
+    const { orderId, bookId, bookTitle, name, text } = req.body;
+    if (!orderId || !bookId || !bookTitle || !name || !text) {
+      res.status(400).json({ error: 'missing_fields' }); return;
+    }
+
+    try {
+      const ref = db.collection('reviews').doc(orderId);
+      const existing = await ref.get();
+      await ref.set({
+        orderId, bookId, bookTitle,
+        name: name.trim(),
+        text: text.trim(),
+        status: 'pending',
+        createdAt: existing.exists ? existing.data().createdAt : FieldValue.serverTimestamp(),
+        updatedAt: FieldValue.serverTimestamp()
+      });
+      res.json({ success: true });
+    } catch (err) {
+      console.error('submitReview error:', err);
+      res.status(500).json({ error: 'internal' });
+    }
+  }
+);
+
+// ── deleteReview ──────────────────────────────────────────
+exports.deleteReview = onRequest(
+  { cors: true, region: 'europe-west1', invoker: 'public' },
+  async (req, res) => {
+    if (req.method !== 'POST') { res.status(405).end(); return; }
+
+    const { orderId } = req.body;
+    if (!orderId) { res.status(400).json({ error: 'missing_orderId' }); return; }
+
+    try {
+      await db.collection('reviews').doc(orderId).delete();
+      res.json({ success: true });
+    } catch (err) {
+      console.error('deleteReview error:', err);
+      res.status(500).json({ error: 'internal' });
+    }
+  }
+);
+
+// ── getReviewsForOrders ───────────────────────────────────
+// משמש את האזור האישי — מחזיר את הביקורות (בכל סטטוס) של הלקוח על ההזמנות שלו
+exports.getReviewsForOrders = onRequest(
+  { cors: true, region: 'europe-west1', invoker: 'public' },
+  async (req, res) => {
+    if (req.method !== 'POST') { res.status(405).end(); return; }
+
+    const { orderIds } = req.body;
+    if (!Array.isArray(orderIds) || !orderIds.length) {
+      res.json({ reviews: [] }); return;
+    }
+
+    try {
+      const docs = await Promise.all(
+        orderIds.slice(0, 50).map(id => db.collection('reviews').doc(id).get())
+      );
+      const reviews = docs
+        .filter(d => d.exists)
+        .map(d => {
+          const data = d.data();
+          return { orderId: d.id, name: data.name, text: data.text, status: data.status };
+        });
+      res.json({ reviews });
+    } catch (err) {
+      console.error('getReviewsForOrders error:', err);
+      res.status(500).json({ error: 'internal' });
+    }
+  }
+);
+
+// ── getApprovedReviews ────────────────────────────────────
+exports.getApprovedReviews = onRequest(
+  { cors: true, region: 'europe-west1', invoker: 'public' },
+  async (req, res) => {
+    if (req.method !== 'GET') { res.status(405).end(); return; }
+
+    try {
+      const snap = await db.collection('reviews').where('status', '==', 'approved').get();
+      const reviews = snap.docs
+        .sort((a, b) => (b.data().updatedAt?.toMillis?.() || 0) - (a.data().updatedAt?.toMillis?.() || 0))
+        .map(doc => {
+          const d = doc.data();
+          return { orderId: doc.id, bookTitle: d.bookTitle, name: d.name, text: d.text };
+        });
+      res.json({ reviews });
+    } catch (err) {
+      console.error('getApprovedReviews error:', err);
+      res.status(500).json({ error: 'internal' });
+    }
+  }
+);
+
 // ── updateOrderStatus ─────────────────────────────────────
 const ALLOWED_STATUSES = ['preparing', 'shipped'];
 
@@ -710,6 +820,36 @@ exports.updateOrderNotes = onRequest(
       res.json({ success: true });
     } catch (err) {
       console.error('updateOrderNotes error:', err);
+      res.status(500).json({ error: 'internal' });
+    }
+  }
+);
+
+// ── updateReviewStatus ────────────────────────────────────
+// אישור/מחיקה של ביקורת ע"י יונתן. "מחיקה" היא סטטוס rejected (לא מחיקת מסמך) —
+// כך שאם נפתחים שוב פרטי ההזמנה, רואים שהביקורת נמחקה ולא שהיא נעלמה סתם.
+const ALLOWED_REVIEW_STATUSES = ['approved', 'rejected'];
+
+exports.updateReviewStatus = onRequest(
+  { secrets: [VONAGE_SECRET], cors: true, region: 'europe-west1', invoker: 'public' },
+  async (req, res) => {
+    if (req.method !== 'POST') { res.status(405).end(); return; }
+    if (!requireAdmin(req, res, VONAGE_SECRET.value())) return;
+
+    const { orderId, status } = req.body;
+    if (!orderId || !ALLOWED_REVIEW_STATUSES.includes(status)) {
+      res.status(400).json({ error: 'invalid_request' }); return;
+    }
+
+    try {
+      const ref = db.collection('reviews').doc(orderId);
+      const doc = await ref.get();
+      if (!doc.exists) { res.status(404).json({ error: 'not_found' }); return; }
+
+      await ref.update({ status });
+      res.json({ success: true });
+    } catch (err) {
+      console.error('updateReviewStatus error:', err);
       res.status(500).json({ error: 'internal' });
     }
   }

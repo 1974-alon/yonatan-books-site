@@ -64,6 +64,27 @@
 
   </main>
 
+  <div class="adm-modal" id="adm-review-alert-modal" role="dialog" aria-modal="true" aria-labelledby="adm-review-alert-title" hidden>
+    <div class="adm-modal__overlay" id="adm-review-alert-overlay"></div>
+    <div class="adm-modal__box">
+      <h2 class="adm-modal__title" id="adm-review-alert-title">ביקורות ממתינות לאישור</h2>
+      <p class="adm-modal__text" id="adm-review-alert-text"></p>
+      <button type="button" class="adm-login__btn" id="adm-review-alert-close">הבנתי</button>
+    </div>
+  </div>
+
+  <div class="adm-modal" id="adm-confirm-modal" role="dialog" aria-modal="true" aria-labelledby="adm-confirm-title" hidden>
+    <div class="adm-modal__overlay" id="adm-confirm-overlay"></div>
+    <div class="adm-modal__box">
+      <h2 class="adm-modal__title" id="adm-confirm-title">מחיקת ביקורת</h2>
+      <p class="adm-modal__text" id="adm-confirm-text">האם אתה בטוח שהינך מעוניין למחוק ביקורת זו?</p>
+      <div class="adm-modal__actions">
+        <button type="button" class="adm-login__btn adm-modal__btn--danger" id="adm-confirm-ok">אישור מחיקה</button>
+        <button type="button" class="adm-login__back" id="adm-confirm-cancel">ביטול</button>
+      </div>
+    </div>
+  </div>
+
   <script>
     if (!sessionStorage.getItem('yb-auth-admin') || !sessionStorage.getItem('yb-admin-token')) {
       window.location.href = 'index.html';

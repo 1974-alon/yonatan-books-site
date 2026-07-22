@@ -465,6 +465,103 @@ body {
   border-right: 3px solid #2a7a4e;
 }
 
+/* ── Pending review indicator ───────────────────────────── */
+.adm-row--review-pending {
+  background: #fdf0dc;
+  box-shadow: inset 0 0 0 1.5px #c07000;
+}
+
+.adm-row--review-pending:hover {
+  background: #fbe6c6;
+}
+
+.adm-review-flag {
+  color: #c07000;
+  font-size: 0.85rem;
+  margin-left: 5px;
+}
+
+/* ── Review section (order detail) ──────────────────────── */
+.adm-review {
+  padding: 0 20px 16px;
+  border-top: 1px solid #eaf1ec;
+  padding-top: 14px;
+}
+
+.adm-review__body {
+  background: #fff;
+  border: 1.5px solid #e2ebe4;
+  border-radius: 10px;
+  padding: 12px 16px;
+  margin: 8px 0 12px;
+}
+
+.adm-review__text {
+  margin: 0 0 6px;
+  font-size: 0.86rem;
+  color: #0f2218;
+  line-height: 1.6;
+}
+
+.adm-review__by {
+  margin: 0;
+  font-size: 0.76rem;
+  color: #4a6a52;
+  font-weight: 700;
+}
+
+.adm-review__actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 7px;
+}
+
+.adm-btn--approve {
+  padding: 4px 12px;
+  border-width: 1px;
+  border-color: #2a7a4e;
+  color: #2a7a4e;
+  font-size: 0.72rem;
+  font-weight: 600;
+  background: none;
+}
+
+.adm-btn--approve:hover {
+  background: #2a7a4e;
+  color: #fff;
+}
+
+.adm-btn--reject {
+  padding: 4px 12px;
+  border-width: 1px;
+  border-color: #c07000;
+  color: #c07000;
+  font-size: 0.72rem;
+  font-weight: 600;
+  background: none;
+}
+
+.adm-btn--reject:hover {
+  background: #c07000;
+  color: #fff;
+}
+
+.adm-review__badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 0.78rem;
+  font-weight: 700;
+}
+
+.adm-review__badge--approved { color: #2a7a4e; }
+.adm-review__badge--rejected { color: #999; font-weight: 600; }
+
+.adm-review__body--rejected {
+  opacity: 0.55;
+}
+
 /* ── Detail row ──────────────────────────────────────── */
 .adm-detail-td {
   padding: 0 !important;
@@ -588,6 +685,64 @@ body {
 }
 
 .adm-email-link:hover { text-decoration: underline; }
+
+/* ── Modal (confirmations / alerts) ─────────────────────── */
+.adm-modal[hidden] { display: none; }
+
+.adm-modal {
+  position: fixed;
+  inset: 0;
+  z-index: 200;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.adm-modal__overlay {
+  position: absolute;
+  inset: 0;
+  background: rgba(15, 34, 24, 0.55);
+}
+
+.adm-modal__box {
+  position: relative;
+  background: #fff;
+  border-radius: 16px;
+  padding: 32px 30px;
+  width: 100%;
+  max-width: 380px;
+  margin: 20px;
+  text-align: center;
+  box-shadow: 0 20px 50px rgba(0,0,0,0.25);
+}
+
+.adm-modal__title {
+  margin: 0 0 10px;
+  font-size: 1.15rem;
+  font-weight: 800;
+  color: #0f2218;
+}
+
+.adm-modal__text {
+  margin: 0 0 22px;
+  font-size: 0.88rem;
+  color: #4a6a52;
+  line-height: 1.6;
+}
+
+.adm-modal__actions {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.adm-modal__btn--danger {
+  background: #c0392b;
+}
+
+.adm-modal__btn--danger:hover {
+  background: #96281c;
+}
 
 /* ── Pager ───────────────────────────────────────────── */
 

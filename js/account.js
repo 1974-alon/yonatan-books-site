@@ -15,6 +15,37 @@
   const list = document.getElementById('purchases-list');
   list.innerHTML = renderPurchaseSkeleton(2);
 
+  let reviewsByOrder = {};
+
+  // ── Custom confirm modal (no native confirm()) ────────────
+  const reviewDeleteModal   = document.getElementById('review-delete-modal');
+  const reviewDeleteOverlay = document.getElementById('review-delete-overlay');
+  const reviewDeleteConfirm = document.getElementById('review-delete-confirm');
+  const reviewDeleteCancel  = document.getElementById('review-delete-cancel');
+  const reviewDeleteClose   = document.getElementById('review-delete-close');
+
+  function askConfirmDeleteReview() {
+    return new Promise(resolve => {
+      reviewDeleteModal.hidden = false;
+
+      function cleanup(result) {
+        reviewDeleteModal.hidden = true;
+        reviewDeleteConfirm.removeEventListener('click', onConfirm);
+        reviewDeleteCancel.removeEventListener('click', onCancel);
+        reviewDeleteClose.removeEventListener('click', onCancel);
+        reviewDeleteOverlay.removeEventListener('click', onCancel);
+        resolve(result);
+      }
+      function onConfirm() { cleanup(true); }
+      function onCancel()  { cleanup(false); }
+
+      reviewDeleteConfirm.addEventListener('click', onConfirm);
+      reviewDeleteCancel.addEventListener('click', onCancel);
+      reviewDeleteClose.addEventListener('click', onCancel);
+      reviewDeleteOverlay.addEventListener('click', onCancel);
+    });
+  }
+
   // ── Fetch real orders from Firestore ─────────────────────
   fetch(`${CF_BASE}/getCustomerOrders`, {
     method:  'POST',
@@ -26,12 +57,23 @@
     )
   })
     .then(r => r.json())
-    .then(data => {
+    .then(async data => {
       const orders = data.orders || [];
       if (orders.length === 0) {
         list.innerHTML = '<p class="yb-account__no-purchases yb-fade-in">לא נמצאו רכישות בחשבון זה.</p>';
         return;
       }
+
+      try {
+        const reviewsRes  = await fetch(`${CF_BASE}/getReviewsForOrders`, {
+          method:  'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body:    JSON.stringify({ orderIds: orders.map(o => o.id) })
+        });
+        const reviewsData = await reviewsRes.json();
+        reviewsByOrder = Object.fromEntries((reviewsData.reviews || []).map(r => [r.orderId, r]));
+      } catch { reviewsByOrder = {}; }
+
       list.innerHTML = orders.map(renderPurchaseCard).join('');
       setupReviewForms(orders);
       setupDownloadButtons();
@@ -73,11 +115,15 @@
       day: 'numeric', month: 'long', year: 'numeric'
     });
 
-    const storedReviews  = JSON.parse(localStorage.getItem('yb-reviews') || '[]');
-    const existingReview = storedReviews.find(r => r.orderId === p.id);
+    const existingReview = reviewsByOrder[p.id];
     const reviewed       = !!existingReview;
     const savedName      = reviewed ? existingReview.name : formatReviewName(customer.name);
     const savedText      = reviewed ? existingReview.text : '';
+    const reviewStatusText = !existingReview ? '' : existingReview.status === 'approved'
+      ? '✓ הביקורת מאושרת ומוצגת באתר'
+      : existingReview.status === 'rejected'
+      ? 'הביקורת לא אושרה לפרסום. ניתן לערוך ולשלוח מחדש.'
+      : '✓ הביקורת נקלטה במערכת וממתינה לאישור יונתן';
 
     const MAX_DL    = 3;
     const dlCount   = p.downloads || 0;
@@ -156,9 +202,11 @@
                   id="review-submit-${p.id}" ${reviewed ? 'hidden' : ''}>שלח ביקורת</button>
               </div>
               <div class="yb-account__review-status" id="review-status-${p.id}" ${reviewed ? '' : 'hidden'}>
-                <p class="yb-account__review-sent">✓ הביקורת נקלטה במערכת ותתפרסם בהקדם</p>
+                <p class="yb-account__review-sent${existingReview && existingReview.status === 'rejected' ? ' yb-account__review-sent--rejected' : ''}" id="review-sent-text-${p.id}">${reviewStatusText}</p>
                 <button type="button" class="yb-account__review-edit has-ripple"
                   id="review-edit-${p.id}">ערוך</button>
+                <button type="button" class="yb-account__review-delete has-ripple"
+                  id="review-delete-${p.id}">מחק ביקורת</button>
               </div>
             </form>
           </div>
@@ -175,6 +223,8 @@
       const submitBtn = document.getElementById(`review-submit-${p.id}`);
       const statusBar = document.getElementById(`review-status-${p.id}`);
       const editBtn   = document.getElementById(`review-edit-${p.id}`);
+      const deleteBtn = document.getElementById(`review-delete-${p.id}`);
+      const sentText  = document.getElementById(`review-sent-text-${p.id}`);
       if (!form) return;
 
       const textEl  = form.querySelector('.yb-account__review-text');
@@ -208,7 +258,7 @@
         textEl.focus();
       });
 
-      form.addEventListener('submit', e => {
+      form.addEventListener('submit', async e => {
         e.preventDefault();
         const text = textEl.value.trim();
         errorEl.textContent = '';
@@ -219,25 +269,68 @@
           textEl.focus();
           return;
         }
-        const reviews = JSON.parse(localStorage.getItem('yb-reviews') || '[]');
-        const idx = reviews.findIndex(r => r.orderId === p.id);
-        const entry = {
-          orderId: p.id, bookId: p.bookId || p.id,
-          bookTitle: p.bookTitle,
-          name: nameEl.value.trim() || customer.name,
-          text, date: new Date().toISOString()
-        };
-        if (idx >= 0) reviews[idx] = entry; else reviews.push(entry);
-        localStorage.setItem('yb-reviews', JSON.stringify(reviews));
-        [nameEl, textEl].forEach(el => { el.disabled = true; });
-        submitBtn.hidden = true;
-        if (toggleBtn) toggleBtn.hidden = true;
-        statusBar.style.opacity = '0';
-        statusBar.hidden = false;
-        void statusBar.offsetWidth;
-        statusBar.style.transition = 'opacity 220ms';
-        statusBar.style.opacity = '1';
+
+        const name = nameEl.value.trim() || customer.name;
+        submitBtn.disabled = true;
+        try {
+          const res = await fetch(`${CF_BASE}/submitReview`, {
+            method:  'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body:    JSON.stringify({ orderId: p.id, bookId: p.bookId || p.id, bookTitle: p.bookTitle, name, text })
+          });
+          if (!res.ok) throw new Error('submit_failed');
+
+          reviewsByOrder[p.id] = { orderId: p.id, name, text, status: 'pending' };
+          sentText.textContent = '✓ הביקורת נקלטה במערכת וממתינה לאישור יונתן';
+          sentText.classList.remove('yb-account__review-sent--rejected');
+          [nameEl, textEl].forEach(el => { el.disabled = true; });
+          submitBtn.hidden = true;
+          if (toggleBtn) toggleBtn.hidden = true;
+          statusBar.style.opacity = '0';
+          statusBar.hidden = false;
+          void statusBar.offsetWidth;
+          statusBar.style.transition = 'opacity 220ms';
+          statusBar.style.opacity = '1';
+        } catch (err) {
+          console.error('submitReview failed:', err);
+          alert('שליחת הביקורת נכשלה — נסה שוב');
+        } finally {
+          submitBtn.disabled = false;
+        }
       });
+
+      if (deleteBtn) {
+        deleteBtn.addEventListener('click', async () => {
+          if (!(await askConfirmDeleteReview())) return;
+          deleteBtn.disabled = true;
+          try {
+            const res = await fetch(`${CF_BASE}/deleteReview`, {
+              method:  'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body:    JSON.stringify({ orderId: p.id })
+            });
+            if (!res.ok) throw new Error('delete_failed');
+
+            delete reviewsByOrder[p.id];
+            statusBar.hidden = true;
+            nameEl.value = formatReviewName(customer.name);
+            textEl.value = '';
+            [nameEl, textEl].forEach(el => { el.disabled = false; });
+            submitBtn.hidden = false;
+            form.hidden = true;
+            if (toggleBtn) {
+              toggleBtn.hidden = false;
+              toggleBtn.textContent = 'כתוב ביקורת';
+              toggleBtn.classList.remove('is-open');
+            }
+          } catch (err) {
+            console.error('deleteReview failed:', err);
+            alert('מחיקת הביקורת נכשלה — נסה שוב');
+          } finally {
+            deleteBtn.disabled = false;
+          }
+        });
+      }
     });
   }
 

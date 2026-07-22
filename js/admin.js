@@ -26,6 +26,48 @@ function handleAdminAuthFailure(res) {
   return false;
 }
 
+// ── Custom confirm modal (no native confirm()) ──────────────
+function askAdminConfirm() {
+  const modal   = document.getElementById('adm-confirm-modal');
+  const overlay = document.getElementById('adm-confirm-overlay');
+  const okBtn   = document.getElementById('adm-confirm-ok');
+  const cancelBtn = document.getElementById('adm-confirm-cancel');
+
+  return new Promise(resolve => {
+    modal.hidden = false;
+
+    function cleanup(result) {
+      modal.hidden = true;
+      okBtn.removeEventListener('click', onOk);
+      cancelBtn.removeEventListener('click', onCancel);
+      overlay.removeEventListener('click', onCancel);
+      resolve(result);
+    }
+    function onOk()     { cleanup(true); }
+    function onCancel() { cleanup(false); }
+
+    okBtn.addEventListener('click', onOk);
+    cancelBtn.addEventListener('click', onCancel);
+    overlay.addEventListener('click', onCancel);
+  });
+}
+
+function showPendingReviewsAlert(count) {
+  const modal   = document.getElementById('adm-review-alert-modal');
+  const overlay = document.getElementById('adm-review-alert-overlay');
+  const closeBtn = document.getElementById('adm-review-alert-close');
+  const text    = document.getElementById('adm-review-alert-text');
+
+  text.textContent = count === 1
+    ? 'ממתינה לך ביקורת אחת לאישור. פתח את פרטי ההזמנה המסומנת בכתום כדי לאשר או למחוק אותה.'
+    : `ממתינות לך ${count} ביקורות לאישור. פתח את פרטי ההזמנות המסומנות בכתום כדי לאשר או למחוק אותן.`;
+  modal.hidden = false;
+
+  function close() { modal.hidden = true; }
+  closeBtn.addEventListener('click', close, { once: true });
+  overlay.addEventListener('click', close, { once: true });
+}
+
 async function fetchOrders() {
   const res = await fetch(CF_ADMIN_ORDERS, { headers: adminAuthHeaders() });
   if (handleAdminAuthFailure(res)) return [];
@@ -120,6 +162,32 @@ function renderPager(totalOrders) {
   });
 }
 
+function renderReviewSection(o) {
+  const r = o.review;
+  let statusBlock = '';
+  if (r.status === 'pending') {
+    statusBlock = `
+      <div class="adm-review__actions">
+        <button class="adm-btn adm-btn--approve" data-id="${o.id}" data-action="approve-review">אשר</button>
+        <button class="adm-btn adm-btn--reject" data-id="${o.id}" data-action="reject-review">מחק</button>
+      </div>`;
+  } else if (r.status === 'approved') {
+    statusBlock = '<span class="adm-review__badge adm-review__badge--approved">✓ מאושרת ומוצגת באתר</span>';
+  } else {
+    statusBlock = '<span class="adm-review__badge adm-review__badge--rejected">הביקורת נמחקה</span>';
+  }
+
+  return `
+    <div class="adm-review">
+      <span class="adm-detail__label">ביקורת לקוח</span>
+      <div class="adm-review__body${r.status === 'rejected' ? ' adm-review__body--rejected' : ''}">
+        <p class="adm-review__text">"${r.text}"</p>
+        <p class="adm-review__by">— ${r.name}</p>
+      </div>
+      ${statusBlock}
+    </div>`;
+}
+
 function renderTable(orders) {
   const tbody  = document.getElementById('adm-tbody');
   const sorted = getSortedOrders();
@@ -150,9 +218,11 @@ function renderTable(orders) {
       actionBtn = `<button class="adm-btn adm-btn--prepare" data-id="${o.id}" data-action="prepare">התחל הכנה למשלוח</button>`;
     }
 
+    const pendingReview = o.review && o.review.status === 'pending';
+
     return `
-      <tr class="adm-row" data-id="${o.id}" tabindex="0" role="button" aria-expanded="false">
-        <td>${o.adminNotes ? '<span class="adm-note-flag" title="קיימת הערת אדמין להזמנה זו">★</span>' : ''}<span class="adm-order-id">#${orderNum}</span></td>
+      <tr class="adm-row${pendingReview ? ' adm-row--review-pending' : ''}" data-id="${o.id}" tabindex="0" role="button" aria-expanded="false">
+        <td>${o.adminNotes ? '<span class="adm-note-flag" title="קיימת הערת אדמין להזמנה זו">★</span>' : ''}${pendingReview ? '<span class="adm-review-flag" title="ביקורת ממתינה לאישור">★</span>' : ''}<span class="adm-order-id">#${orderNum}</span></td>
         <td>${o.name}</td>
         <td>${formatDate(o.date)}</td>
         <td><strong>${o.bookTitle}</strong></td>
@@ -197,6 +267,7 @@ function renderTable(orders) {
                 <button class="adm-btn adm-btn--notes" data-id="${o.id}" data-action="save-notes">שמור הערה</button>
               </div>
             </div>
+            ${o.review ? renderReviewSection(o) : ''}
           </div>
         </td>
       </tr>`;
@@ -261,6 +332,29 @@ function renderTable(orders) {
         }
       }
 
+      if (btn.dataset.action === 'approve-review' || btn.dataset.action === 'reject-review') {
+        const newStatus = btn.dataset.action === 'approve-review' ? 'approved' : 'rejected';
+        if (newStatus === 'rejected' && !(await askAdminConfirm())) return;
+
+        btn.disabled = true;
+        try {
+          const res = await fetch(`${CF_ADMIN_ORDERS.replace('getAdminOrders', 'updateReviewStatus')}`, {
+            method:  'POST',
+            headers: { 'Content-Type': 'application/json', ...adminAuthHeaders() },
+            body:    JSON.stringify({ orderId: order.id, status: newStatus })
+          });
+          if (handleAdminAuthFailure(res)) return;
+          if (!res.ok) throw new Error('update_failed');
+          order.review.status = newStatus;
+          saveOrders(orders);
+          renderTable(orders);
+        } catch (err) {
+          console.error('updateReviewStatus failed:', err);
+          btn.disabled = false;
+          alert('העדכון נכשל — נסה שוב');
+        }
+      }
+
       if (btn.dataset.action === 'prepare' || btn.dataset.action === 'ship') {
         const newStatus = btn.dataset.action === 'prepare' ? 'preparing' : 'shipped';
         btn.disabled = true;
@@ -321,6 +415,9 @@ function renderTableSkeleton(rows) {
     renderSummary(orders);
     renderTable(orders);
     if (tbody) tbody.classList.add('yb-fade-in');
+
+    const pendingCount = orders.filter(o => o.review && o.review.status === 'pending').length;
+    if (pendingCount > 0) showPendingReviewsAlert(pendingCount);
   } catch (err) {
     console.error('Failed to load orders:', err);
     if (tbody) tbody.innerHTML = '<tr><td colspan="9" style="text-align:center;padding:32px;color:#c0392b;">שגיאה בטעינת ההזמנות</td></tr>';

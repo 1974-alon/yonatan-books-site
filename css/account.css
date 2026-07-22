@@ -376,6 +376,10 @@
   color: var(--color-accent);
 }
 
+.yb-account__review-sent--rejected {
+  color: #a15c00;
+}
+
 .yb-account__review-edit {
   flex-shrink: 0;
   font-family: var(--font-main);

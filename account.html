@@ -99,6 +99,19 @@
     <div id="yb-footer-root"></div>
   </div>
 
+  <div class="yb-auth-modal" id="review-delete-modal" role="dialog" aria-modal="true" aria-labelledby="review-delete-title" hidden>
+    <div class="yb-auth-modal__overlay" id="review-delete-overlay"></div>
+    <div class="yb-auth-modal__box">
+      <button class="yb-auth-modal__close" id="review-delete-close" type="button" aria-label="סגור חלון">×</button>
+      <h2 class="yb-auth-modal__title" id="review-delete-title">מחיקת ביקורת</h2>
+      <p class="yb-auth-modal__sub">האם אתה בטוח שברצונך למחוק את הביקורת? לא ניתן לשחזר אותה.</p>
+      <div style="display:flex;flex-direction:column;gap:14px;">
+        <button type="button" class="primary-button has-ripple" id="review-delete-confirm">מחק ביקורת</button>
+        <button type="button" class="yb-auth-back" id="review-delete-cancel">ביטול</button>
+      </div>
+    </div>
+  </div>
+
   <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-storage-compat.js"></script>
   <script src="js/firebase.js"></script>

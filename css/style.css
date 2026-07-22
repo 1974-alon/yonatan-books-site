@@ -1419,6 +1419,26 @@
       line-height: 1.8;
     }
 
+    .yb-legal-modal__body h3 {
+      margin: 22px 0 8px;
+      font-size: 1rem;
+      font-weight: 800;
+      color: var(--color-ink);
+    }
+
+    .yb-legal-modal__body h3:first-child {
+      margin-top: 0;
+    }
+
+    .yb-legal-modal__body ul {
+      margin: 0;
+      padding-inline-start: 22px;
+    }
+
+    .yb-legal-modal__body li {
+      margin-bottom: 6px;
+    }
+
     /* =========================================================
        RESPONSIVE
     ========================================================= */
