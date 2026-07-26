@@ -1,5 +1,17 @@
 {
   "functions": {
     "source": "functions"
+  },
+  "hosting": {
+    "public": ".",
+    "ignore": [
+      "firebase.json",
+      "**/.*",
+      ".vscode/**",
+      "**/node_modules/**",
+      "functions/**",
+      "js/admin-config.js",
+      "js/admin-auth.js"
+    ]
   }
 }
