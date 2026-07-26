@@ -18,6 +18,10 @@ const VONAGE_KEY    = '4de40fa9';
 
 const ALLOWED_ORIGINS = [
   'https://1974-alon.github.io',
+  'https://yonatanbooks.com',
+  'https://www.yonatanbooks.com',
+  'https://yonatan-books.web.app',
+  'https://yonatan-books.firebaseapp.com',
   'http://127.0.0.1:5502',
   'http://localhost:5502'
 ];
@@ -31,7 +35,7 @@ const RETURN_URL     = 'https://1974-alon.github.io/yonatan-books-site/purchase.
 const IPN_URL        = 'https://europe-west1-yonatan-books.cloudfunctions.net/paymeIPN';
 const CF_BASE_URL    = 'https://europe-west1-yonatan-books.cloudfunctions.net';
 
-const BOOK_PRICES = { 'book-01': 10, 'book-02': 10 };
+const BOOK_PRICES = { 'book-01': 65, 'book-02': 50 };
 const BOOK_TITLES = { 'book-01': 'דמיון לנחמה', 'book-02': 'דרום מערב' };
 // שמות הקבצים הפוכים בכוונה — תואם למיפוי הקיים ב-js/account.js
 const STORAGE_PATHS = { 'book-01': 'books/book02.pdf', 'book-02': 'books/book01.pdf' };
