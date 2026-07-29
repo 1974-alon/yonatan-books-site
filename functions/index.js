@@ -36,7 +36,22 @@ const IPN_URL        = 'https://europe-west1-yonatan-books.cloudfunctions.net/pa
 const CF_BASE_URL    = 'https://europe-west1-yonatan-books.cloudfunctions.net';
 
 const BOOK_PRICES = { 'book-01': 65, 'book-02': 50 };
+const SHIPPING_PRICE = 22;
 const BOOK_TITLES = { 'book-01': 'דמיון לנחמה', 'book-02': 'דרום מערב' };
+
+// מחירים ניתנים לעריכה ממערכת הניהול (site-content/main) — הפונקציה הזו
+// היא מקור האמת היחיד לחיוב בפועל, כדי שמה שנגבה תמיד יתאים למה שהוגדר בניהול
+async function getCurrentPricing() {
+  const doc  = await db.collection('site-content').doc('main').get();
+  const data = doc.exists ? doc.data() : {};
+  return {
+    bookPrices: {
+      'book-01': Number.isFinite(data.book1Price) ? data.book1Price : BOOK_PRICES['book-01'],
+      'book-02': Number.isFinite(data.book2Price) ? data.book2Price : BOOK_PRICES['book-02']
+    },
+    shippingPrice: Number.isFinite(data.shippingPrice) ? data.shippingPrice : SHIPPING_PRICE
+  };
+}
 // שמות הקבצים הפוכים בכוונה — תואם למיפוי הקיים ב-js/account.js
 const STORAGE_PATHS = { 'book-01': 'books/book02.pdf', 'book-02': 'books/book01.pdf' };
 const SITE_URL = 'https://1974-alon.github.io/yonatan-books-site';
@@ -243,9 +258,13 @@ exports.createBitPayment = onRequest(
       res.status(400).json({ error: 'missing_fields' }); return;
     }
 
-    const price     = BOOK_PRICES[bookId];
     const bookTitle = BOOK_TITLES[bookId];
-    if (!price) { res.status(400).json({ error: 'invalid_book' }); return; }
+    if (!bookTitle) { res.status(400).json({ error: 'invalid_book' }); return; }
+
+    const { bookPrices, shippingPrice: currentShippingPrice } = await getCurrentPricing();
+    const bookPrice     = bookPrices[bookId];
+    const shippingPrice = (deliveryType || 'digital') === 'physical' ? currentShippingPrice : 0;
+    const price = bookPrice + shippingPrice;
 
     // אותה חסימה כמו בתשלום בכרטיס — לא יוצרים הזמנה בכלל אם הנייד/מייל
     // כבר קיימים במערכת תחת שם אחר
@@ -271,6 +290,7 @@ exports.createBitPayment = onRequest(
       address:      address || null,
       notes:        notes   || null,
       price,
+      shippingPrice,
       currency:     'ILS',
       status:       'pending',
       downloads:    0,
@@ -385,9 +405,13 @@ exports.confirmPayment = onRequest(
       res.status(400).json({ error: 'invalid_token' }); return;
     }
 
-    const price     = BOOK_PRICES[bookId];
     const bookTitle = BOOK_TITLES[bookId];
-    if (!price) { res.status(400).json({ error: 'invalid_book' }); return; }
+    if (!bookTitle) { res.status(400).json({ error: 'invalid_book' }); return; }
+
+    const { bookPrices, shippingPrice: currentShippingPrice } = await getCurrentPricing();
+    const bookPrice     = bookPrices[bookId];
+    const shippingPrice = (deliveryType || 'digital') === 'physical' ? currentShippingPrice : 0;
+    const price = bookPrice + shippingPrice;
 
     try {
       // הערה: אין כאן דה-דופ לפי buyerToken בכוונה — ה-buyer_key של PayMe צמוד לכרטיס האשראי
@@ -457,6 +481,7 @@ exports.confirmPayment = onRequest(
         address:      address || null,
         notes:        notes   || null,
         price,
+        shippingPrice,
         currency:     'ILS',
         status:       'paid',
         downloads:    0,
@@ -550,6 +575,7 @@ exports.getAdminOrders = onRequest(
           notes:           d.notes  || null,
           adminNotes:      d.adminNotes || '',
           price:           d.price,
+          shippingPrice:   d.shippingPrice || 0,
           status:          d.status,
           downloads:       d.downloads || 0,
           paymeId:         d.paymeId || null,
@@ -597,6 +623,8 @@ exports.getCustomerOrders = onRequest(
           type:      d.deliveryType || 'digital',
           status:    d.status,
           downloads: d.downloads || 0,
+          price:         d.price,
+          shippingPrice: d.shippingPrice || 0,
           date:      d.createdAt?.toDate?.()?.toISOString() || new Date().toISOString()
         };
       });
@@ -800,6 +828,8 @@ const SITE_CONTENT_FIELDS = [
   'authorBio'
 ];
 
+const SITE_CONTENT_PRICE_FIELDS = ['book1Price', 'book2Price', 'shippingPrice'];
+
 exports.updateSiteContent = onRequest(
   { secrets: [VONAGE_SECRET], cors: true, region: 'europe-west1', invoker: 'public' },
   async (req, res) => {
@@ -809,6 +839,10 @@ exports.updateSiteContent = onRequest(
     const update = {};
     for (const field of SITE_CONTENT_FIELDS) {
       if (typeof req.body[field] === 'string') update[field] = req.body[field].trim();
+    }
+    for (const field of SITE_CONTENT_PRICE_FIELDS) {
+      const val = Number(req.body[field]);
+      if (Number.isFinite(val) && val > 0 && val < 10000) update[field] = val;
     }
 
     try {

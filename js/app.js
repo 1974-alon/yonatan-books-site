@@ -26,6 +26,15 @@
           const el = document.getElementById(id);
           if (el) el.textContent = value;
         });
+
+        const priceMap = { 'site-book1-price': c.book1Price, 'site-book2-price': c.book2Price };
+        Object.entries(priceMap).forEach(([id, value]) => {
+          if (!value) return;
+          const el = document.getElementById(id);
+          if (!el) return;
+          el.textContent = `₪${value}`;
+          el.setAttribute('aria-label', `מחיר: ${value} שקלים`);
+        });
       } catch (err) {
         console.error('Failed to load site content:', err);
       }

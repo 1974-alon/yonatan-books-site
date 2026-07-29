@@ -4,10 +4,9 @@
 ========================================================= */
 
 (function () {
-  const raw = sessionStorage.getItem('yb-auth-customer');
-  if (!raw) { window.location.href = 'index.html'; return; }
+  const customer = getCustomerSession();
+  if (!customer) { window.location.href = 'index.html'; return; }
 
-  const customer = JSON.parse(raw);
   const CF_BASE  = 'https://europe-west1-yonatan-books.cloudfunctions.net';
 
   document.getElementById('account-name').textContent = customer.name;
@@ -143,6 +142,7 @@
             </span>
             ${!isDigital ? `<span class="yb-account__status-badge yb-account__status-badge--${physicalStatus.cls}">${physicalStatus.text}</span>` : ''}
             <span class="yb-account__purchase-detail">${formattedDate}</span>
+            ${p.price ? `<span class="yb-account__purchase-detail">₪${p.price}${!isDigital && p.shippingPrice ? ` (כולל ₪${p.shippingPrice} משלוח)` : ''}</span>` : ''}
           </div>
           ${isDigital ? `
             <div class="yb-account__download-area">
@@ -415,7 +415,7 @@
   // ── Logout ────────────────────────────────────────────────
   document.querySelectorAll('.js-logout').forEach(btn =>
     btn.addEventListener('click', () => {
-      sessionStorage.removeItem('yb-auth-customer');
+      clearCustomerSession();
       window.location.href = 'index.html';
     })
   );

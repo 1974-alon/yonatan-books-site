@@ -1709,7 +1709,7 @@
     .yb-auth-modal__close {
       position: absolute;
       top: 14px;
-      inset-inline-start: 14px;
+      left: 14px;
       background: none;
       border: none;
       font-size: 1.4rem;

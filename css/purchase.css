@@ -267,6 +267,38 @@
       font-weight: 600;
     }
 
+    /* ── Delivery price notice (under the delivery-type cards) ── */
+
+    .yb-delivery-price-notice {
+      margin-top: 18px;
+      padding: 16px 20px;
+      border-radius: var(--radius-md);
+      background: rgba(92, 140, 56, 0.06);
+      border: 1px solid rgba(92, 140, 56, 0.22);
+    }
+
+    .yb-delivery-price-notice[hidden] {
+      display: none;
+    }
+
+    .yb-delivery-price-notice__row {
+      margin: 0;
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.9rem;
+      color: var(--color-accent-dark);
+      font-weight: 600;
+      padding: 4px 0;
+    }
+
+    .yb-delivery-price-notice__row--total {
+      border-top: 1px solid rgba(92, 140, 56, 0.22);
+      margin-top: 4px;
+      padding-top: 10px;
+      font-weight: 800;
+      font-size: 0.98rem;
+    }
+
     .yb-field-note {
       grid-column: 1 / -1;
       margin: -4px 0 0;

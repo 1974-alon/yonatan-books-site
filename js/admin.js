@@ -470,6 +470,20 @@ function renderTableSkeleton(rows) {
     authorBio:        'site-author-bio'
   };
 
+  const PRICE_FIELD_MAP = {
+    book1Price:    'adm-content-book1-price',
+    book2Price:    'adm-content-book2-price',
+    shippingPrice: 'adm-content-shipping-price'
+  };
+
+  // אין אלמנט חי באתר לעלות המשלוח (היא לא מוצגת כברירת מחדל בעמוד הבית) —
+  // לכן יש לה נפילה חזרה קבועה, בניגוד לשדות האחרים שנשלפים תמיד מהאתר החי
+  const PRICE_LIVE_ID_MAP = {
+    book1Price: 'site-book1-price',
+    book2Price: 'site-book2-price'
+  };
+  const DEFAULT_SHIPPING_PRICE = 22;
+
   async function openContentModal() {
     modal.hidden = false;
 
@@ -491,6 +505,12 @@ function renderTableSkeleton(rows) {
         const el = liveDoc.getElementById(liveId);
         if (el) live[key] = el.textContent.trim();
       });
+      Object.entries(PRICE_LIVE_ID_MAP).forEach(([key, liveId]) => {
+        const el = liveDoc.getElementById(liveId);
+        if (!el) return;
+        const num = parseFloat(el.textContent.replace(/[^\d.]/g, ''));
+        if (Number.isFinite(num)) live[key] = num;
+      });
     } catch (err) {
       console.error('Failed to load live site content:', err);
     }
@@ -498,6 +518,13 @@ function renderTableSkeleton(rows) {
     Object.entries(FIELD_MAP).forEach(([key, id]) => {
       const el = document.getElementById(id);
       if (el) el.value = saved[key] || live[key] || '';
+    });
+
+    Object.entries(PRICE_FIELD_MAP).forEach(([key, id]) => {
+      const el = document.getElementById(id);
+      if (!el) return;
+      const fallback = key === 'shippingPrice' ? DEFAULT_SHIPPING_PRICE : '';
+      el.value = saved[key] ?? live[key] ?? fallback;
     });
   }
 
@@ -514,6 +541,10 @@ function renderTableSkeleton(rows) {
     Object.entries(FIELD_MAP).forEach(([key, id]) => {
       const el = document.getElementById(id);
       if (el) body[key] = el.value;
+    });
+    Object.entries(PRICE_FIELD_MAP).forEach(([key, id]) => {
+      const el = document.getElementById(id);
+      if (el && el.value !== '') body[key] = Number(el.value);
     });
 
     saveBtn.disabled = true;

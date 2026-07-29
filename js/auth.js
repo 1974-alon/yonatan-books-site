@@ -406,10 +406,10 @@ async function handleOtp() {
         sessionStorage.setItem('yb-admin-token', data.adminToken || '');
         window.location.href = 'admin.html';
       } else {
-        sessionStorage.setItem('yb-auth-customer', JSON.stringify({
+        saveCustomerSession({
           name:  pendingCustomer.name,
           phone: pendingPhone
-        }));
+        });
         window.location.href = 'account.html';
       }
     } catch {
@@ -440,10 +440,10 @@ async function handleOtp() {
         return;
       }
 
-      sessionStorage.setItem('yb-auth-customer', JSON.stringify({
+      saveCustomerSession({
         name:  pendingCustomer.name,
         email: pendingEmail
-      }));
+      });
       window.location.href = 'account.html';
     } catch {
       showOtpError('שגיאת תקשורת — נסה שוב.');
@@ -459,7 +459,7 @@ async function handleOtp() {
     return;
   }
 
-  sessionStorage.setItem('yb-auth-customer', JSON.stringify(pendingCustomer));
+  saveCustomerSession(pendingCustomer);
   window.location.href = 'account.html';
 }
 
@@ -534,7 +534,7 @@ function handleMyAreaClick() {
     document.body.style.overflow = '';
   }
 
-  if (sessionStorage.getItem('yb-auth-customer')) {
+  if (getCustomerSession()) {
     window.location.href = 'account.html';
   } else {
     openAuthModal();
@@ -556,12 +556,12 @@ authModal.addEventListener('keydown', e => { if (e.key === 'Escape') closeAuthMo
 // כדי שמשתמש שיצא מהאזור האישי ושכח להתנתק לא יצטרך להיכנס אליו שוב רק בשביל זה
 const headerLogoutLinks = document.querySelectorAll('.js-header-logout');
 if (headerLogoutLinks.length) {
-  if (sessionStorage.getItem('yb-auth-customer')) {
+  if (getCustomerSession()) {
     headerLogoutLinks.forEach(link => { link.hidden = false; });
   }
   headerLogoutLinks.forEach(link => {
     link.addEventListener('click', () => {
-      sessionStorage.removeItem('yb-auth-customer');
+      clearCustomerSession();
       headerLogoutLinks.forEach(l => { l.hidden = true; });
     });
   });

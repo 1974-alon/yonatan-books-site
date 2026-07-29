@@ -127,6 +127,12 @@
               </label>
 
             </div>
+
+            <div class="yb-delivery-price-notice" id="delivery-price-notice" hidden>
+              <p class="yb-delivery-price-notice__row">עלות הספר <span id="delivery-price-book"></span></p>
+              <p class="yb-delivery-price-notice__row">עלות משלוח <span id="delivery-price-shipping"></span></p>
+              <p class="yb-delivery-price-notice__row yb-delivery-price-notice__row--total">סה״כ <span id="delivery-price-total"></span></p>
+            </div>
           </div>
 
           <!-- ─────────────────────────────────────────────────
@@ -363,6 +369,7 @@
   <script src="js/admin-config.js"></script>
   <script src="js/footer.js"></script>
   <script src="js/app.js"></script>
+  <script src="js/session.js"></script>
   <script>
     /* =========================================================
        BOOK DATA + DYNAMIC BANNER
@@ -394,6 +401,12 @@
     const bookId = params.get('book') || 'book-01';
     const book   = BOOKS[bookId] || BOOKS['book-01'];
 
+    let SHIPPING_PRICE = 22;
+
+    function getTotalPrice(mode) {
+      return parseFloat(book.priceValue) + (mode === 'physical' ? SHIPPING_PRICE : 0);
+    }
+
     document.getElementById('banner-cover').style.background   = book.coverBg;
     document.getElementById('banner-cover-title').textContent  = book.title;
     document.getElementById('purchase-book-title').textContent = book.title;
@@ -413,7 +426,28 @@
       document.getElementById('banner-backdrop').style.backgroundImage = `url('${book.coverImg}')`;
     }
 
-    (function() {
+    // ── Pricing overrides from admin content management ────
+    // נטען לפני שהטופס האינטראקטיבי מאותחל, כדי שהמחיר המוצג ללקוח
+    // והסכום שנשלח בפועל לחיוב תמיד יהיו זהים למחיר העדכני שהוגדר בניהול
+    async function loadPricingOverrides() {
+      try {
+        const res  = await fetch('https://europe-west1-yonatan-books.cloudfunctions.net/getSiteContent');
+        const data = await res.json();
+        const c = data.content || {};
+        const priceKey = bookId === 'book-02' ? 'book2Price' : 'book1Price';
+        if (c[priceKey]) {
+          book.price      = `₪${c[priceKey]}`;
+          book.priceValue = `${c[priceKey]}.00`;
+          document.getElementById('banner-price').textContent = book.price;
+          document.getElementById('submit-price').textContent = book.price;
+        }
+        if (c.shippingPrice) SHIPPING_PRICE = c.shippingPrice;
+      } catch (err) {
+        console.error('Failed to load pricing overrides:', err);
+      }
+    }
+
+    function initPurchaseForm() {
 
     let activePaymentMethod = 'card';
 
@@ -424,11 +458,19 @@
     const bitReturnParams = new URLSearchParams(window.location.search);
     const isBitReturn      = bitReturnParams.get('success') === '1' && !!bitReturnParams.get('orderId');
 
-    function renderSuccessScreen() {
+    function renderSuccessScreen(total, isPhysical, shippingPrice) {
+      const priceLine = (typeof total === 'number')
+        ? (isPhysical
+            ? `<p style="color:#4a6a52;margin-bottom:2px;font-size:0.9rem;">עלות הספר ₪${total - shippingPrice}</p>
+               <p style="color:#4a6a52;margin-bottom:8px;font-size:0.9rem;">עלות משלוח ₪${shippingPrice}</p>
+               <p style="color:#2a1a0e;font-weight:700;margin-bottom:20px;">סה״כ שולם ₪${total}</p>`
+            : `<p style="color:#2a1a0e;font-weight:700;margin-bottom:20px;">סה״כ שולם: ₪${total}</p>`)
+        : '';
       document.getElementById('purchase-form').innerHTML = `
         <div style="text-align:center;padding:60px 24px;">
           <div style="font-size:3rem;margin-bottom:16px;">✓</div>
           <h2 style="font-size:1.6rem;margin-bottom:12px;">התשלום התקבל בהצלחה</h2>
+          ${priceLine}
           <p style="color:#4a6a52;margin-bottom:24px;">כדי לגשת לספר ולהוריד אותו — כנס לאזור האישי שלך.</p>
           <button type="button" onclick="document.getElementById('my-area-btn').click()" class="primary-button has-ripple" style="margin:0 auto;">
             כניסה לאזור האישי
@@ -467,7 +509,11 @@
       for (let attempt = 0; attempt < 15; attempt++) {
         try {
           const res = await fetch(`${CF_GET_ORDER}?orderId=${encodeURIComponent(orderId)}`);
-          if (res.ok) { renderSuccessScreen(); return; }
+          if (res.ok) {
+            const data = await res.json();
+            renderSuccessScreen(data.price, data.deliveryType === 'physical', data.shippingPrice || 0);
+            return;
+          }
         } catch { /* ננסה שוב */ }
         await new Promise(r => setTimeout(r, 2000));
       }
@@ -534,13 +580,23 @@
 
       shippingNotice.hidden = !isPhysical;
 
+      const deliveryPriceNotice = document.getElementById('delivery-price-notice');
+      deliveryPriceNotice.hidden = !isPhysical;
+
       if (isPhysical) {
         bannerFormatNote.textContent = 'שליחה בדואר · ספר פיזי';
         submitNote.textContent = 'תשלום מאובטח · הספר יישלח תוך 7 ימי עבודה';
+        document.getElementById('delivery-price-book').textContent     = book.price;
+        document.getElementById('delivery-price-shipping').textContent = `₪${SHIPPING_PRICE}`;
+        document.getElementById('delivery-price-total').textContent    = `₪${getTotalPrice(mode)}`;
       } else {
         bannerFormatNote.textContent = 'הורדה דיגיטלית · PDF / EPUB';
         submitNote.textContent = 'תשלום מאובטח · קישור הורדה יישלח לאחר אישור התשלום';
       }
+
+      const totalLabel = `₪${getTotalPrice(mode)}`;
+      document.getElementById('banner-price').textContent = totalLabel;
+      document.getElementById('submit-price').textContent = totalLabel;
     }
 
     document.querySelectorAll('input[name="delivery-type"]').forEach(radio => {
@@ -969,7 +1025,7 @@
       const buyerPhone= document.getElementById('phone').value.trim();
 
       // אם יש session פעיל של לקוח אחר באזור האישי, לא ממשיכים בשקט
-      const activeSession = JSON.parse(sessionStorage.getItem('yb-auth-customer') || 'null');
+      const activeSession = getCustomerSession();
       if (activeSession) {
         const sessionPhone = (activeSession.phone || '').replace(/[-\s]/g, '').replace(/^\+972/, '0');
         const sessionEmail = (activeSession.email || '').trim().toLowerCase();
@@ -980,7 +1036,7 @@
         if (!samePerson) {
           const outcome = await askSessionConflict(activeSession.name);
           if (outcome === 'cancel') return;
-          sessionStorage.removeItem('yb-auth-customer');
+          clearCustomerSession();
           if (outcome === 'logout-only') return;
           // outcome === 'continue' — ממשיכים ישר לרכישה עם הפרטים החדשים
         }
@@ -1040,7 +1096,7 @@
           payerSocialId:  idNum,
           total: {
             label: book.title,
-            amount: { currency: 'ILS', value: book.priceValue }
+            amount: { currency: 'ILS', value: getTotalPrice(mode).toFixed(2) }
           }
         });
 
@@ -1065,7 +1121,7 @@
         }
 
         // הצגת הצלחה רק לאחר חיוב מוצלח
-        renderSuccessScreen();
+        renderSuccessScreen(getTotalPrice(mode), mode === 'physical', mode === 'physical' ? SHIPPING_PRICE : 0);
 
       } catch (err) {
         console.error('Payment error:', err);
@@ -1093,7 +1149,9 @@
 
     handleBitReturn();
 
-    })(); // end !isSuccess block
+    } // end initPurchaseForm
+
+    loadPricingOverrides().finally(initPurchaseForm);
   </script>
 
   <div class="yb-auth-modal" id="auth-modal" role="dialog" aria-modal="true" aria-labelledby="auth-modal-title" hidden>
