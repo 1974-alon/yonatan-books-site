@@ -218,6 +218,32 @@ body {
   opacity: 0.4;
 }
 
+/* ── Header — mobile ─────────────────────────────────── */
+@media (max-width: 700px) {
+  .adm-header {
+    padding: 0 14px;
+  }
+
+  .adm-header__center {
+    display: none;
+  }
+
+  .adm-header__back {
+    font-size: 0.74rem;
+  }
+
+  .adm-header__right-group {
+    gap: 8px;
+  }
+
+  .adm-header__content-btn,
+  .adm-header__logout {
+    font-size: 0.72rem;
+    padding: 5px 10px;
+    width: auto;
+  }
+}
+
 /* ── Layout ──────────────────────────────────────────── */
 .adm-main {
   max-width: 1280px;

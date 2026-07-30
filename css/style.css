@@ -1516,6 +1516,11 @@
         min-height: 68px;
       }
 
+      .yb-header__brand {
+        gap: 8px;
+        font-size: clamp(12px, 10.5vw - 25.5px, 18px);
+      }
+
       .yb-header__mini-button:nth-child(1) {
         display: none;
       }
@@ -1539,7 +1544,8 @@
       }
 
       .yb-book-card__cover {
-        max-width: 210px;
+        width: 210px;
+        margin: 0 auto;
       }
 
       .yb-testimonial {
@@ -1560,6 +1566,30 @@
       .yb-author-modal__close {
         top: 14px;
         left: 14px;
+      }
+
+      .yb-footer__inner {
+        position: static;
+        flex-direction: column;
+        align-items: center;
+        gap: 34px;
+        min-height: 0;
+        padding: 24px 0;
+        text-align: center;
+      }
+
+      .yb-footer__end {
+        position: static;
+        transform: none;
+      }
+
+      .yb-footer__credit {
+        margin-right: 0;
+      }
+
+      .yb-footer__links {
+        flex-wrap: wrap;
+        justify-content: center;
       }
     }
 
