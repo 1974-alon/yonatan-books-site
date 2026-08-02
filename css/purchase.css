@@ -674,7 +674,8 @@
         flex-direction: column;
       }
 
-      .yb-field-row .yb-field--phone {
+      .yb-field-row .yb-field--phone,
+      .yb-field-row .yb-field--email {
         flex: 0 0 auto;
         width: 100%;
       }
