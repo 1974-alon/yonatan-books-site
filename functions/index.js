@@ -100,6 +100,29 @@ function requireAdmin(req, res, secret) {
   return true;
 }
 
+// ── sendOtp rate limit ──────────────────────────────────────
+// שליחת SMS עולה כסף בפועל (חשבון Vonage) — מניעת הצפה של אותו טלפון/מייל:
+// עד בקשה אחת ב-60 שניות, ועד 8 בקשות ביום לאותו מזהה.
+async function checkOtpRateLimit(identifier) {
+  const ref  = db.collection('otp_rate_limit').doc(identifier.replace(/\//g, '_'));
+  const now  = Date.now();
+  const today = new Date().toISOString().slice(0, 10);
+
+  const snap = await ref.get();
+  const data = snap.exists ? snap.data() : null;
+
+  if (data && now - (data.lastSentAt || 0) < 60 * 1000) {
+    return false;
+  }
+  const count = data && data.day === today ? (data.count || 0) : 0;
+  if (count >= 8) {
+    return false;
+  }
+
+  await ref.set({ lastSentAt: now, day: today, count: count + 1 });
+  return true;
+}
+
 // ── sendOtp ───────────────────────────────────────────────
 exports.sendOtp = onRequest(
   { secrets: [VONAGE_SECRET, GMAIL_PASS], cors: ALLOWED_ORIGINS, region: 'europe-west1' },
@@ -107,6 +130,11 @@ exports.sendOtp = onRequest(
     if (req.method !== 'POST') { res.status(405).end(); return; }
     const { phone, email } = req.body;
     if (!phone && !email) { res.status(400).json({ error: 'missing_identifier' }); return; }
+
+    const rateLimitId = phone || email.toLowerCase().trim();
+    if (!(await checkOtpRateLimit(rateLimitId))) {
+      res.status(429).json({ error: 'rate_limited' }); return;
+    }
 
     if (email) {
       const to  = email.toLowerCase().trim();

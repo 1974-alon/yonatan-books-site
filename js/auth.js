@@ -50,7 +50,7 @@ async function sendOtp(phone, email) {
     headers: { 'Content-Type': 'application/json' },
     body:    JSON.stringify(phone ? { phone } : { email })
   });
-  if (!res.ok) throw new Error('otp_send_failed');
+  if (!res.ok) throw new Error(res.status === 429 ? 'otp_rate_limited' : 'otp_send_failed');
 }
 
 // בדיקה לפני שליחת קוד אימות (SMS/מייל עולים בפועל בכסף) —
@@ -324,9 +324,12 @@ async function handleIdentify() {
       pendingCustomer = { name };
       otpHintEl.textContent = 'שלחנו קוד אימות לטלפון שלך';
       showAuthStep('otp');
+      startResendCooldown(60);
       otpBoxes[0].focus();
-    } catch {
-      authLookupError.textContent = 'שגיאה בשליחת קוד — נסה שוב';
+    } catch (err) {
+      authLookupError.textContent = err.message === 'otp_rate_limited'
+        ? 'נשלחו כבר מספר קודים לטלפון הזה. נסו שוב בעוד כמה דקות.'
+        : 'שגיאה בשליחת קוד — נסה שוב';
       authLookupError.hidden = false;
     } finally {
       authIdentifySubmit.disabled = false;
@@ -357,9 +360,12 @@ async function handleIdentify() {
     pendingCustomer = { name };
     otpHintEl.textContent = `שלחנו קוד אימות ל${contactEl.value.trim()}`;
     showAuthStep('otp');
+    startResendCooldown(60);
     otpBoxes[0].focus();
-  } catch {
-    authLookupError.textContent = 'שגיאה בשליחת קוד — נסה שוב';
+  } catch (err) {
+    authLookupError.textContent = err.message === 'otp_rate_limited'
+      ? 'נשלחו כבר מספר קודים לכתובת הזו. נסו שוב בעוד כמה דקות.'
+      : 'שגיאה בשליחת קוד — נסה שוב';
     authLookupError.hidden = false;
   } finally {
     authIdentifySubmit.disabled = false;
@@ -492,9 +498,11 @@ authOtpResend.addEventListener('click', async () => {
     await sendOtp(pendingPhone, pendingEmail);
     authOtpResendStatus.textContent = 'קוד נשלח שוב';
     authOtpResendStatus.hidden = false;
-    startResendCooldown(30);
-  } catch {
-    authOtpResendStatus.textContent = 'שליחה נכשלה — נסה שוב';
+    startResendCooldown(60);
+  } catch (err) {
+    authOtpResendStatus.textContent = err.message === 'otp_rate_limited'
+      ? 'נשלחו כבר מספר קודים. נסו שוב בעוד כמה דקות.'
+      : 'שליחה נכשלה — נסה שוב';
     authOtpResendStatus.hidden = false;
     authOtpResend.disabled = false;
   }
