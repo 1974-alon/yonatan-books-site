@@ -24,11 +24,11 @@
     t.src=v;s=b.getElementsByTagName(e)[0];
     s.parentNode.insertBefore(t,s)}(window, document,'script',
     'https://connect.facebook.net/en_US/fbevents.js');
-    fbq('init', '1767884804407190');
+    fbq('init', '2123770995222395');
     fbq('track', 'PageView');
   </script>
   <noscript><img height="1" width="1" style="display:none"
-    src="https://www.facebook.com/tr?id=1767884804407190&ev=PageView&noscript=1"
+    src="https://www.facebook.com/tr?id=2123770995222395&ev=PageView&noscript=1"
   /></noscript>
   <!-- End Meta Pixel Code -->
 
@@ -477,6 +477,36 @@
     const bitReturnParams = new URLSearchParams(window.location.search);
     const isBitReturn      = bitReturnParams.get('success') === '1' && !!bitReturnParams.get('orderId');
 
+    /* =========================================================
+       META PIXEL — אירועי המרה (InitiateCheckout / Purchase)
+    ========================================================= */
+
+    function trackPixel(eventName, data, eventID) {
+      if (typeof fbq !== 'function') return;
+      fbq('track', eventName, data, eventID ? { eventID } : undefined);
+    }
+
+    function trackPurchase(total, orderId) {
+      if (typeof total !== 'number') return;
+      trackPixel('Purchase', {
+        value: total,
+        currency: 'ILS',
+        content_ids: [bookId],
+        content_name: book.title,
+        content_type: 'product'
+      }, orderId);
+    }
+
+    if (!isBitReturn) {
+      trackPixel('InitiateCheckout', {
+        value: parseFloat(book.priceValue),
+        currency: 'ILS',
+        content_ids: [bookId],
+        content_name: book.title,
+        content_type: 'product'
+      });
+    }
+
     function renderSuccessScreen(total, isPhysical, shippingPrice) {
       const priceLine = (typeof total === 'number')
         ? (isPhysical
@@ -531,6 +561,7 @@
           if (res.ok) {
             const data = await res.json();
             renderSuccessScreen(data.price, data.deliveryType === 'physical', data.shippingPrice || 0);
+            trackPurchase(data.price, orderId);
             return;
           }
         } catch { /* ננסה שוב */ }
@@ -1141,6 +1172,8 @@
 
         // הצגת הצלחה רק לאחר חיוב מוצלח
         renderSuccessScreen(getTotalPrice(mode), mode === 'physical', mode === 'physical' ? SHIPPING_PRICE : 0);
+        const confirmData = await confirmRes.json().catch(() => ({}));
+        trackPurchase(getTotalPrice(mode), confirmData.orderId);
 
       } catch (err) {
         console.error('Payment error:', err);
